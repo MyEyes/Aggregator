@@ -43,9 +43,9 @@ class Subject(db.Model):
 class SubjectAltNames(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     subj_id = db.Column(db.Integer, db.ForeignKey('subject.id'))
-    name = db.Column(db.String, index=True)
+    name = db.Column(db.Text, index=True)
 
 class SubjectAltPaths(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     subj_id = db.Column(db.Integer, db.ForeignKey('subject.id'))
-    path = db.Column(db.String, index=True)
+    path = db.Column(db.Text, index=True)

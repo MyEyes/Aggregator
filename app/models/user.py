@@ -8,8 +8,8 @@ import hashlib
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key = True)
 
-    name = db.Column(db.String, unique = True)
-    pass_hash = db.Column(db.String)
+    name = db.Column(db.String(64), unique = True)
+    pass_hash = db.Column(db.String(256))
 
     tokens = db.relationship('UserApiToken', backref='user', lazy='dynamic')
 

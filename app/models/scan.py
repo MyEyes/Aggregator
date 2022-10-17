@@ -8,7 +8,7 @@ class Scan(db.Model):
     results = db.relationship('ScanResult', backref='scan', lazy='dynamic')
     duplicates = db.relationship('DuplicateScanResult', backref='scan', lazy='dynamic')
 
-    arguments = db.Column(db.String, index=True)
+    arguments = db.Column(db.Text, index=True)
 
     soft_match_hash = db.Column(db.String(256), index=True)
     hard_match_hash = db.Column(db.String(256), index=True, unique=True)
@@ -24,9 +24,9 @@ class ScanResult(db.Model):
 
     duplicates = db.relationship('DuplicateScanResult', backref='original_result', lazy='dynamic')
 
-    raw_text = db.Column(db.String, index=True)
-    scan_risk_text = db.Column(db.String)
-    manual_risk_text = db.Column(db.String)
+    raw_text = db.Column(db.Text, index=True)
+    scan_risk_text = db.Column(db.String(50))
+    manual_risk_text = db.Column(db.String(50))
 
     soft_match_hash = db.Column(db.String(256), index=True)
     hard_match_hash = db.Column(db.String(256), index=True, unique=True)
