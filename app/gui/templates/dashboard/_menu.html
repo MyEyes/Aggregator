@@ -1,0 +1,7 @@
+<h1>Aggregator - Dashboard</h1>
+<div>
+    <a class="btn btn-default {% if scans %} active {% endif %}" href="{{ url_for('gui.scans_dashboard') }}" role="button">Scans</a>
+    <a class="btn btn-default {% if subjects %} active {% endif %}" href="{{ url_for('gui.subjects_dashboard') }}" role="button">Subjects</a>
+    <a class="btn btn-default {% if tools %} active {% endif %}" href="{{ url_for('gui.tools_dashboard') }}" role="button">Tools</a>
+    <a class="btn btn-default {% if results %} active {% endif %}" href="{{ url_for('gui.results_dashboard') }}" role="button">Results</a>
+</div>

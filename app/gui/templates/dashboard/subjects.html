@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block app_content %}
+    {% include 'dashboard/_menu.html' %}
+    <table class="table table-bordered table-hover">
+        <thead class="thead-light">
+            <tr>
+                <th scope="col" class="col-md-1">Id</th>
+                <th scope="col">Name</th>
+                <th scope="col">Host</th>
+                <th scope="col">Paths</th>
+                <th scope="col">Results</th>
+                <th scope="col">Created At</th>
+            </tr>
+        </thead>
+        {% for subject in subjects %}
+            <tr>
+                <td scope="col">{{ subject.id }}</td>
+                <td scope="col">{{ subject.name }}</td>
+                <td scope="col">{{ subject.host }}</td>
+                <td scope="col">
+                    <a data-toggle="collapse" data-target="{{ '#path-collapse-'+subject.id.__str__() }}">{{ subject.altPaths.first().path|truncate(50) }}</a>
+                    <div id="{{ 'path-collapse-'+subject.id.__str__() }}" class="collapse">
+                        <ul>
+                        {% for path in subject.altPaths %}
+                            <li>{{ path.path }}</li>
+                        {% endfor %}
+                        </ul>
+                    </div>
+                </td>
+                <td scope="col">{{ subject.results|list|length }}</td>
+                <td scope="col">{{ subject.created_at.strftime("%m/%d/%Y, %H:%M:%S")}}</td>
+            </tr>
+        {% endfor %}
+    </table>
+{% endblock %}

@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block app_content %}
+    {% include 'dashboard/_menu.html' %}
+    <table class="table table-bordered table-hover">
+        <thead class="thead-light">
+            <tr>
+                <th scope="col" class="col-md-1">Id</th>
+                <th scope="col">Name</th>
+                <th scope="col">Version</th>
+                <th scope="col">Scans</th>
+            </tr>
+        </thead>
+        {% for tool in tools %}
+            <tr>
+                <td scope="col">{{ tool.id }}</th>
+                <td scope="col">{{ tool.name }}</th>
+                <td scope="col">{{ tool.version }}</th>
+                <td scope="col">{{ tool.scans|list|length }}</th>
+            </tr>
+        {% endfor %}
+    </table>
+{% endblock %}
