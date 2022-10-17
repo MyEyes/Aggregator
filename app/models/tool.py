@@ -5,10 +5,10 @@ from datetime import datetime
 class Tool(db.Model):
     id = db.Column(db.Integer, primary_key=True)
 
-    name = db.Column(db.String, index=True)
-    description =  db.Column(db.String)
+    name = db.Column(db.String(128), index=True)
+    description =  db.Column(db.Text)
 
-    version = db.Column(db.String)
+    version = db.Column(db.String(32))
     prev_version_id = db.Column(db.Integer)
     next_version_id = db.Column(db.Integer)
 
