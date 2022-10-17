@@ -5,16 +5,16 @@ from datetime import datetime
 class Subject(db.Model):
     id = db.Column(db.Integer, primary_key=True)
 
-    name = db.Column(db.String, index=True)
+    name = db.Column(db.String(256), index=True)
     altNames = db.relationship('SubjectAltNames', backref='subject', lazy='dynamic')
 
-    host = db.Column(db.String, index=True)
+    host = db.Column(db.String(256), index=True)
     altPaths = db.relationship('SubjectAltPaths', backref='subject', lazy='dynamic')
 
     results = db.relationship('ScanResult', backref='subject', lazy='dynamic')
     duplicates = db.relationship('DuplicateScanResult', backref='subject', lazy='dynamic')
 
-    version = db.Column(db.String)
+    version = db.Column(db.String(32))
     prev_version_id = db.Column(db.Integer)
     next_version_id = db.Column(db.Integer)
 
