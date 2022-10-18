@@ -5,7 +5,7 @@
     <table class="table table-bordered table-hover">
         <thead class="thead-light">
             <tr>
-                <th scope="col" class="col-md-1">Id</th>
+                <th scope="col" class="col-md-1">State</th>
                 <th scope="col">Risk</th>
                 <th scope="col">Subject</th>
                 <th scope="col">Created At</th>
@@ -14,9 +14,9 @@
         </thead>
         {% for result in results %}
             <tr>
-                <td scope="col">{{ result.id }}</th>
+                <td scope="col">{{ result.state }}</th>
                 <td scope="col">{{ result.scan_risk_text }}</th>
-                <td scope="col">{{ result.subject.name|truncate(40) }}</th>
+                <td scope="col"><a href="{{ url_for('gui.subject', id=result.subject.id) }}">{{ result.subject.name|truncate(40) }}</a></th>
                 <td scope="col">{{ result.created_at.strftime("%m/%d/%Y, %H:%M:%S")}}</th>
                 <td scope="col"><pre>{{ result.raw_text }}</pre></th>
             </tr>

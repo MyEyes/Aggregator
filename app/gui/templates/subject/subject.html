@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+
+{% block app_content %}
+    <h1>{{ title }}</h1>
+    <div class="panel-group">
+        <div class="panel panel-info">
+            <div class="panel-heading">
+                <h3 class="panel-title">
+                    <a data-toggle="collapse" href="#info-panel-collapse">Subject info</a>
+                </h3>
+            </div>
+            <div id="info-panel-collapse" class="panel-collapse collapse in">
+                <div id="info-panel" class="panel-body">
+                    <div class="col-md-3">
+                        <div class="panel panel-default">
+                            <div class="panel-heading"><h4 class="panel-title">Name</h4></div>
+                            <div class="panel-body">{{ subject.name }}</div>
+                        </div>
+                    </div>
+                    <div class="col-md-9">
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <h4 class="panel-title">
+                                    <a data-toggle="collapse" href="#path-panel-collapse">Known Paths <span class="badge">{{ subject.altPaths|list|length }}</span></a>
+                                </h4>
+                            </div>
+                            <div id="path-panel-collapse" class="panel-collapse collapse">
+                                <div class="panel-body">
+                                    <ul>
+                                        {% for path in subject.altPaths %}
+                                            <li>{{ path.path }}</li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <h2>Results</h2>
+    <div class="panel-group">
+        <div class="panel panel-info">
+            <div class="panel-heading">
+                <h3 class="panel-title">
+                    <a data-toggle="collapse" href="#open-results-collapse">Open <span class="badge">{{ subject.results.filter_by(state="open")|list|length }}</a>
+
+                </h3>
+            </div>
+            <div id="open-results-collapse" class="panel-collapse collapse in">
+                <table class="table table-bordered table-hover">
+                    {% include 'scan/_result_panel_header.html' %}
+                    {% for result in subject.results.filter_by(state="open") %}
+                        {% include 'scan/_result_panel.html' %}
+                    {% endfor %}
+                </table>
+            </div>
+        </div>
+        <div class="panel panel-info">
+            <div class="panel-heading">
+                <h3 class="panel-title">
+                    <a data-toggle="collapse" href="#confirmed-results-collapse">Undecided <span class="badge">{{ subject.results.filter_by(state="undecided")|list|length }}</span></a>
+                </h3>
+            </div>
+            <div id="confirmed-results-collapse" class="panel-collapse collapse">
+                <table class="table table-bordered table-hover">
+                    {% include 'scan/_result_panel_header.html' %}
+                    {% for result in subject.results.filter_by(state="undecided") %}
+                        {% include 'scan/_result_panel.html' %}
+                    {% endfor %}
+                </table>
+            </div>
+        </div>
+        <div class="panel panel-info">
+            <div class="panel-heading">
+                <h3 class="panel-title">
+                    <a data-toggle="collapse" href="#confirmed-results-collapse">Confirmed <span class="badge">{{ subject.results.filter_by(state="confirmed")|list|length }}</a>
+                </h3>
+            </div>
+            <div id="confirmed-results-collapse" class="panel-collapse collapse">
+                <table class="table table-bordered table-hover">
+                    {% include 'scan/_result_panel_header.html' %}
+                    {% for result in subject.results.filter_by(state="confirmed") %}
+                        {% include 'scan/_result_panel.html' %}
+                    {% endfor %}
+                </table>
+            </div>
+        </div>
+        <div class="panel panel-info">
+            <div class="panel-heading">
+                <h3 class="panel-title">
+                    <a data-toggle="collapse" href="#confirmed-results-collapse">Rejected <span class="badge">{{ subject.results.filter_by(state="rejected")|list|length }}</a>
+                </h3>
+            </div>
+            <div id="confirmed-results-collapse" class="panel-collapse collapse">
+                <table class="table table-bordered table-hover">
+                    {% include 'scan/_result_panel_header.html' %}
+                    {% for result in subject.results.filter_by(state="rejected") %}
+                        {% include 'scan/_result_panel.html' %}
+                    {% endfor %}
+                </table>
+            </div>
+        </div>
+    </div>
+{% endblock %}

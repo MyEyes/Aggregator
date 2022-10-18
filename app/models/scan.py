@@ -28,10 +28,17 @@ class ScanResult(db.Model):
     scan_risk_text = db.Column(db.String(50))
     manual_risk_text = db.Column(db.String(50))
 
+    state = db.Column(db.String(32), index=True, default="open")
+
     soft_match_hash = db.Column(db.String(256), index=True)
     hard_match_hash = db.Column(db.String(256), index=True, unique=True)
 
     created_at = db.Column(db.DateTime, default = datetime.utcnow)
+
+    def set_state(new_state):
+        valid_states = ["open","confirmed","rejected","undecided"]
+        if new_state in valid_states:
+            self.state = new_state
 
 class DuplicateScanResult(db.Model):
     id = db.Column(db.Integer, primary_key = True)

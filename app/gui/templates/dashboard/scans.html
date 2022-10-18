@@ -16,14 +16,14 @@
         </thead>
         {% for scan in scans %}
             <tr>
-                <td scope="col">{{ scan.id }}</th>
+                <td scope="col"><a href="{{ url_for('gui.scan', id=scan.id) }}">{{ scan.id }}</a></th>
                 <td scope="col">{{ scan.tool.name }}</th>
                 <td scope="col">{{ scan.arguments }}</th>
                 <td scope="col">{{ scan.results|list|length }}</td>
                 <td scope="col" class="text-muted">{{ scan.duplicates|list|length }}</td>
-                <td scope="col">{{ scan.started_at.strftime("%m/%d/%Y, %H:%M:%S")}}</th>
+                <td scope="col">{{ scan.started_at.strftime("%m/%d/%Y, %H:%M:%S") }}</th>
                 {% if scan.finished_at %}
-                    <td scope="col">{{ scan.finished_at.strftime("%m/%d/%Y, %H:%M:%S")}}</th>
+                    <td scope="col">{{ scan.finished_at.strftime("%m/%d/%Y, %H:%M:%S") }}</th>
                 {% else %}
                     <td scope="col"></th>
                 {% endif %}
