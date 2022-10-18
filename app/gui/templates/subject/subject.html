@@ -39,6 +39,51 @@
             </div>
         </div>
     </div>
+    <div class="panel-group">
+        <div class="panel panel-info">
+            <div class="panel-heading">
+                <h2 class="panel-title">
+                    <a data-toggle="collapse" href="#soft-matches-collapse">Soft Matches</a>
+
+                </h2>
+            </div>
+            <div id="soft-matches-collapse" class="panel-collapse collapse">
+                <table class="table table-bordered table-hover">
+                    <table class="table table-bordered table-hover">
+                        <thead class="thead-light">
+                            <tr>
+                                <th scope="col" class="col-md-1">Id</th>
+                                <th scope="col">Name</th>
+                                <th scope="col">Host</th>
+                                <th scope="col">Paths</th>
+                                <th scope="col">Results</th>
+                                <th scope="col">Created At</th>
+                            </tr>
+                        </thead>
+                        {% for match in soft_matches %}
+                            <tr>
+                                <td scope="col">{{ match.id }}</td>
+                                <td scope="col"><a href="{{ url_for('gui.subject', id=match.id) }}">{{ match.name }}</a></td>
+                                <td scope="col">{{ match.host }}</td>
+                                <td scope="col">
+                                    <a data-toggle="collapse" data-target="{{ '#path-collapse-'+match.id.__str__() }}">{{ match.altPaths.first().path|truncate(50) }}</a>
+                                    <div id="{{ 'path-collapse-'+match.id.__str__() }}" class="collapse">
+                                        <ul>
+                                        {% for path in match.altPaths %}
+                                            <li>{{ path.path }}</li>
+                                        {% endfor %}
+                                        </ul>
+                                    </div>
+                                </td>
+                                <td scope="col">{{ match.results|list|length }}</td>
+                                <td scope="col">{{ match.created_at.strftime("%m/%d/%Y, %H:%M:%S")}}</td>
+                            </tr>
+                        {% endfor %}
+                    </table>
+                </table>
+            </div>
+        </div>
+    </div>
     <h2>Results</h2>
     <div class="panel-group">
         <div class="panel panel-info">

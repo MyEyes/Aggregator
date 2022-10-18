@@ -9,4 +9,5 @@ from app.models.tool import Tool
 @login_required
 def subject(id):
     subject = Subject.query.filter_by(id=id).first()
-    return render_template('subject/subject.html', title='Subject - '+subject.name, user=current_user, subject=subject)
+    soft_matches = Subject.query.filter_by(soft_match_hash=subject.soft_match_hash)
+    return render_template('subject/subject.html', title='Subject - '+subject.name, user=current_user, subject=subject, soft_matches=soft_matches)
