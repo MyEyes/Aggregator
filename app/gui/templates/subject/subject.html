@@ -60,10 +60,10 @@
         <div class="panel panel-info">
             <div class="panel-heading">
                 <h3 class="panel-title">
-                    <a data-toggle="collapse" href="#confirmed-results-collapse">Undecided <span class="badge">{{ subject.results.filter_by(state="undecided")|list|length }}</span></a>
+                    <a data-toggle="collapse" href="#undecided-results-collapse">Undecided <span class="badge">{{ subject.results.filter_by(state="undecided")|list|length }}</span></a>
                 </h3>
             </div>
-            <div id="confirmed-results-collapse" class="panel-collapse collapse">
+            <div id="undecided-results-collapse" class="panel-collapse collapse">
                 <table class="table table-bordered table-hover">
                     {% include 'scan/_result_panel_header.html' %}
                     {% for result in subject.results.filter_by(state="undecided") %}
@@ -90,10 +90,10 @@
         <div class="panel panel-info">
             <div class="panel-heading">
                 <h3 class="panel-title">
-                    <a data-toggle="collapse" href="#confirmed-results-collapse">Rejected <span class="badge">{{ subject.results.filter_by(state="rejected")|list|length }}</a>
+                    <a data-toggle="collapse" href="#rejected-results-collapse">Rejected <span class="badge">{{ subject.results.filter_by(state="rejected")|list|length }}</a>
                 </h3>
             </div>
-            <div id="confirmed-results-collapse" class="panel-collapse collapse">
+            <div id="rejected-results-collapse" class="panel-collapse collapse">
                 <table class="table table-bordered table-hover">
                     {% include 'scan/_result_panel_header.html' %}
                     {% for result in subject.results.filter_by(state="rejected") %}
@@ -103,4 +103,5 @@
             </div>
         </div>
     </div>
+    {% include 'scan/_result_click_script.html' %}
 {% endblock %}

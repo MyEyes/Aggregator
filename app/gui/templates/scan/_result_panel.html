@@ -1,8 +1,11 @@
 <tr>
-    <td scope="col">
-        <a href="#"><span class="glyphicon glyphicon-ok" aria-hidden="true"></span></a>
-        <a href="#"><span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span></a>
-        <a href="#"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></a>
+    <td scope="col" id="result-{{ result.id }}">
+        <a href="javascript:update_state({{result.id }}, 'confirmed')"><span id="result-{{ result.id }}-confirmed" class="glyphicon glyphicon-ok" aria-hidden="true"
+            {% if result.state == 'confirmed' %}style="color: green"{% else %}style="color: gray"{% endif %}></span></a>
+        <a href="javascript:update_state({{result.id }}, 'undecided')"><span id="result-{{ result.id }}-undecided" class="glyphicon glyphicon-eye-open" aria-hidden="true" 
+            {% if result.state == 'undecided' %}style="color: green"{% else %}style="color: gray"{% endif %}></span></a>
+        <a href="javascript:update_state({{result.id }}, 'rejected')"><span id="result-{{ result.id }}-rejected" class="glyphicon glyphicon-remove" aria-hidden="true"
+            {% if result.state == 'rejected' %}style="color: green"{% else %}style="color: gray"{% endif %} ></span></a>
     </td>
     <td scope="col">{{ result.scan_risk_text }}</th>
     <td scope="col"><a href="{{ url_for('gui.subject', id=result.subject.id) }}">{{ result.subject.name|truncate(40) }}</a></td>

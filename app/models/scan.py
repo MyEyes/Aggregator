@@ -35,7 +35,7 @@ class ScanResult(db.Model):
 
     created_at = db.Column(db.DateTime, default = datetime.utcnow)
 
-    def set_state(new_state):
+    def set_state(self, new_state):
         valid_states = ["open","confirmed","rejected","undecided"]
         if new_state in valid_states:
             self.state = new_state
