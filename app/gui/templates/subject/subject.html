@@ -96,7 +96,7 @@
             <div id="open-results-collapse" class="panel-collapse collapse in">
                 <table class="table table-bordered table-hover">
                     {% include 'result/_result_panel_header.html' %}
-                    {% for result in subject.results.filter_by(state="open") %}
+                    {% for result in results.filter_by(state="open") %}
                         {% include 'result/_result_panel.html' %}
                     {% endfor %}
                 </table>
@@ -111,7 +111,7 @@
             <div id="undecided-results-collapse" class="panel-collapse collapse">
                 <table class="table table-bordered table-hover">
                     {% include 'result/_result_panel_header.html' %}
-                    {% for result in subject.results.filter_by(state="undecided") %}
+                    {% for result in results.filter_by(state="undecided") %}
                         {% include 'result/_result_panel.html' %}
                     {% endfor %}
                 </table>
@@ -126,7 +126,7 @@
             <div id="confirmed-results-collapse" class="panel-collapse collapse">
                 <table class="table table-bordered table-hover">
                     {% include 'result/_result_panel_header.html' %}
-                    {% for result in subject.results.filter_by(state="confirmed") %}
+                    {% for result in results.filter_by(state="confirmed") %}
                         {% include 'result/_result_panel.html' %}
                     {% endfor %}
                 </table>
@@ -141,7 +141,7 @@
             <div id="rejected-results-collapse" class="panel-collapse collapse">
                 <table class="table table-bordered table-hover">
                     {% include 'result/_result_panel_header.html' %}
-                    {% for result in subject.results.filter_by(state="rejected") %}
+                    {% for result in results.filter_by(state="rejected") %}
                         {% include 'result/_result_panel.html' %}
                     {% endfor %}
                 </table>
