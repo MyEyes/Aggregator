@@ -2,32 +2,35 @@
 
 {% block app_content %}
     {% include 'dashboard/_menu.html' %}
-    <table class="table table-bordered table-hover">
-        <thead class="thead-light">
-            <tr>
-                <th scope="col" class="col-md-1">Id</th>
-                <th scope="col">Tool</th>
-                <th scope="col">Arguments</th>
-                <th scope="col">New</th>
-                <th scope="col">Old</th>
-                <th scope="col">Started At</th>
-                <th scope="col">Finished At</th>
-            </tr>
-        </thead>
-        {% for scan in scans %}
-            <tr>
-                <td scope="col"><a href="{{ url_for('gui.scan', id=scan.id) }}">{{ scan.id }}</a></th>
-                <td scope="col">{{ scan.tool.name }}</th>
-                <td scope="col">{{ scan.arguments }}</th>
-                <td scope="col">{{ scan.results|list|length }}</td>
-                <td scope="col" class="text-muted">{{ scan.duplicates|list|length }}</td>
-                <td scope="col">{{ scan.started_at.strftime("%m/%d/%Y, %H:%M:%S") }}</th>
-                {% if scan.finished_at %}
-                    <td scope="col">{{ scan.finished_at.strftime("%m/%d/%Y, %H:%M:%S") }}</th>
-                {% else %}
-                    <td scope="col"></th>
-                {% endif %}
-            </tr>
-        {% endfor %}
-    </table>
+    <div class="panel-group">
+        {% include 'util/_pagination_nav.html' %}
+        <table class="table table-bordered table-hover">
+            <thead class="thead-light">
+                <tr>
+                    <th scope="col" class="col-md-1">Id</th>
+                    <th scope="col">Tool</th>
+                    <th scope="col">Arguments</th>
+                    <th scope="col">New</th>
+                    <th scope="col">Old</th>
+                    <th scope="col">Started At</th>
+                    <th scope="col">Finished At</th>
+                </tr>
+            </thead>
+            {% for scan in scans %}
+                <tr>
+                    <td scope="col"><a href="{{ url_for('gui.scan', id=scan.id) }}">{{ scan.id }}</a></th>
+                    <td scope="col">{{ scan.tool.name }}</th>
+                    <td scope="col">{{ scan.arguments }}</th>
+                    <td scope="col">{{ scan.results|list|length }}</td>
+                    <td scope="col" class="text-muted">{{ scan.duplicates|list|length }}</td>
+                    <td scope="col">{{ scan.started_at.strftime("%m/%d/%Y, %H:%M:%S") }}</th>
+                    {% if scan.finished_at %}
+                        <td scope="col">{{ scan.finished_at.strftime("%m/%d/%Y, %H:%M:%S") }}</th>
+                    {% else %}
+                        <td scope="col"></th>
+                    {% endif %}
+                </tr>
+            {% endfor %}
+        </table>
+    </div>
 {% endblock %}

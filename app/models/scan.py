@@ -16,6 +16,9 @@ class Scan(db.Model):
     started_at = db.Column(db.DateTime, default = datetime.utcnow)
     finished_at = db.Column(db.DateTime, default = None)
 
+    def __repr__(self):
+        return f"Scan {self.id} - {self.tool.name}"
+
 class ScanResult(db.Model):
     id = db.Column(db.Integer, primary_key = True)
 

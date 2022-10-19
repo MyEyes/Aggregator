@@ -95,9 +95,9 @@
             </div>
             <div id="open-results-collapse" class="panel-collapse collapse in">
                 <table class="table table-bordered table-hover">
-                    {% include 'scan/_result_panel_header.html' %}
+                    {% include 'result/_result_panel_header.html' %}
                     {% for result in subject.results.filter_by(state="open") %}
-                        {% include 'scan/_result_panel.html' %}
+                        {% include 'result/_result_panel.html' %}
                     {% endfor %}
                 </table>
             </div>
@@ -110,9 +110,9 @@
             </div>
             <div id="undecided-results-collapse" class="panel-collapse collapse">
                 <table class="table table-bordered table-hover">
-                    {% include 'scan/_result_panel_header.html' %}
+                    {% include 'result/_result_panel_header.html' %}
                     {% for result in subject.results.filter_by(state="undecided") %}
-                        {% include 'scan/_result_panel.html' %}
+                        {% include 'result/_result_panel.html' %}
                     {% endfor %}
                 </table>
             </div>
@@ -125,9 +125,9 @@
             </div>
             <div id="confirmed-results-collapse" class="panel-collapse collapse">
                 <table class="table table-bordered table-hover">
-                    {% include 'scan/_result_panel_header.html' %}
+                    {% include 'result/_result_panel_header.html' %}
                     {% for result in subject.results.filter_by(state="confirmed") %}
-                        {% include 'scan/_result_panel.html' %}
+                        {% include 'result/_result_panel.html' %}
                     {% endfor %}
                 </table>
             </div>
@@ -140,13 +140,13 @@
             </div>
             <div id="rejected-results-collapse" class="panel-collapse collapse">
                 <table class="table table-bordered table-hover">
-                    {% include 'scan/_result_panel_header.html' %}
+                    {% include 'result/_result_panel_header.html' %}
                     {% for result in subject.results.filter_by(state="rejected") %}
-                        {% include 'scan/_result_panel.html' %}
+                        {% include 'result/_result_panel.html' %}
                     {% endfor %}
                 </table>
             </div>
         </div>
     </div>
-    {% include 'scan/_result_click_script.html' %}
+    {% include 'result/_result_click_script.html' %}
 {% endblock %}
