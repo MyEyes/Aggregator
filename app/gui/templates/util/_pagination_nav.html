@@ -1,0 +1,11 @@
+<div>
+    <div>
+        {% if page > 1 %}
+            <a href="{{ url_for(request.endpoint, **dict(request.args, page=page-1)) }}"><span class="glyphicon glyphicon-menu-left"></span></a>
+        {% else %}
+            <span class="glyphicon glyphicon-menu-left"></span>
+        {% endif %}
+        {{ (page-1)*20 + 1 }} - {{ page*20 }}
+        <a href="{{ url_for(request.endpoint, **dict(request.args, page=page+1)) }}"><span class="glyphicon glyphicon-menu-right"></span></a>
+    </div>
+</div>

@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block app_content %}
+    <h1>{{ title }}</h1>
+    <div class="panel-group">
+        <div class="panel panel-info">
+            <div class="panel-heading">
+                <h3 class="panel-title">
+                    <a data-toggle="collapse" href="#info-panel-collapse">Result</a>
+
+                </h3>
+            </div>
+            <div id="info-panel-collapse" class="panel-collapse collapse in">
+                <div id="info-panel" class="panel-body">
+                    <div class="col-md-3">
+                        <div class="panel panel-default">
+                            <div class="panel-heading"><h4 class="panel-title">Subject</h4></div>
+                            <div class="panel-body"><a href="{{ url_for('gui.subject', id=mainresult.subject.id) }}"> {{ mainresult.subject.name }} </a></div>
+                        </div>
+                    </div>
+                    <div class="col-md-9">
+                        <div class="panel panel-default">
+                            <div class="panel-heading"><h4 class="panel-title">Scan</h4></div>
+                            <div class="panel-body"><a href="{{ url_for('gui.scan', id=mainresult.scan.id) }}"> {{ mainresult.scan }} </a></div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="panel panel-default">
+                            <div class="panel-heading"><h4 class="panel-title">Created</h4></div>
+                            <div class="panel-body">{{ mainresult.created_at.strftime("%m/%d/%Y, %H:%M:%S") }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="panel-group">
+        <div class="panel panel-info">
+            <div class="panel-heading">
+                <h2 class="panel-title">
+                    <a data-toggle="collapse" href="#soft-matches-collapse">Soft Matches <span class="badge">{{ soft_matches|list|length - 1 }}</a>
+
+                </h2>
+            </div>
+            <div id="soft-matches-collapse" class="panel-collapse collapse">
+                <table class="table table-bordered table-hover">
+                    <table class="table table-bordered table-hover">
+                        {% include 'result/_result_panel_header.html' %}
+                        {% for result in soft_matches %}
+                            {% if result.id != mainresult.id %}
+                                {% include 'result/_result_panel.html' %}
+                            {% endif %}
+                        {% endfor %}
+                    </table>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% include 'result/_result_click_script.html' %}
+{% endblock %}
