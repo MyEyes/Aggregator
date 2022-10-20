@@ -9,4 +9,18 @@ function update_state(result_id, new_state) {
         }
     )
 }
+
+function mass_update_state(scan_id, subject_id, old_state, risk, new_state) {
+    $.post('/result/'+new_state,{
+            scan_id: scan_id,
+            subject_id: subject_id,
+            state: old_state,
+            risk: risk
+        }
+    ).done(function(response)
+        {
+            location.reload()
+        }
+    )
+}
 </script>

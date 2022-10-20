@@ -90,8 +90,11 @@
             <div class="panel-heading">
                 <h3 class="panel-title">
                     <a data-toggle="collapse" href="#open-results-collapse">Open <span class="badge">{{ subject.results.filter_by(state="open")|list|length }}</a>
-
                 </h3>
+                <a href="javascript:mass_update_state(undefined, {{ subject.id }}, 'open', undefined, 'open')"><span class="glyphicon glyphicon-question-sign" aria-hidden="true"></span></a>
+                <a href="javascript:mass_update_state(undefined, {{ subject.id }}, 'open', undefined, 'confirmed')"><span class="glyphicon glyphicon-ok" aria-hidden="true"></span></a>
+                <a href="javascript:mass_update_state(undefined, {{ subject.id }}, 'open', undefined, 'undecided')"><span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span></a>
+                <a href="javascript:mass_update_state(undefined, {{ subject.id }}, 'open', undefined, 'rejected')"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></a>
             </div>
             <div id="open-results-collapse" class="panel-collapse collapse in">
                 <table class="table table-bordered table-hover">
@@ -107,6 +110,10 @@
                 <h3 class="panel-title">
                     <a data-toggle="collapse" href="#undecided-results-collapse">Undecided <span class="badge">{{ subject.results.filter_by(state="undecided")|list|length }}</span></a>
                 </h3>
+                <a href="javascript:mass_update_state(undefined, {{ subject.id }}, 'undecided', undefined, 'open')"><span class="glyphicon glyphicon-question-sign" aria-hidden="true"></span></a>
+                <a href="javascript:mass_update_state(undefined, {{ subject.id }}, 'undecided', undefined, 'confirmed')"><span class="glyphicon glyphicon-ok" aria-hidden="true"></span></a>
+                <a href="javascript:mass_update_state(undefined, {{ subject.id }}, 'undecided', undefined, 'undecided')"><span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span></a>
+                <a href="javascript:mass_update_state(undefined, {{ subject.id }}, 'undecided', undefined, 'rejected')"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></a>
             </div>
             <div id="undecided-results-collapse" class="panel-collapse collapse">
                 <table class="table table-bordered table-hover">
@@ -122,6 +129,10 @@
                 <h3 class="panel-title">
                     <a data-toggle="collapse" href="#confirmed-results-collapse">Confirmed <span class="badge">{{ subject.results.filter_by(state="confirmed")|list|length }}</a>
                 </h3>
+                <a href="javascript:mass_update_state(undefined, {{ subject.id }}, 'confirmed', undefined, 'open')"><span class="glyphicon glyphicon-question-sign" aria-hidden="true"></span></a>
+                <a href="javascript:mass_update_state(undefined, {{ subject.id }}, 'confirmed', undefined, 'confirmed')"><span class="glyphicon glyphicon-ok" aria-hidden="true"></span></a>
+                <a href="javascript:mass_update_state(undefined, {{ subject.id }}, 'confirmed', undefined, 'undecided')"><span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span></a>
+                <a href="javascript:mass_update_state(undefined, {{ subject.id }}, 'confirmed', undefined, 'rejected')"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></a>
             </div>
             <div id="confirmed-results-collapse" class="panel-collapse collapse">
                 <table class="table table-bordered table-hover">
@@ -137,6 +148,10 @@
                 <h3 class="panel-title">
                     <a data-toggle="collapse" href="#rejected-results-collapse">Rejected <span class="badge">{{ subject.results.filter_by(state="rejected")|list|length }}</a>
                 </h3>
+                <a href="javascript:mass_update_state(undefined, {{ subject.id }}, 'rejected', undefined, 'open')"><span class="glyphicon glyphicon-question-sign" aria-hidden="true"></span></a>
+                <a href="javascript:mass_update_state(undefined, {{ subject.id }}, 'rejected', undefined, 'confirmed')"><span class="glyphicon glyphicon-ok" aria-hidden="true"></span></a>
+                <a href="javascript:mass_update_state(undefined, {{ subject.id }}, 'rejected', undefined, 'undecided')"><span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span></a>
+                <a href="javascript:mass_update_state(undefined, {{ subject.id }}, 'rejected', undefined, 'rejected')"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></a>
             </div>
             <div id="rejected-results-collapse" class="panel-collapse collapse">
                 <table class="table table-bordered table-hover">
