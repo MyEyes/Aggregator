@@ -12,6 +12,7 @@
                     <th scope="col">Host</th>
                     <th scope="col">Paths</th>
                     <th scope="col">Results</th>
+                    <th scope="col" class="col-md-2">States</th>
                     <th scope="col">Created At</th>
                 </tr>
             </thead>
@@ -31,6 +32,7 @@
                         </div>
                     </td>
                     <td scope="col">{{ subject.results|list|length }}</td>
+                    <td scope="col">{{ subject.get_states_string() }}</td>
                     <td scope="col">{{ subject.created_at.strftime("%m/%d/%Y, %H:%M:%S")}}</td>
                 </tr>
             {% endfor %}

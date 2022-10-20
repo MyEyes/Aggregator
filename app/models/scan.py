@@ -19,6 +19,9 @@ class Scan(db.Model):
     def __repr__(self):
         return f"Scan {self.id} - {self.tool.name}"
 
+    def get_states_string(self):
+        return f"{len(list(self.results.filter_by(state='open')))}O | {len(list(self.results.filter_by(state='undecided')))}U | {len(list(self.results.filter_by(state='confirmed')))}C | {len(list(self.results.filter_by(state='rejected')))}R"
+
 class ScanResult(db.Model):
     id = db.Column(db.Integer, primary_key = True)
 

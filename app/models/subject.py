@@ -40,6 +40,9 @@ class Subject(db.Model):
         altName.subj_id = self.id
         db.session.add(altName)
 
+    def get_states_string(self):
+        return f"{len(list(self.results.filter_by(state='open')))}O | {len(list(self.results.filter_by(state='undecided')))}U | {len(list(self.results.filter_by(state='confirmed')))}C | {len(list(self.results.filter_by(state='rejected')))}R"
+
 class SubjectAltNames(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     subj_id = db.Column(db.Integer, db.ForeignKey('subject.id'))

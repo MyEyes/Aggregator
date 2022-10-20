@@ -12,6 +12,7 @@
                     <th scope="col">Arguments</th>
                     <th scope="col">New</th>
                     <th scope="col">Old</th>
+                    <th scope="col" class="col-md-2">States</th>
                     <th scope="col">Started At</th>
                     <th scope="col">Finished At</th>
                 </tr>
@@ -23,6 +24,7 @@
                     <td scope="col">{{ scan.arguments }}</th>
                     <td scope="col">{{ scan.results|list|length }}</td>
                     <td scope="col" class="text-muted">{{ scan.duplicates|list|length }}</td>
+                    <td scope="col">{{ scan.get_states_string() }}</td>
                     <td scope="col">{{ scan.started_at.strftime("%m/%d/%Y, %H:%M:%S") }}</th>
                     {% if scan.finished_at %}
                         <td scope="col">{{ scan.finished_at.strftime("%m/%d/%Y, %H:%M:%S") }}</th>
