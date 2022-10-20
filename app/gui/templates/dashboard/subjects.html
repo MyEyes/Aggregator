@@ -2,6 +2,9 @@
 
 {% block app_content %}
     {% include 'dashboard/_menu.html' %}
+
+    {% include 'util/_horizontal_group_style.html' %}
+
     <div class="panel-group">
         {% include 'util/_pagination_nav.html' %}
         <table class="table table-bordered table-hover">
@@ -12,7 +15,7 @@
                     <th scope="col">Host</th>
                     <th scope="col">Paths</th>
                     <th scope="col">Results</th>
-                    <th scope="col" class="col-md-2">States</th>
+                    <th scope="col" class="col-md-2">States O|U|C|R</th>
                     <th scope="col">Created At</th>
                 </tr>
             </thead>
@@ -32,7 +35,12 @@
                         </div>
                     </td>
                     <td scope="col">{{ subject.results|list|length }}</td>
-                    <td scope="col">{{ subject.get_states_string() }}</td>
+                    <td scope="col"><ul class="list-group list-group-horizontal">
+                        <li class="list-group-item">{{ subject.get_states()['open'] }}</li>
+                        <li class="list-group-item">{{ subject.get_states()['undecided'] }}</li>
+                        <li class="list-group-item">{{ subject.get_states()['confirmed'] }}</li>
+                        <li class="list-group-item">{{ subject.get_states()['rejected'] }}</li>
+                    </ul></td>
                     <td scope="col">{{ subject.created_at.strftime("%m/%d/%Y, %H:%M:%S")}}</td>
                 </tr>
             {% endfor %}

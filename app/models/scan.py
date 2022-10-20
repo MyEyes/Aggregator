@@ -19,6 +19,14 @@ class Scan(db.Model):
     def __repr__(self):
         return f"Scan {self.id} - {self.tool.name}"
 
+    def get_states(self):
+        return {
+            'open': len(list(self.results.filter_by(state='open'))),
+            'undecided': len(list(self.results.filter_by(state='undecided'))),
+            'confirmed': len(list(self.results.filter_by(state='confirmed'))),
+            'rejected': len(list(self.results.filter_by(state='rejected')))
+        }
+
     def get_states_string(self):
         return f"{len(list(self.results.filter_by(state='open')))}O | {len(list(self.results.filter_by(state='undecided')))}U | {len(list(self.results.filter_by(state='confirmed')))}C | {len(list(self.results.filter_by(state='rejected')))}R"
 
