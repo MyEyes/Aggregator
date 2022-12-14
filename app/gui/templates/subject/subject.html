@@ -24,7 +24,7 @@
                                     <a data-toggle="collapse" href="#path-panel-collapse">Known Paths <span class="badge">{{ subject.altPaths|list|length }}</span></a>
                                 </h4>
                             </div>
-                            <div id="path-panel-collapse" class="panel-collapse collapse">
+                            <div id="path-panel-collapse" class="panel-collapse {% if subject.altPaths|list|length > 3 %} collapse {% else %} collapse in {% endif %}">
                                 <div class="panel-body">
                                     <ul>
                                         {% for path in subject.altPaths %}
