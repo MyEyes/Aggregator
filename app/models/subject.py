@@ -1,5 +1,6 @@
 from app.models import db
 from datetime import datetime
+from app.models.scan import ScanResult
 
 # The subject of a scan, could be a URL, an assembly or something else
 class Subject(db.Model):
@@ -48,8 +49,17 @@ class Subject(db.Model):
             'rejected': len(list(self.results.filter_by(state='rejected')))
         }
 
+    def get_soft_matches(self):
+        subquery = db.session.query(ScanResult.soft_match_hash).filter(ScanResult.subject_id==self.id)
+        query = db.session.query(ScanResult).filter(ScanResult.subject_id != self.id).filter(ScanResult.soft_match_hash.in_(subquery))
+        return query
+
     def get_states_string(self):
         return f"{len(list(self.results.filter_by(state='open')))}O | {len(list(self.results.filter_by(state='undecided')))}U | {len(list(self.results.filter_by(state='confirmed')))}C | {len(list(self.results.filter_by(state='rejected')))}R"
+
+    def get_soft_match_state_string(self):
+        soft_matches = self.get_soft_matches()
+        return f"{len(list(soft_matches.filter_by(state='open')))}O | {len(list(soft_matches.filter_by(state='undecided')))}U | {len(list(soft_matches.filter_by(state='confirmed')))}C | {len(list(soft_matches.filter_by(state='rejected')))}R"
 
 class SubjectAltNames(db.Model):
     id = db.Column(db.Integer, primary_key=True)

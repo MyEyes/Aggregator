@@ -23,4 +23,26 @@ function mass_update_state(scan_id, subject_id, old_state, risk, new_state) {
         }
     )
 }
+
+function update_scan_soft_matches(scan_id) {
+    $.post('/result/soft_assign',{
+        scan_id: scan_id
+    }
+    ).done(function(response)
+        {
+            location.reload()
+        }
+    )
+}
+
+function update_subject_soft_matches(subject_id) {
+    $.post('/result/soft_assign',{
+        subject_id: subject_id
+    }
+    ).done(function(response)
+        {
+            location.reload()
+        }
+    )
+}
 </script>

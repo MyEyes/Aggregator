@@ -39,10 +39,14 @@
                             <div class="panel-heading"><h4 class="panel-title">Results</h4></div>
                             <div class="panel-body">
                                 <div>
-                                    {{ scan.results|list|length }} new results
+                                    {{ scan.results|list|length }} new results {{ scan.get_states_string() }}
                                 </div>
                                 <div>
                                     {{ scan.duplicates|list|length }} duplicate results
+                                </div>
+                                <div>
+                                    {{ scan.get_soft_matches()|list|length }} soft matched results {{ scan.get_soft_match_state_string() }}
+                                    <a href="javascript:update_scan_soft_matches({{ scan.id }})"><span class="glyphicon glyphicon-upload" aria-hidden="true"></span></a>
                                 </div>
                             </div>
                         </div>

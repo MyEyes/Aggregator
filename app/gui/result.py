@@ -5,7 +5,7 @@ from app.models.scan import Scan, ScanResult
 from app.models.subject import Subject
 from app.models.tool import Tool
 from app.models import db
-from sqlalchemy import update
+from sqlalchemy import update, alias
 
 @bp.route('/result/<int:id>', methods=['GET'])
 @login_required
@@ -29,6 +29,43 @@ def set_state_filter(new_state):
     stmt = stmt.values(state=new_state)
     db.session.execute(stmt)
     db.session.commit()
+    return jsonify(
+        {
+            "result": "OK"
+        }
+    )
+
+def _gen_soft_set_statement(state_val, form):
+    aliased = alias(ScanResult)
+    stmt = update(ScanResult)
+    stmt = stmt.where(ScanResult.state == "open")
+    if "scan_id" in form and form["scan_id"]:
+        subquery = db.session.query(aliased.c.soft_match_hash).filter(aliased.c.scan_id!=form["scan_id"]).filter(aliased.c.state == state_val)
+        stmt = stmt.where(ScanResult.scan_id == form["scan_id"])
+        stmt = stmt.where(ScanResult.soft_match_hash.in_(subquery))
+    if "subject_id" in form and form["subject_id"]:
+        subquery = db.session.query(aliased.c.soft_match_hash).filter(aliased.c.subject_id!=form["subject_id"]).filter(aliased.c.state == state_val)
+        stmt = stmt.where(ScanResult.subject_id == form["subject_id"])
+        stmt = stmt.where(ScanResult.soft_match_hash.in_(subquery))
+    stmt = stmt.values(state=state_val)
+    return stmt
+
+@bp.route('/result/soft_assign', methods=['POST'])
+@login_required
+def set_state_soft():
+    execution_options=dict({"synchronize_session": 'fetch'})
+
+    #Update undecided
+    stmt = _gen_soft_set_statement("undecided", request.form)
+    db.session.execute(stmt, execution_options=execution_options)
+    db.session.commit()
+    stmt = _gen_soft_set_statement("rejected", request.form)
+    db.session.execute(stmt, execution_options=execution_options)
+    db.session.commit()
+    stmt = _gen_soft_set_statement("confirmed", request.form)
+    db.session.execute(stmt, execution_options=execution_options)
+    db.session.commit()
+
     return jsonify(
         {
             "result": "OK"

@@ -35,6 +35,18 @@
                             </div>
                         </div>
                     </div>
+                    <div class="col-md-3">
+                        <div class="panel panel-default">
+                            <div class="panel-heading"><h4 class="panel-title">Results</h4></div>
+                            <div class="panel-body">
+                                <div>{{ subject.get_states_string() }}</div>
+                                <div>{{ subject.get_soft_match_state_string() }}
+                                    soft 
+                                    <a href="javascript:update_subject_soft_matches({{ subject.id }})"><span class="glyphicon glyphicon-upload" aria-hidden="true"></span></a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -75,7 +87,7 @@
                                         </ul>
                                     </div>
                                 </td>
-                                <td scope="col">{{ match.results|list|length }}</td>
+                                <td scope="col">{{ match.get_states_string() }}</td>
                                 <td scope="col">{{ match.created_at.strftime("%m/%d/%Y, %H:%M:%S")}}</td>
                             </tr>
                         {% endfor %}

@@ -19,6 +19,11 @@ class Scan(db.Model):
     def __repr__(self):
         return f"Scan {self.id} - {self.tool.name}"
 
+    def get_soft_matches(self):
+        subquery = db.session.query(ScanResult.soft_match_hash).filter(ScanResult.scan_id==self.id)
+        query = db.session.query(ScanResult).filter(ScanResult.scan_id != self.id).filter(ScanResult.soft_match_hash.in_(subquery))
+        return query
+
     def get_states(self):
         return {
             'open': len(list(self.results.filter_by(state='open'))),
@@ -29,6 +34,10 @@ class Scan(db.Model):
 
     def get_states_string(self):
         return f"{len(list(self.results.filter_by(state='open')))}O | {len(list(self.results.filter_by(state='undecided')))}U | {len(list(self.results.filter_by(state='confirmed')))}C | {len(list(self.results.filter_by(state='rejected')))}R"
+    
+    def get_soft_match_state_string(self):
+        soft_matches = self.get_soft_matches()
+        return f"{len(list(soft_matches.filter_by(state='open')))}O | {len(list(soft_matches.filter_by(state='undecided')))}U | {len(list(soft_matches.filter_by(state='confirmed')))}C | {len(list(soft_matches.filter_by(state='rejected')))}R"
 
 class ScanResult(db.Model):
     id = db.Column(db.Integer, primary_key = True)
