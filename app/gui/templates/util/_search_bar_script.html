@@ -1,0 +1,10 @@
+    <script>
+        $('#search-bar-val').keypress(function(event){
+        var keycode = (event.keyCode ? event.keyCode : event.which);
+        if(keycode == '13'){
+            const urlParams = new URLSearchParams(window.location.search)
+            urlParams.set('search', $('#search-bar-val').val())
+            window.location.search = urlParams;
+        }
+    });
+    </script>

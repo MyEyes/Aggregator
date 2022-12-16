@@ -16,6 +16,13 @@ class Scan(db.Model):
     started_at = db.Column(db.DateTime, default = datetime.utcnow)
     finished_at = db.Column(db.DateTime, default = None)
 
+    @classmethod
+    def search(cls, val):
+        search_str = "%{0}%".format(val)
+        results = Scan.query
+        results = results.filter(Scan.arguments.like(search_str))
+        return results
+
     def __repr__(self):
         return f"Scan {self.id} - {self.tool.name}"
 
@@ -62,6 +69,13 @@ class ScanResult(db.Model):
         valid_states = ["open","confirmed","rejected","undecided"]
         if new_state in valid_states:
             self.state = new_state
+
+    @classmethod
+    def search(cls, val):
+        search_str = "%{0}%".format(val)
+        results = ScanResult.query
+        results = results.filter(ScanResult.raw_text.like(search_str))
+        return results
 
 class DuplicateScanResult(db.Model):
     id = db.Column(db.Integer, primary_key = True)

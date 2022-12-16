@@ -11,5 +11,11 @@
             {% endfor %}
         </table>
     </div>
+{% endblock %}
+
+
+{% block scripts %}
+    {{ super() }}
     {% include 'result/_result_click_script.html' %}
+    {% include 'util/_search_bar_script.html' %}
 {% endblock %}

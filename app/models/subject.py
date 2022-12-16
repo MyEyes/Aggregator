@@ -61,6 +61,13 @@ class Subject(db.Model):
         soft_matches = self.get_soft_matches()
         return f"{len(list(soft_matches.filter_by(state='open')))}O | {len(list(soft_matches.filter_by(state='undecided')))}U | {len(list(soft_matches.filter_by(state='confirmed')))}C | {len(list(soft_matches.filter_by(state='rejected')))}R"
 
+    @classmethod
+    def search(cls, val):
+        search_str = "%{0}%".format(val)
+        results = Subject.query
+        results = results.filter(Subject.name.like(search_str))
+        return results
+
 class SubjectAltNames(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     subj_id = db.Column(db.Integer, db.ForeignKey('subject.id'))

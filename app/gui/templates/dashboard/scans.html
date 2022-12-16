@@ -7,7 +7,15 @@
         <table class="table table-bordered table-hover">
             <thead class="thead-light">
                 <tr>
-                    <th scope="col" class="col-md-1">Id</th>
+                    {% if sort == "id" %}
+                        {% if sort_op == 'asc' %}  
+                            <th scope="col" class="col-md-1"><div class="text-nowrap"><a href="{{ url_for(request.endpoint, **dict(request.args, sort='id', sort_op='desc', **request.view_args)) }}">Id <span class="glyphicon glyphicon-triangle-bottom"></span></a></div></th>
+                        {% else %}
+                            <th scope="col" class="col-md-1"><div class="text-nowrap"><a href="{{ url_for(request.endpoint, **dict(request.args, sort='id', sort_op='asc', **request.view_args)) }}">Id <span class="glyphicon glyphicon-triangle-top"> </span></a></div></th>
+                        {% endif %}
+                    {% else %}
+                        <th scope="col" class="col-md-1"><a href="{{ url_for(request.endpoint, **dict(request.args, sort='id', **request.view_args)) }}">Id</a></th>
+                    {% endif %}
                     <th scope="col">Tool</th>
                     <th scope="col">Arguments</th>
                     <th scope="col">New</th>
@@ -40,4 +48,10 @@
             {% endfor %}
         </table>
     </div>
+{% endblock %}
+
+{% block scripts %}
+    {{ super() }}
+    {% include 'result/_result_click_script.html' %}
+    {% include 'util/_search_bar_script.html' %}
 {% endblock %}

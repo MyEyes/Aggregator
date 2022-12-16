@@ -16,26 +16,46 @@ def dashboard():
 @login_required
 def scans_dashboard():
     scans = Scan.query
+    if "search" in request.args:
+        _search = request.args["search"]
+        scans = Scan.search(_search)
+    _filter = None
+    _filter_by = None
     if "filter" in request.args:
+        _filter = request.args["filter"]
         if "filter_by" in request.args:
-            scans = scans.filter(Scan.__dict__[request.args['filter_by']] == request.args["filter"])
+            _filter_by = request.args['filter_by']
+            scans = scans.filter(ScanResult.__dict__[request.args['filter_by']] == request.args["filter"])
+    _sort_op = "desc"
+    if "sort_op" in request.args:
+        _sort_op = request.args["sort_op"]
+    _sort = "created_at"
     if "sort" in request.args:
-        scans = scans.order_by(request.args["sort"])
+        _sort = request.args['sort']
+        __sort = _sort
+        if _sort_op == "asc":
+            scans = scans.order_by(asc(__sort))
+        else:
+            scans = scans.order_by(desc(__sort))
     _page = 1
     if "page" in request.args:
         _page = int(request.args['page'])
     scans = scans.paginate(page=_page, per_page=20, error_out=False)
-    return render_template('dashboard/scans.html', title='Dashboard - Scans', user=current_user, scans=scans, page=_page)
+    return render_template('dashboard/scans.html', title='Dashboard - Scans', user=current_user, scans=scans, filter=_filter, filter_by=_filter_by, sort=_sort, sort_op=_sort_op, page=_page, search=_search)
 
 @bp.route('/dashboard/subjects')
 @login_required
 def subjects_dashboard():
     subjects = Subject.query
+    _search = None
+    if "search" in request.args:
+        _search = request.args["search"]
+        subjects = Subject.search(_search)
     _page = 1
     if "page" in request.args:
         _page = int(request.args['page'])
     subjects = subjects.paginate(page=_page, per_page=20, error_out=False)
-    return render_template('dashboard/subjects.html', title='Dashboard - Subjects', user=current_user, subjects = subjects, page=_page)
+    return render_template('dashboard/subjects.html', title='Dashboard - Subjects', user=current_user, subjects = subjects, page=_page, search=_search)
 
 @bp.route('/dashboard/tools')
 @login_required
@@ -51,6 +71,10 @@ def tools_dashboard():
 @login_required
 def results_dashboard():
     results = ScanResult.query
+    _search = None
+    if "search" in request.args:
+        _search = request.args["search"]
+        results = ScanResult.search(_search)
     _filter = None
     _filter_by = None
     if "filter" in request.args:
@@ -77,4 +101,4 @@ def results_dashboard():
         _page = int(request.args['page'])
     results = results.paginate(page=_page, per_page=20, error_out=False)
 
-    return render_template('dashboard/results.html', title='Dashboard - Results', user=current_user, results=results, filter=_filter, filter_by=_filter_by, sort=_sort, sort_op=_sort_op, page=_page)
+    return render_template('dashboard/results.html', title='Dashboard - Results', user=current_user, results=results, filter=_filter, filter_by=_filter_by, sort=_sort, sort_op=_sort_op, page=_page, search=_search)

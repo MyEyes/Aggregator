@@ -26,11 +26,14 @@
     .panel-horizontal{
         padding: 0;
         width: max-content;
+        max-height: 40px;
+        float: left;
     }
 
     .panel-horizontal .panel-heading {
        float: left;
        width: auto;
+       max-height: 40px;
        height: 90%;
     }
 
@@ -38,15 +41,14 @@
         float: left;
         color: inherit;
         padding: 0;
-        width: 80%;
+        max-height: 40px;
+        width: auto;
     }
 
     .panel-horizontal .panel-body{
         padding: 0;
-        color: inherit;
-        width: auto;
-        max-height: 40px;
         height: inherit;
+        max-height: 40px;
         border-radius: 1px;
         border-color: inherit;
     }
@@ -65,9 +67,13 @@
         transition-property: width, visibility;
         transition-duration: 0.35s;
         transition-timing-function: ease;
+        width: 0;
     }
 
     .collapse.in.width {
         width: auto;
+        transition-property: width, visibility;
+        transition-duration: 0.35s;
+        transition-timing-function: ease;
     }
 </style>
