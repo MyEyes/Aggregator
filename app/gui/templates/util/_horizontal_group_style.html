@@ -22,4 +22,52 @@
         border-bottom-left-radius:0;
         border-right-width: 1px;
     }
+
+    .panel-horizontal{
+        padding: 0;
+        width: max-content;
+    }
+
+    .panel-horizontal .panel-heading {
+       float: left;
+       width: auto;
+       height: 90%;
+    }
+
+    .panel-horizontal .panel-collapse{
+        float: left;
+        color: inherit;
+        padding: 0;
+        width: 80%;
+    }
+
+    .panel-horizontal .panel-body{
+        padding: 0;
+        color: inherit;
+        width: auto;
+        max-height: 40px;
+        height: inherit;
+        border-radius: 1px;
+        border-color: inherit;
+    }
+
+    .collapsing.width {
+        height: inherit;
+        overflow: hidden;
+        transition-property: width, visibility;
+        transition-duration: 0.35s;
+        transition-timing-function: ease;
+    }
+
+    .collapse.width {
+        height: inherit;
+        overflow: hidden;
+        transition-property: width, visibility;
+        transition-duration: 0.35s;
+        transition-timing-function: ease;
+    }
+
+    .collapse.in.width {
+        width: auto;
+    }
 </style>

@@ -3,33 +3,6 @@
 {% block app_content %}
     {% include 'dashboard/_menu.html' %}
     <div class="panel-group">
-        <div class="panel panel-info">
-            <div class="panel-heading">
-                <h3 class="panel-title">
-                    <a data-toggle="collapse" href="#filter-panel-collapse">Filter {% if filter_by %} {{ filter_by }} == {{ filter }} {% endif %}</a>
-                </h3>
-            </div>
-            <div id="filter-panel-collapse" class="panel-collapse collapse {% if filter_by %} in {% endif %}">
-                <div id="info-panel" class="panel-body">
-                    <div class="col-md-2">
-                        <b>State</b><br>
-                        <a href="{{ url_for(request.endpoint, **dict(request.args, page=1,filter_by='state',filter='open')) }}"><span class="glyphicon glyphicon-question-sign" aria-hidden="true"
-                            {% if filter_by == "state" and filter == 'open' %}style="color: green"{% else %}style="color: gray"{% endif %}></span></a>
-                        <a href="{{ url_for(request.endpoint, **dict(request.args, page=1, filter_by='state',filter='confirmed')) }}"><span class="glyphicon glyphicon-ok" aria-hidden="true"
-                            {% if filter_by == "state" and filter == 'confirmed' %}style="color: green"{% else %}style="color: gray"{% endif %}></span></a>
-                        <a href="{{ url_for(request.endpoint, **dict(request.args, page=1, filter_by='state',filter='undecided')) }}"><span class="glyphicon glyphicon-eye-open" aria-hidden="true" 
-                            {% if filter_by == "state" and filter ==  'undecided' %}style="color: green"{% else %}style="color: gray"{% endif %}></span></a>
-                        <a href="{{ url_for(request.endpoint, **dict(request.args, page=1, filter_by='state',filter='rejected')) }}"><span class="glyphicon glyphicon-remove" aria-hidden="true"
-                            {% if filter_by == "state" and filter ==  'rejected' %}style="color: green"{% else %}style="color: gray"{% endif %} ></span></a>
-                    </div>
-                    <button class="btn btn-default">
-                        <a href="{{ url_for('gui.results_dashboard')}}">Clear</a>
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="panel-group">
         {% include 'util/_pagination_nav.html' %}
         <table class="table table-bordered table-hover">
             {% include 'result/_result_panel_header.html' %}

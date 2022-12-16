@@ -1,7 +1,37 @@
+{% include 'util/_horizontal_group_style.html' %}
 <h1>Aggregator - Dashboard</h1>
 <div>
-    <a class="btn btn-default {% if scans %} active {% endif %}" href="{{ url_for('gui.scans_dashboard') }}" role="button">Scans</a>
-    <a class="btn btn-default {% if subjects %} active {% endif %}" href="{{ url_for('gui.subjects_dashboard') }}" role="button">Subjects</a>
-    <a class="btn btn-default {% if tools %} active {% endif %}" href="{{ url_for('gui.tools_dashboard') }}" role="button">Tools</a>
-    <a class="btn btn-default {% if results %} active {% endif %}" href="{{ url_for('gui.results_dashboard') }}" role="button">Results</a>
+    <div class="col-md-4">
+        <a class="btn btn-default {% if scans %} active {% endif %}" href="{{ url_for('gui.scans_dashboard') }}" role="button">Scans</a>
+        <a class="btn btn-default {% if subjects %} active {% endif %}" href="{{ url_for('gui.subjects_dashboard') }}" role="button">Subjects</a>
+        <a class="btn btn-default {% if tools %} active {% endif %}" href="{{ url_for('gui.tools_dashboard') }}" role="button">Tools</a>
+        <a class="btn btn-default {% if results %} active {% endif %}" href="{{ url_for('gui.results_dashboard') }}" role="button">Results</a>
+    </div>
+    <div class="panel-group col-md-8">
+        <div class="panel panel-info panel-horizontal">
+            <div class="panel-heading">
+                <h3 class="panel-title">
+                    <a data-toggle="collapse" href="#filter-panel-collapse">Filter {% if filter_by %} {{ filter_by }} == {{ filter }} {% endif %}</a>
+                </h3>
+            </div>
+            <span id="filter-panel-collapse" class="panel-collapse collapse {% if filter_by %} in {% endif %} width">
+                <div id="info-panel" class="panel-body">
+                    <span>
+                        <b>State</b>
+                        <a href="{{ url_for(request.endpoint, **dict(request.args, page=1,filter_by='state',filter='open')) }}"><span class="glyphicon glyphicon-question-sign" aria-hidden="true"
+                            {% if filter_by == "state" and filter == 'open' %}style="color: green"{% else %}style="color: gray"{% endif %}></span></a>
+                        <a href="{{ url_for(request.endpoint, **dict(request.args, page=1, filter_by='state',filter='confirmed')) }}"><span class="glyphicon glyphicon-ok" aria-hidden="true"
+                            {% if filter_by == "state" and filter == 'confirmed' %}style="color: green"{% else %}style="color: gray"{% endif %}></span></a>
+                        <a href="{{ url_for(request.endpoint, **dict(request.args, page=1, filter_by='state',filter='undecided')) }}"><span class="glyphicon glyphicon-eye-open" aria-hidden="true" 
+                            {% if filter_by == "state" and filter ==  'undecided' %}style="color: green"{% else %}style="color: gray"{% endif %}></span></a>
+                        <a href="{{ url_for(request.endpoint, **dict(request.args, page=1, filter_by='state',filter='rejected')) }}"><span class="glyphicon glyphicon-remove" aria-hidden="true"
+                            {% if filter_by == "state" and filter ==  'rejected' %}style="color: green"{% else %}style="color: gray"{% endif %} ></span></a>
+                        </span>
+                    <button class="btn btn-default">
+                        <a href="{{ url_for('gui.results_dashboard')}}">Clear</a>
+                    </button>
+                </div>
+            </span>
+        </div>
+    </div>
 </div>
