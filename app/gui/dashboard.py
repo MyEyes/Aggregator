@@ -16,6 +16,7 @@ def dashboard():
 @login_required
 def scans_dashboard():
     scans = Scan.query
+    _search = None
     if "search" in request.args:
         _search = request.args["search"]
         scans = Scan.search(_search)
