@@ -57,6 +57,7 @@ class ScanResult(db.Model):
     raw_text = db.Column(db.Text, index=True)
     scan_risk_text = db.Column(db.String(50))
     manual_risk_text = db.Column(db.String(50))
+    notes = db.Column(db.Text)
 
     state = db.Column(db.String(32), index=True, default="open")
 
@@ -69,6 +70,24 @@ class ScanResult(db.Model):
         valid_states = ["open","confirmed","rejected","undecided"]
         if new_state in valid_states:
             self.state = new_state
+
+    def get_soft_matches(self):
+        query = db.session.query(ScanResult).filter(ScanResult.soft_match_hash == self.soft_match_hash)
+        return query
+
+    def try_get_soft_notes(self):
+        for soft_match in self.get_soft_matches():
+            if soft_match.notes and len(soft_match.notes)>0:
+                return soft_match.notes
+        return ""
+
+    def set_note(self, val):
+        self.notes = val
+
+    def get_note(self):
+        if self.notes and len(self.notes) > 0:
+            return self.notes
+        return self.try_get_soft_notes()
 
     @classmethod
     def search(cls, val):

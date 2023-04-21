@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 
 {% block app_content %}
+    {% include 'util/_table_style.html' %}
     <h1>{{ title }}</h1>
     <div class="panel-group">
         <div class="panel panel-info">
@@ -135,4 +136,5 @@
         </div>
     </div>
     {% include 'result/_result_click_script.html' %}
+    {% include 'util/_note_update.html' %}
 {% endblock %}

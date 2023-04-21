@@ -1,0 +1,23 @@
+<script>
+    function update_note(result_id, note_val) {
+    $.ajax({
+        type: "POST",
+        url: '/result/'+result_id+'/notes',
+        data: JSON.stringify({
+                    notes: note_val
+                }),
+        success: null,
+        contentType: "application/json"
+        });
+    }
+
+    let fields = document.getElementsByClassName("agg-note-field")
+    for(let i = 0; i<fields.length; i++)
+    {
+        fields[i].addEventListener("change", function(ev)
+        {
+            result_id = ev.target.id.split("-")[0]
+            update_note(result_id, ev.target.value)
+        })
+    }
+</script>

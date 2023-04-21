@@ -91,3 +91,24 @@ def set_state(id, state):
                 "error": "No such result"
             }
         )
+
+@bp.route('/result/<int:id>/notes', methods=['POST'])
+@login_required
+def set_notes(id):
+    result = ScanResult.query.filter_by(id=id).first()
+    data = request.get_json() or {}
+    if result and data["notes"]:
+        result.set_note(data["notes"])
+        db.session.add(result)
+        db.session.commit()
+        return jsonify(
+            {
+                "result": "OK"
+            }
+        )
+    return jsonify(
+            {
+                "result": "Error",
+                "error": "No such result"
+            }
+        )

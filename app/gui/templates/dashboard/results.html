@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 
 {% block app_content %}
+    {% include 'util/_table_style.html' %}
     {% include 'dashboard/_menu.html' %}
     <div class="panel-group">
         {% include 'util/_pagination_nav.html' %}
@@ -18,4 +19,5 @@
     {{ super() }}
     {% include 'result/_result_click_script.html' %}
     {% include 'util/_search_bar_script.html' %}
+    {% include 'util/_note_update.html' %}
 {% endblock %}
