@@ -87,7 +87,10 @@ class ScanResult(db.Model):
     def get_note(self):
         if self.notes and len(self.notes) > 0:
             return self.notes
-        return self.try_get_soft_notes()
+        soft_notes = self.try_get_soft_notes()
+        if soft_notes:
+            return "SOFT: \n" + soft_notes
+        return ""
 
     @classmethod
     def search(cls, val):

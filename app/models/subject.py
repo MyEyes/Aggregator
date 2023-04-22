@@ -15,6 +15,8 @@ class Subject(db.Model):
     results = db.relationship('ScanResult', backref='subject', lazy='dynamic')
     duplicates = db.relationship('DuplicateScanResult', backref='subject', lazy='dynamic')
 
+    notes = db.Column(db.Text)
+
     version = db.Column(db.String(32))
     prev_version_id = db.Column(db.Integer)
     next_version_id = db.Column(db.Integer)
@@ -60,6 +62,25 @@ class Subject(db.Model):
     def get_soft_match_state_string(self):
         soft_matches = self.get_soft_matches()
         return f"{len(list(soft_matches.filter_by(state='open')))}O | {len(list(soft_matches.filter_by(state='undecided')))}U | {len(list(soft_matches.filter_by(state='confirmed')))}C | {len(list(soft_matches.filter_by(state='rejected')))}R"
+
+    def set_note(self, value):
+        self.notes = value
+
+    def get_notes(self):
+        if self.notes and len(self.notes)>0:
+            return self.notes
+        else:
+            soft_note = self.try_get_soft_notes()
+            if soft_note:
+                return "SOFT: \n" + soft_note
+            else:
+                return ""
+    
+    def try_get_soft_notes(self):
+        for soft_match in self.get_soft_matches():
+            if soft_match.notes and len(soft_match.notes)>0:
+                return soft_match.notes
+        return None
 
     @classmethod
     def search(cls, val):
