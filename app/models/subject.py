@@ -1,6 +1,7 @@
 from app.models import db
 from datetime import datetime
 from app.models.scan import ScanResult
+from app.models.tag import subject_tags
 
 # The subject of a scan, could be a URL, an assembly or something else
 class Subject(db.Model):
@@ -14,6 +15,8 @@ class Subject(db.Model):
 
     results = db.relationship('ScanResult', backref='subject', lazy='dynamic')
     duplicates = db.relationship('DuplicateScanResult', backref='subject', lazy='dynamic')
+
+    tags = db.relationship('Tag', secondary=subject_tags, backref='subjects')
 
     notes = db.Column(db.Text)
 

@@ -7,7 +7,13 @@
         <a href="javascript:update_state({{result.id }}, 'rejected')"><span id="result-{{ result.id }}-rejected" class="glyphicon glyphicon-remove" aria-hidden="true"
             {% if result.state == 'rejected' %}style="color: green"{% else %}style="color: gray"{% endif %} ></span></a>
     </td>
-    <td scope="col"><a href="{{ url_for('gui.result', id=result.id) }}">{{ result.scan_risk_text }}</a></th>
+    <td scope="col">
+        <a href="{{ url_for('gui.result', id=result.id) }}">{{ result.scan_risk_text }}</a>
+        {% for tag in result.tags %}
+            {% include 'tag/_tag_preview.html' %}
+        {% endfor %}
+        {% include 'tag/_tag_selector.html' %}
+    </td>
     <td scope="col" class="limited_width_name"><a href="{{ url_for('gui.subject', id=result.subject.id) }}">{{ result.subject.name|truncate(100) }}</a></td>
     <td scope="col">{{ result.created_at.strftime("%m/%d/%Y, %H:%M:%S")}}</th>
     <td scope="col" class="limited_width_text"><pre>{{ result.raw_text }}</pre></th>

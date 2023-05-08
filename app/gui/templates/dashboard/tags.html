@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block app_content %}
+    {% include 'dashboard/_menu.html' %}
+    <div class="panel-group">
+        {% include 'util/_pagination_nav.html' %}
+        <table class="table table-bordered table-hover">
+            <thead class="thead-light">
+                <tr>
+                    <th scope="col" class="col-md-1">Preview</th>
+                    <th scope="col" class="col-md-1">Tag Name</th>
+                    <th scope="col" class="col-md-1">Color</th>
+                    <th scope="col" class="col-md-2">Full Name</th>
+                    <th scope="col" class="col-md-7">Description</th>
+                </tr>
+            </thead>
+            {% for tag in tags %}
+                <tr>
+                    <td scope="col">
+                        {% include 'tag/_tag_preview.html' %}
+                    </th>
+                    <td scope="col">{{ tag.shortname }}</th>
+                    <td scope="col">{{ tag.color }}</th>
+                    <td scope="col">{{ tag.name }}</th>
+                    <td scope="col">{{ tag.description }}</th>
+                </tr>
+            {% endfor %}
+
+        </table>
+        <a href="{{ url_for('gui.add_tag') }}"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span></a>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+    {{ super() }}
+    {% include 'result/_result_click_script.html' %}
+    {% include 'util/_search_bar_script.html' %}
+{% endblock %}

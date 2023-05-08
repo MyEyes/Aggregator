@@ -1,0 +1,73 @@
+<script>
+    function add_tag()
+    {
+        var color_element = document.getElementById("tag_color")
+        var shortname_element = document.getElementById("tag_short_name")
+        var name_element = document.getElementById("tag_name")
+        var description_element = document.getElementById("tag_description")
+
+        $.ajax({
+        type: "POST",
+        url: '/tag/add',
+        data: JSON.stringify({
+                    shortname: shortname_element.value,
+                    color: color_element.value,
+                    name: name_element.value,
+                    description: description_element.value
+                }),
+        success: function(data){
+            if(data.id)
+            {
+                window.location.replace("/tag/"+data.id)
+            }
+        },
+        contentType: "application/json"
+        });
+    }
+
+    function update_tag(element_id, shortname, color) {
+        let tag = document.getElementById(element_id)
+        if(!tag)
+        {
+            return
+        }
+        var newTag = document.createElement("span")
+        newTag.id = element_id
+        newTag.className = "badge"
+        newTag.style = "background-color: "+color
+        newTag.innerText = shortname
+
+        var parent = tag.parentNode
+        parent.removeChild(tag)
+        parent.appendChild(newTag)
+    }
+
+    function add_tag_preview()
+    {
+        var color_element = document.getElementById("tag_color")
+        var shortname_element = document.getElementById("tag_short_name")
+        if(color_element && shortname_element)
+        {
+            update_tag("preview_tag", shortname_element.value, color_element.value)
+        }
+    }
+
+    let add_color_element = document.getElementById("tag_color")
+    if(add_color_element)
+    {
+        add_color_element.addEventListener("change", function(ev){add_tag_preview()})
+    }
+    let add_shortname_element = document.getElementById("tag_short_name")
+    if(add_shortname_element)
+    {
+        add_shortname_element.addEventListener("change", function(ev){add_tag_preview()})
+    }
+    add_tag_preview()
+
+    let add_submit_element = document.getElementById("add_tag_submit")
+    if(add_submit_element)
+    {
+        add_submit_element.addEventListener("click", function(ev){add_tag()})
+    }
+
+</script>

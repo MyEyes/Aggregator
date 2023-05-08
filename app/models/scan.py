@@ -1,5 +1,6 @@
 from app.models import db
 from datetime import datetime
+from app.models.tag import result_tags
 
 class Scan(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -58,6 +59,8 @@ class ScanResult(db.Model):
     scan_risk_text = db.Column(db.String(50))
     manual_risk_text = db.Column(db.String(50))
     notes = db.Column(db.Text)
+
+    tags = db.relationship('Tag', secondary=result_tags, backref='results')
 
     state = db.Column(db.String(32), index=True, default="open")
 

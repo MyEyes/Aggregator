@@ -4,6 +4,7 @@ from flask_login import current_user, login_required
 from app.models.scan import Scan, ScanResult
 from app.models.subject import Subject
 from app.models.tool import Tool
+from app.models.tag import Tag
 from app.models import db
 from sqlalchemy import update, alias
 
@@ -106,6 +107,29 @@ def set_notes(id):
                 "result": "OK"
             }
         )
+    return jsonify(
+            {
+                "result": "Error",
+                "error": "No such result"
+            }
+        )
+
+@bp.route('/result/<int:id>/add-tag', methods=['POST'])
+@login_required
+def add_result_tag(id):
+    result = ScanResult.query.filter_by(id=id).first_or_404()
+    data = request.get_json() or {}
+    tag = Tag.query.filter_by(id=data["tag_id"]).first_or_404()
+    if tag:
+        if tag not in result.tags:
+            result.tags.append(tag)
+            db.session.add(result)
+            db.session.commit()
+        return jsonify(
+                {
+                    "result": "OK"
+                }
+            )
     return jsonify(
             {
                 "result": "Error",

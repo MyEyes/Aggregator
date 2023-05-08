@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block app_content %}
+{% include 'util/_table_style.html' %}
+<h1>{{ title }}</h1>
+<div class="panel-group">
+    <div class="panel">
+        <div class="col-md-2">
+            <div class="panel panel-default">
+                <div class="panel-heading"><h4 class="panel-title">Preview</h4></div>
+                <div class="panel-body">
+                    <span id="preview_tag"></span></div>
+            </div>
+        </div>
+        <div class="col-md-10">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h4 class="panel-title">
+                        Parameters
+                    </h4>
+                </div>
+                <div class="panel-body">
+                    <table class="table table-bordered table-hover">
+                        <tr>
+                            <td>Short Name</td>
+                            <td><input type="text" name="Short Name" id="tag_short_name", value="{{ tag.shortname }}"></td>
+                        </tr>
+                        <tr>
+                            <td>Color</td>
+                            <td><input type="text" name="Color" id="tag_color" value="{{ tag.color }}"></td>
+                        </tr>
+                        <tr>
+                            <td>Name</td>
+                            <td><input type="text" name="Name" id="tag_name" value="{{ tag.name }}"></td>
+                        </tr>
+                        <tr>
+                            <td>Description</td>
+                            <td><textarea type="text" name="Description" id="tag_description">{{ tag.description }}</textarea></td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% include 'tag/_tag_script.html' %}
+{% endblock %}

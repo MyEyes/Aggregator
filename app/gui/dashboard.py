@@ -4,6 +4,7 @@ from flask_login import current_user, login_required
 from app.models.scan import Scan, ScanResult
 from app.models.subject import Subject
 from app.models.tool import Tool
+from app.models.tag import Tag
 from sqlalchemy import desc, asc
 
 @bp.route('/')
@@ -68,6 +69,16 @@ def tools_dashboard():
     tools = tools.paginate(page=_page, per_page=20, error_out=False)
     return render_template('dashboard/tools.html', title='Dashboard - Tools', user=current_user, tools=tools, page=_page)
 
+@bp.route('/dashboard/tags')
+@login_required
+def tags_dashboard():
+    tags = Tag.query
+    _page = 1
+    if "page" in request.args:
+        _page = int(request.args['page'])
+    tags = tags.paginate(page=_page, per_page=20, error_out=False)
+    return render_template('dashboard/tags.html', title='Dashboard - Tags', user=current_user, tags=tags, page=_page)
+
 @bp.route('/dashboard/results')
 @login_required
 def results_dashboard():
@@ -101,5 +112,6 @@ def results_dashboard():
     if "page" in request.args:
         _page = int(request.args['page'])
     results = results.paginate(page=_page, per_page=20, error_out=False)
+    tags = Tag.query.all()
 
-    return render_template('dashboard/results.html', title='Dashboard - Results', user=current_user, results=results, filter=_filter, filter_by=_filter_by, sort=_sort, sort_op=_sort_op, page=_page, search=_search)
+    return render_template('dashboard/results.html', title='Dashboard - Results', user=current_user, results=results, filter=_filter, filter_by=_filter_by, sort=_sort, sort_op=_sort_op, page=_page, search=_search, valid_tags=tags)

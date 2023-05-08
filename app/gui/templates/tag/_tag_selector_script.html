@@ -1,0 +1,89 @@
+<style>
+    .tag-selector {
+        position: relative;
+    }
+    .tag-dropdown {
+        position: absolute;
+        top: 0;
+        left: 0;
+    }
+</style>
+<script>
+    function close_curr_dropdowns()
+    {
+        let currDropdowns = document.getElementsByClassName("tag-dropdown")
+        for(var i=0; i<currDropdowns.length;)
+        {
+            var element = currDropdowns[i];
+            console.log(element)
+            let btnElement = document.getElementById(element.id+"-tag-selector")
+            btnElement.disabled = false
+            element.parentElement.removeChild(element)
+        }
+    }
+
+    function create_tag_dropdown(btn_element, result_id)
+    {
+        let tag_dropdown_template = `
+        <div class="tag-dropdown">
+            <div class="panel panel-default">
+                <div class="panel-heading"><h6 class="panel-title">Add Tag</h6></div>
+                <div class="panel panel-body">
+                    {% for tag in valid_tags %}
+                        {% include '/tag/_selector_tag_preview.html' %}
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        `.trim()
+        var template = document.createElement('template')
+        template.innerHTML = tag_dropdown_template
+
+        btn_element.disabled = true
+
+        var result = template.content.firstChild
+        result.id = result_id
+        return result
+    }
+
+    function dropdown_select_result_tag(result_id)
+    {
+        let elementId = result_id+"-tag-selector"
+        let element = document.getElementById(elementId)
+        if(!element.disabled)
+        {
+            close_curr_dropdowns()
+            element.parentElement.appendChild(create_tag_dropdown(element, result_id))
+        }
+    }
+
+    function add_tag_to_result(tag_id, result_id)
+    {
+        $.ajax({
+        type: "POST",
+        url: '/result/'+result_id+"/add-tag",
+        data: JSON.stringify({
+                    tag_id: tag_id,
+                }),
+        success: function(data){
+            if(!data.error)
+            {
+                window.location.reload()
+            }
+        },
+        contentType: "application/json"
+        });
+    }
+
+    function add_selected_tag(tag_id)
+    {
+        let currDropdowns = document.getElementsByClassName("tag-dropdown")
+        if(currDropdowns.length == 0)
+        {
+            return;
+        }
+        let currDropdown = currDropdowns[0]
+        let result_id = currDropdown.id
+        add_tag_to_result(tag_id, result_id)
+    }
+</script>
