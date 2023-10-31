@@ -10,9 +10,9 @@ from sqlalchemy import desc, asc
 @bp.route('/subject/<int:id>')
 @login_required
 def subject(id):
-    subject = Subject.query.filter_by(id=id).first()
-    soft_matches = Subject.query.filter_by(soft_match_hash=subject.soft_match_hash)
-    results = ScanResult.query.filter_by(subject_id=subject.id)
+    _subject = Subject.query.filter_by(id=id).first()
+    soft_matches = _subject.get_soft_matches()
+    results = ScanResult.query.filter_by(subject_id=_subject.id)
     _sort_op = "desc"
     if "sort_op" in request.args:
         _sort_op = request.args["sort_op"]
@@ -27,7 +27,7 @@ def subject(id):
             results = results.order_by(asc(__sort))
         else:
             results = results.order_by(desc(__sort))
-    return render_template('subject/subject.html', title='Subject - '+subject.name, user=current_user, results = results, subject=subject, soft_matches=soft_matches, sort=_sort, sort_op=_sort_op)
+    return render_template('subject/subject.html', title='Subject - '+_subject.name, user=current_user, results = results, subject=_subject, soft_matches=soft_matches, sort=_sort, sort_op=_sort_op)
 
 @bp.route('/subject/<int:id>/notes', methods=['POST'])
 @login_required

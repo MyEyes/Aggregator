@@ -11,7 +11,7 @@ class User(UserMixin, db.Model):
     name = db.Column(db.String(64), unique = True)
     pass_hash = db.Column(db.String(256))
 
-    tokens = db.relationship('UserApiToken', backref='user', lazy='dynamic')
+    tokens = db.relationship('UserApiToken', backref='user', lazy='dynamic', cascade='all, delete-orphan')
 
     def check_password(self, passw):
         h = hashlib.sha256(passw.encode())

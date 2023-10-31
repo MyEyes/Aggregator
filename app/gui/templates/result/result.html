@@ -19,10 +19,20 @@
                             <div class="panel-body"><a href="{{ url_for('gui.subject', id=mainresult.subject.id) }}"> {{ mainresult.subject.name }} </a></div>
                         </div>
                     </div>
-                    <div class="col-md-9">
+                    <div class="col-md-6">
                         <div class="panel panel-default">
                             <div class="panel-heading"><h4 class="panel-title">Scan</h4></div>
                             <div class="panel-body"><a href="{{ url_for('gui.scan', id=mainresult.scan.id) }}"> {{ mainresult.scan }} </a></div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="panel panel-default">
+                            <div class="panel-heading"><h4 class="panel-title">Tags</h4></div>
+                            <div class="panel-body">
+                                {% for tag in mainresult.tags %}
+                                    {% include 'tag/_linked_tag_preview.html' %}
+                                {% endfor %}
+                            </div>
                         </div>
                     </div>
                     <div class="col-md-3">

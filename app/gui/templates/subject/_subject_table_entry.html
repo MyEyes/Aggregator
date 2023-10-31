@@ -1,0 +1,28 @@
+<tr>
+    <td scope="col">{{ _subject.id }}</td>
+    <td scope="col">
+        <div>
+            <div>
+                <a href="{{ url_for('gui.subject', id=_subject.id) }}">{{ _subject.name }}</a>
+            </div>
+            <div>
+                {% for tag in _subject.tags %}
+                    {% include 'tag/_tag_preview.html' %}
+                {% endfor %}
+                {% include 'tag/_subject_tag_selector.html' %}
+            </div>
+        </div>
+    </td>
+    <td scope="col">
+        <a data-toggle="collapse" data-target="{{ '#path-collapse-'+_subject.id.__str__() }}">{{ _subject.altPaths.first().path|truncate(50) }}</a>
+        <div id="{{ 'path-collapse-'+_subject.id.__str__() }}" class="collapse">
+            <ul>
+            {% for path in _subject.altPaths %}
+                <li>{{ path.path }}</li>
+            {% endfor %}
+            </ul>
+        </div>
+    </td>
+    <td scope="col">{{ _subject.get_states_string() }}</td>
+    <td scope="col">{{ _subject.created_at.strftime("%m/%d/%Y, %H:%M:%S")}}</td>
+</tr>

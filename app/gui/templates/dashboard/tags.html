@@ -11,18 +11,20 @@
                     <th scope="col" class="col-md-1">Tag Name</th>
                     <th scope="col" class="col-md-1">Color</th>
                     <th scope="col" class="col-md-2">Full Name</th>
-                    <th scope="col" class="col-md-7">Description</th>
+                    <th scope="col" class="col-md-5">Description</th>
+                    <th scope="col" class="col-md-2">Special</th>
                 </tr>
             </thead>
             {% for tag in tags %}
                 <tr>
                     <td scope="col">
-                        {% include 'tag/_tag_preview.html' %}
+                        {% include 'tag/_linked_tag_preview.html' %}
                     </th>
                     <td scope="col">{{ tag.shortname }}</th>
                     <td scope="col">{{ tag.color }}</th>
                     <td scope="col">{{ tag.name }}</th>
                     <td scope="col">{{ tag.description }}</th>
+                    <td scope="col">{{ tag.special.name }}</th>
                 </tr>
             {% endfor %}
 

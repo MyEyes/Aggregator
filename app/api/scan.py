@@ -90,8 +90,10 @@ def submit_scan_result():
         return bad_request("Need to specify result soft hash")
     if 'risk' not in data:
         return bad_request("Need to specify result risk")
-    if 'text' not in data:
-        return bad_request("Need to specify result text")
+    if 'description' not in data:
+        return bad_request("Need to specify result description")
+    if 'title' not in data:
+        return bad_request("Need to specify result title")
     
     existing = ScanResult.query.filter_by(hard_match_hash=data['hash']).first()
     if existing:
@@ -118,7 +120,9 @@ def submit_scan_result():
     scanResult.scan_risk_text = data['risk']
     scanResult.subject_id = subject.id
     scanResult.scan_id = scan.id
-    scanResult.raw_text = data['text']
+    scanResult.title = data['title']
+    scanResult.raw_text = data['description']
+    scanResult.set_tags(data.get('tags'))
 
     db.session.add(scanResult)
     db.session.commit()

@@ -8,41 +8,9 @@
     <div class="panel-group">
         {% include 'util/_pagination_nav.html' %}
         <table class="table table-bordered table-hover">
-            <thead class="thead-light">
-                <tr>
-                    <th scope="col" class="col-md-1">Id</th>
-                    <th scope="col">Name</th>
-                    <th scope="col">Host</th>
-                    <th scope="col">Paths</th>
-                    <th scope="col">Results</th>
-                    <th scope="col" class="col-md-2">States O|U|C|R</th>
-                    <th scope="col">Created At</th>
-                </tr>
-            </thead>
-            {% for subject in subjects %}
-                <tr>
-                    <td scope="col">{{ subject.id }}</td>
-                    <td scope="col"><a href="{{ url_for('gui.subject', id=subject.id) }}">{{ subject.name }}</a></td>
-                    <td scope="col">{{ subject.host }}</td>
-                    <td scope="col">
-                        <a data-toggle="collapse" data-target="{{ '#path-collapse-'+subject.id.__str__() }}">{{ subject.altPaths.first().path|truncate(50) }}</a>
-                        <div id="{{ 'path-collapse-'+subject.id.__str__() }}" class="collapse">
-                            <ul>
-                            {% for path in subject.altPaths %}
-                                <li>{{ path.path }}</li>
-                            {% endfor %}
-                            </ul>
-                        </div>
-                    </td>
-                    <td scope="col">{{ subject.results|list|length }}</td>
-                    <td scope="col"><ul class="list-group list-group-horizontal">
-                        <li class="list-group-item">{{ subject.get_states()['open'] }}</li>
-                        <li class="list-group-item">{{ subject.get_states()['undecided'] }}</li>
-                        <li class="list-group-item">{{ subject.get_states()['confirmed'] }}</li>
-                        <li class="list-group-item">{{ subject.get_states()['rejected'] }}</li>
-                    </ul></td>
-                    <td scope="col">{{ subject.created_at.strftime("%m/%d/%Y, %H:%M:%S")}}</td>
-                </tr>
+            {% include 'subject/_subject_table_header.html' %}
+            {% for _subject in subjects %}
+                {% include 'subject/_subject_table_entry.html' %}
             {% endfor %}
         </table>
     </div>
@@ -52,4 +20,5 @@
     {{ super() }}
     {% include 'result/_result_click_script.html' %}
     {% include 'util/_search_bar_script.html' %}
+    {% include 'tag/_tag_selector_script.html' %}
 {% endblock %}

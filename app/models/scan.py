@@ -1,13 +1,13 @@
 from app.models import db
 from datetime import datetime
-from app.models.tag import result_tags
+from app.models.tag import result_tags, Tag, SpecialTag
 
 class Scan(db.Model):
     id = db.Column(db.Integer, primary_key=True)
 
     tool_id = db.Column(db.Integer, db.ForeignKey('tool.id'))
-    results = db.relationship('ScanResult', backref='scan', lazy='dynamic')
-    duplicates = db.relationship('DuplicateScanResult', backref='scan', lazy='dynamic')
+    results = db.relationship('ScanResult', backref='scan', lazy='dynamic', cascade='all')
+    duplicates = db.relationship('DuplicateScanResult', backref='scan', lazy='dynamic', cascade='all, delete-orphan')
 
     arguments = db.Column(db.Text, index=True)
 
@@ -53,14 +53,15 @@ class ScanResult(db.Model):
     scan_id = db.Column(db.Integer, db.ForeignKey('scan.id'))
     subject_id = db.Column(db.Integer, db.ForeignKey('subject.id'))
 
-    duplicates = db.relationship('DuplicateScanResult', backref='original_result', lazy='dynamic')
+    duplicates = db.relationship('DuplicateScanResult', backref='original_result', lazy='dynamic', cascade='all, delete-orphan')
 
+    title = db.Column(db.String(128))
     raw_text = db.Column(db.Text, index=True)
     scan_risk_text = db.Column(db.String(50))
     manual_risk_text = db.Column(db.String(50))
     notes = db.Column(db.Text)
 
-    tags = db.relationship('Tag', secondary=result_tags, backref='results')
+    tags = db.relationship('Tag', secondary=result_tags, backref='results', cascade='all')
 
     state = db.Column(db.String(32), index=True, default="open")
 
@@ -94,6 +95,25 @@ class ScanResult(db.Model):
         if soft_notes:
             return "SOFT: \n" + soft_notes
         return ""
+
+    def set_tags(self, tagIds):
+        if not tagIds:
+            return
+        self.tags.clear()
+        for tid in tagIds:
+            tag = db.session.query(Tag).filter(Tag.id == tid).first()
+            if not tag:
+                raise Exception(f"Tag with id {tid} does not exist")
+            self.tags.append(tag)
+            if tag.special == SpecialTag.OPEN_TAG:
+                self.state = "open"
+            elif tag.special == SpecialTag.UNDECIDED_TAG:
+                self.state = "undecided"
+            elif tag.special == SpecialTag.CONFIRMED_TAG:
+                self.state = "confirmed"
+            elif tag.special == SpecialTag.REJECTED_TAG:
+                self.state = "rejected"
+
 
     @classmethod
     def search(cls, val):

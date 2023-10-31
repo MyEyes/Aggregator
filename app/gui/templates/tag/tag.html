@@ -5,37 +5,52 @@
 <h1>{{ title }}</h1>
 <div class="panel-group">
     <div class="panel">
-        <div class="col-md-2">
-            <div class="panel panel-default">
-                <div class="panel-heading"><h4 class="panel-title">Preview</h4></div>
-                <div class="panel-body">
-                    <span id="preview_tag"></span></div>
-            </div>
-        </div>
-        <div class="col-md-10">
-            <div class="panel panel-default">
-                <div class="panel-heading">
-                    <h4 class="panel-title">
-                        Parameters
-                    </h4>
+        <div class="panel panel-default col-md-12">
+            <div class="col-md-2">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h4 class="panel-title">Preview</h4>
+                    </div>
+                    <div class="panel-body">
+                        {% include 'tag/_tag_preview.html' %}
+                    </div>
                 </div>
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h4 class="panel-title">Actions</h4>
+                    </div>
+                    <div class="panel-body">
+                        <span>
+                            <a class="btn btn-default" href="{{ url_for('gui.edit_tag', id=tag.id) }}" role="button">Edit</a>
+                        </span>
+                        <span>
+                            <a class="btn btn-default" href="{{ url_for('gui.delete_tag', id=tag.id) }}" role="button">Delete</a>
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-10">
                 <div class="panel-body">
                     <table class="table table-bordered table-hover">
                         <tr>
                             <td>Short Name</td>
-                            <td><input type="text" name="Short Name" id="tag_short_name", value="{{ tag.shortname }}"></td>
+                            <td><span>{{ tag.shortname }}</span></td>
                         </tr>
                         <tr>
                             <td>Color</td>
-                            <td><input type="text" name="Color" id="tag_color" value="{{ tag.color }}"></td>
+                            <td><span>{{ tag.color }}</span></td>
                         </tr>
                         <tr>
                             <td>Name</td>
-                            <td><input type="text" name="Name" id="tag_name" value="{{ tag.name }}"></td>
+                            <td><span>{{ tag.name }}</span></td>
                         </tr>
                         <tr>
                             <td>Description</td>
-                            <td><textarea type="text" name="Description" id="tag_description">{{ tag.description }}</textarea></td>
+                            <td><span>{{ tag.description }}</span></td>
+                        </tr>
+                        <tr>
+                            <td>Special Tag</td>
+                            <td><span>{{ tag.special.name }}</span></td>
                         </tr>
                     </table>
                 </div>

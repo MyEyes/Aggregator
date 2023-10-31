@@ -18,20 +18,24 @@ def create_subject():
         return bad_request("Soft hash required")
     if 'hash' not in data:
         return bad_request("Hash required")
-    if 'host' not in data:
-        return bad_request("Host required")
     if 'path' not in data:
         return bad_request("Path required")
+
+    tags = data.get('tags')
+    parentId = data.get('parentId')
     
     existing = Subject.query.filter_by(hard_match_hash=data['hash']).first()
     if existing:
         existing.addName(data['name'])
         existing.addPath(data['path'])
+        existing.set_tags(tags)
+        existing.set_parent(parentId)
         db.session.commit()
         return jsonify(
         {
             'status': 'Success',
-            'msg': 'Subject Updated'
+            'msg': 'Subject Updated',
+            'id': existing.id
         }
     )
 
@@ -42,8 +46,13 @@ def create_subject():
     subject.created_at = datetime.utcnow()
     subject.hard_match_hash = data['hash']
     subject.soft_match_hash = data['soft_hash']
-    subject.host = data['host']
+
+    subject.set_parent(parentId)
     db.session.add(subject)
+    db.session.commit()
+    db.session.refresh(subject) #Make sure id is available
+
+    subject.set_tags(tags)
 
     subject.addPath(data['path'])
     if 'version' in data:
@@ -62,6 +71,7 @@ def create_subject():
     return jsonify(
         {
             'status': 'Success',
-            'msg': 'Subject Created'
+            'msg': 'Subject Created',
+            'id': subject.id
         }
     )

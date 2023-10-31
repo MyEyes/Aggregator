@@ -14,6 +14,46 @@ def tag(id):
     tag = Tag.query.filter_by(id=id).first()
     return render_template('tag/tag.html', title='Tag - '+tag.name, user=current_user, tag=tag)
 
+@bp.route('/tag/<int:id>/edit', methods=['GET', 'POST'])
+@login_required
+def edit_tag(id):
+    tag = Tag.query.filter_by(id=id).first()
+    if request.method == 'GET':
+        return render_template('tag/edit_tag.html', title='Edit Tag - '+tag.name, user=current_user, tag=tag)
+
+    data = request.get_json() or {}
+    try:
+        tag.color = data["color"]
+        tag.description = data["description"]
+        tag.name = data["name"]
+        tag.shortname = data["shortname"]
+        tag.special = data["special"]
+        db.session.add(tag)
+        db.session.commit()
+        return jsonify({
+            "result": "Success",
+            "id": tag.id
+        }
+        )
+    except Exception as e:
+        return jsonify(
+                {
+                    "result": "Error",
+                    "error": str(e)
+                }
+            )
+
+@bp.route('/tag/<int:id>/delete', methods=['GET', 'POST'])
+@login_required
+def delete_tag(id):
+    tag = Tag.query.filter_by(id=id).first()
+    if request.method == 'GET':
+        return render_template('tag/delete_tag.html', title='Delete Tag - '+tag.name, user=current_user, tag=tag)
+
+    db.session.delete(tag)
+    db.session.commit()
+    return redirect(url_for('gui.tags_dashboard'))
+
 @bp.route('/tag/add', methods=['GET', 'POST'])
 @login_required
 def add_tag():
@@ -27,6 +67,7 @@ def add_tag():
         newTag.description = data["description"]
         newTag.name = data["name"]
         newTag.shortname = data["shortname"]
+        newTag.special = data["special"]
         db.session.add(newTag)
         db.session.commit()
         return jsonify({

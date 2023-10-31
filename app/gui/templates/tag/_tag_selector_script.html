@@ -15,7 +15,7 @@
         for(var i=0; i<currDropdowns.length;)
         {
             var element = currDropdowns[i];
-            console.log(element)
+            //console.log(element)
             let btnElement = document.getElementById(element.id+"-tag-selector")
             btnElement.disabled = false
             element.parentElement.removeChild(element)
@@ -57,6 +57,17 @@
         }
     }
 
+    function dropdown_select_subject_tag(subject_id)
+    {
+        let elementId = subject_id+"-tag-selector"
+        let element = document.getElementById(elementId)
+        if(!element.disabled)
+        {
+            close_curr_dropdowns()
+            element.parentElement.appendChild(create_tag_dropdown(element, subject_id))
+        }
+    }
+
     function add_tag_to_result(tag_id, result_id)
     {
         $.ajax({
@@ -86,4 +97,5 @@
         let result_id = currDropdown.id
         add_tag_to_result(tag_id, result_id)
     }
+    document.body.addEventListener('click', close_curr_dropdowns, true)
 </script>

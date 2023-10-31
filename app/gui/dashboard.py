@@ -57,7 +57,8 @@ def subjects_dashboard():
     if "page" in request.args:
         _page = int(request.args['page'])
     subjects = subjects.paginate(page=_page, per_page=20, error_out=False)
-    return render_template('dashboard/subjects.html', title='Dashboard - Subjects', user=current_user, subjects = subjects, page=_page, search=_search)
+    tags = Tag.query.all()
+    return render_template('dashboard/subjects.html', title='Dashboard - Subjects', user=current_user, subjects = subjects, page=_page, search=_search, valid_tags=tags)
 
 @bp.route('/dashboard/tools')
 @login_required
