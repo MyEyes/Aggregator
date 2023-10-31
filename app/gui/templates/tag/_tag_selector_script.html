@@ -9,23 +9,24 @@
     }
 </style>
 <script>
-    function close_curr_dropdowns()
+    function close_curr_dropdown()
     {
-        let currDropdowns = document.getElementsByClassName("tag-dropdown")
-        for(var i=0; i<currDropdowns.length;)
+        if(document.tag_skip_remove)
         {
-            var element = currDropdowns[i];
-            //console.log(element)
-            let btnElement = document.getElementById(element.id+"-tag-selector")
-            btnElement.disabled = false
-            element.parentElement.removeChild(element)
+            document.tag_skip_remove = false
+            return
+        }
+        if(document.tag_dropdown)
+        {
+            document.tag_dropdown.parentElement.removeChild(document.tag_dropdown)
+            document.tag_dropdown = null
         }
     }
 
-    function create_tag_dropdown(btn_element, result_id)
+    function create_result_tag_dropdown(btn_element, result_id)
     {
         let tag_dropdown_template = `
-        <div class="tag-dropdown">
+        <div class="tag-dropdown" style="cursor: auto;">
             <div class="panel panel-default">
                 <div class="panel-heading"><h6 class="panel-title">Add Tag</h6></div>
                 <div class="panel panel-body">
@@ -39,33 +40,83 @@
         var template = document.createElement('template')
         template.innerHTML = tag_dropdown_template
 
-        btn_element.disabled = true
+        //btn_element.disabled = true
 
         var result = template.content.firstChild
         result.id = result_id
+        document.tag_dropdown = result
+        document.tag_target = "result"
         return result
     }
 
-    function dropdown_select_result_tag(result_id)
+    function create_subject_tag_dropdown(btn_element, subject_id)
     {
+        let tag_dropdown_template = `
+        <div class="tag-dropdown" style="cursor: auto;">
+            <div class="panel panel-default">
+                <div class="panel-heading"><h6 class="panel-title">Add Tag</h6></div>
+                <div class="panel panel-body">
+                    {% for tag in valid_tags %}
+                        {% include '/tag/_selector_tag_preview.html' %}
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        `.trim()
+        var template = document.createElement('template')
+        template.innerHTML = tag_dropdown_template
+
+        //btn_element.disabled = true
+
+        var result = template.content.firstChild
+        result.id = subject_id
+        document.tag_dropdown = result
+        document.tag_target = "subject"
+        return result
+    }
+
+    function dropdown_select_result_tag(e, result_id)
+    {
+        e.preventDefault()
         let elementId = result_id+"-tag-selector"
         let element = document.getElementById(elementId)
         if(!element.disabled)
         {
-            close_curr_dropdowns()
-            element.parentElement.appendChild(create_tag_dropdown(element, result_id))
+            close_curr_dropdown()
+            element.parentElement.appendChild(create_result_tag_dropdown(element, result_id))
+            document.tag_skip_remove = true
         }
     }
 
-    function dropdown_select_subject_tag(subject_id)
+    function dropdown_select_subject_tag(e, subject_id)
     {
+        e.preventDefault()
         let elementId = subject_id+"-tag-selector"
         let element = document.getElementById(elementId)
         if(!element.disabled)
         {
-            close_curr_dropdowns()
-            element.parentElement.appendChild(create_tag_dropdown(element, subject_id))
+            close_curr_dropdown()
+            element.parentElement.appendChild(create_subject_tag_dropdown(element, subject_id))
+            document.tag_skip_remove = true
         }
+    }
+
+    function add_tag_to_subject(tag_id, subject_id)
+    {
+        $.ajax({
+        type: "POST",
+        url: '/subject/'+subject_id+"/add-tag",
+        data: JSON.stringify({
+                    tag_id: tag_id,
+                }),
+        success: function(data){
+            if(!data.error)
+            {
+                window.location.reload()
+            }
+        },
+        contentType: "application/json"
+        });
     }
 
     function add_tag_to_result(tag_id, result_id)
@@ -86,16 +137,53 @@
         });
     }
 
-    function add_selected_tag(tag_id)
+    function add_selected_tag(e, tag_id)
     {
-        let currDropdowns = document.getElementsByClassName("tag-dropdown")
-        if(currDropdowns.length == 0)
-        {
-            return;
-        }
-        let currDropdown = currDropdowns[0]
-        let result_id = currDropdown.id
-        add_tag_to_result(tag_id, result_id)
+        let target_id = document.tag_dropdown.id
+        if(document.tag_target == 'subject')
+            add_tag_to_subject(tag_id, target_id)
+        if(document.tag_target == 'result')
+            add_tag_to_result(tag_id, target_id)
     }
-    document.body.addEventListener('click', close_curr_dropdowns, true)
+
+    function del_subject_tag(e, subject_id, tag_id)
+    {
+        $.ajax({
+        type: "POST",
+        url: '/subject/'+subject_id+"/del-tag",
+        data: JSON.stringify({
+                    tag_id: tag_id,
+                }),
+        success: function(data){
+            if(!data.error)
+            {
+                e.target.parentElement.parentElement.removeChild(e.target.parentElement)
+            }
+        },
+        contentType: "application/json"
+        });
+    }
+
+    function del_result_tag(e, result_id, tag_id)
+    {
+        $.ajax({
+        type: "POST",
+        url: '/result/'+result_id+"/del-tag",
+        data: JSON.stringify({
+                    tag_id: tag_id,
+                }),
+        success: function(data){
+            if(!data.error)
+            {
+                e.target.parentElement.parentElement.removeChild(e.target.parentElement)
+            }
+        },
+        contentType: "application/json"
+        });
+    }
+
+    document.tag_dropdown = null
+    document.tag_target = null
+    document.tag_skip_remove = false
+    document.body.addEventListener('click', close_curr_dropdown)
 </script>

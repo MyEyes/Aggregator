@@ -136,3 +136,26 @@ def add_result_tag(id):
                 "error": "No such result"
             }
         )
+
+@bp.route('/result/<int:id>/del-tag', methods=['POST'])
+@login_required
+def del_result_tag(id):
+    result = ScanResult.query.filter_by(id=id).first_or_404()
+    data = request.get_json() or {}
+    tag = Tag.query.filter_by(id=data["tag_id"]).first_or_404()
+    if tag:
+        if tag in result.tags:
+            result.tags.remove(tag)
+            db.session.add(result)
+            db.session.commit()
+        return jsonify(
+                {
+                    "result": "OK"
+                }
+            )
+    return jsonify(
+            {
+                "result": "Error",
+                "error": "No such result"
+            }
+        )

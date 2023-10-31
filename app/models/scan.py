@@ -96,6 +96,19 @@ class ScanResult(db.Model):
             return "SOFT: \n" + soft_notes
         return ""
 
+    def add_tag(self, tag):
+        if tag in self.tags:
+            return
+        self.tags.append(tag)
+        if tag.special == SpecialTag.OPEN_TAG:
+            self.state = "open"
+        elif tag.special == SpecialTag.UNDECIDED_TAG:
+            self.state = "undecided"
+        elif tag.special == SpecialTag.CONFIRMED_TAG:
+            self.state = "confirmed"
+        elif tag.special == SpecialTag.REJECTED_TAG:
+            self.state = "rejected"
+
     def set_tags(self, tagIds):
         if not tagIds:
             return
@@ -104,16 +117,16 @@ class ScanResult(db.Model):
             tag = db.session.query(Tag).filter(Tag.id == tid).first()
             if not tag:
                 raise Exception(f"Tag with id {tid} does not exist")
-            self.tags.append(tag)
-            if tag.special == SpecialTag.OPEN_TAG:
-                self.state = "open"
-            elif tag.special == SpecialTag.UNDECIDED_TAG:
-                self.state = "undecided"
-            elif tag.special == SpecialTag.CONFIRMED_TAG:
-                self.state = "confirmed"
-            elif tag.special == SpecialTag.REJECTED_TAG:
-                self.state = "rejected"
+            self.add_tag(tag)
 
+    def add_tags(self, tagIds):
+        if not tagIds:
+            return
+        for tid in tagIds:
+            tag = db.session.query(Tag).filter(Tag.id == tid).first()
+            if not tag:
+                raise Exception(f"Tag with id {tid} does not exist")
+            self.add_tag(tag)
 
     @classmethod
     def search(cls, val):

@@ -122,7 +122,7 @@ def submit_scan_result():
     scanResult.scan_id = scan.id
     scanResult.title = data['title']
     scanResult.raw_text = data['description']
-    scanResult.set_tags(data.get('tags'))
+    scanResult.add_tags(data.get('tags'))
 
     db.session.add(scanResult)
     db.session.commit()

@@ -28,7 +28,7 @@ def create_subject():
     if existing:
         existing.addName(data['name'])
         existing.addPath(data['path'])
-        existing.set_tags(tags)
+        existing.add_tags(tags)
         existing.set_parent(parentId)
         db.session.commit()
         return jsonify(
@@ -52,7 +52,7 @@ def create_subject():
     db.session.commit()
     db.session.refresh(subject) #Make sure id is available
 
-    subject.set_tags(tags)
+    subject.add_tags(tags)
 
     subject.addPath(data['path'])
     if 'version' in data:

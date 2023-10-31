@@ -1,7 +1,0 @@
-<div class="tag-selector">
-    {% if result %}
-        <span onclick="dropdown_select_result_tag({{ result.id }})" class="glyphicon glyphicon-plus tag-selector" aria-hidden="true" id="{{ result.id }}-tag-selector" style="color:darkgreen; font-size: x-small;"></span>
-    {% elif subject %}
-        <span onclick="dropdown_select_subject_tag({{ subject.id }})" class="glyphicon glyphicon-plus tag-selector" aria-hidden="true" id="{{ subject.id }}-tag-selector" style="color:darkgreen; font-size: x-small;"></span>
-    {% endif %}
-</div>

@@ -122,6 +122,15 @@ class Subject(db.Model):
                 raise Exception(f"Tag with id {tid} does not exist")
             self.tags.append(tag)
 
+    def add_tags(self, tagIds):
+        for tid in tagIds:
+            tag = db.session.query(Tag).filter(Tag.id == tid).first()
+            if not tag:
+                raise Exception(f"Tag with id {tid} does not exist")
+            if tag in self.tags:
+                continue
+            self.tags.append(tag)
+
     @classmethod
     def search(cls, val):
         search_str = "%{0}%".format(val)

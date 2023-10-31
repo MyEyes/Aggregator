@@ -7,7 +7,7 @@
             </div>
             <div>
                 {% for tag in _subject.tags %}
-                    {% include 'tag/_tag_preview.html' %}
+                    {% include 'tag/_deleteable_subject_tag_preview.html' %}
                 {% endfor %}
                 {% include 'tag/_subject_tag_selector.html' %}
             </div>
