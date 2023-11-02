@@ -7,7 +7,7 @@
         <div class="panel panel-info">
             <div class="panel-heading">
                 <h3 class="panel-title">
-                    <a data-toggle="collapse" href="#info-panel-collapse">Scan info</a>
+                    <a class="collapse-toggle" data-toggle="collapse" href="#info-panel-collapse">Scan info</a>
 
                 </h3>
             </div>
@@ -61,7 +61,7 @@
         <div class="panel panel-info">
             <div class="panel-heading">
                 <h3 class="panel-title">
-                    <a data-toggle="collapse" href="#open-results-collapse">Open <span class="badge">{{ scan.results.filter_by(state="open")|list|length }}</a>
+                    <a class="collapse-toggle" data-toggle="collapse" href="#open-results-collapse">Open <span class="badge">{{ scan.results.filter_by(state="open")|list|length }}</a>
                 </h3>
                 <a href="javascript:mass_update_state({{ scan.id }}, undefined, 'open', undefined, 'open')"><span class="glyphicon glyphicon-question-sign" aria-hidden="true"></span></a>
                 <a href="javascript:mass_update_state({{ scan.id }}, undefined, 'open', undefined, 'confirmed')"><span class="glyphicon glyphicon-ok" aria-hidden="true"></span></a>
@@ -80,7 +80,7 @@
         <div class="panel panel-info">
             <div class="panel-heading">
                 <h3 class="panel-title">
-                    <a data-toggle="collapse" href="#undecided-results-collapse">Undecided <span class="badge">{{ scan.results.filter_by(state="undecided")|list|length }}</span></a>
+                    <a class="collapse-toggle collapsed" data-toggle="collapse" href="#undecided-results-collapse">Undecided <span class="badge">{{ scan.results.filter_by(state="undecided")|list|length }}</span></a>
                 </h3>
                 <a href="javascript:mass_update_state({{ scan.id }}, undefined, 'undecided', undefined, 'open')"><span class="glyphicon glyphicon-question-sign" aria-hidden="true"></span></a>
                 <a href="javascript:mass_update_state({{ scan.id }}, undefined, 'undecided', undefined, 'confirmed')"><span class="glyphicon glyphicon-ok" aria-hidden="true"></span></a>
@@ -99,7 +99,7 @@
         <div class="panel panel-info">
             <div class="panel-heading">
                 <h3 class="panel-title">
-                    <a data-toggle="collapse" href="#confirmed-results-collapse">Confirmed <span class="badge">{{ scan.results.filter_by(state="confirmed")|list|length }}</a>
+                    <a class="collapse-toggle collapsed" data-toggle="collapse" href="#confirmed-results-collapse">Confirmed <span class="badge">{{ scan.results.filter_by(state="confirmed")|list|length }}</a>
                 </h3>
                 <a href="javascript:mass_update_state({{ scan.id }}, undefined, 'confirmed', undefined, 'open')"><span class="glyphicon glyphicon-question-sign" aria-hidden="true"></span></a>
                 <a href="javascript:mass_update_state({{ scan.id }}, undefined, 'confirmed', undefined, 'confirmed')"><span class="glyphicon glyphicon-ok" aria-hidden="true"></span></a>
@@ -118,7 +118,7 @@
         <div class="panel panel-info">
             <div class="panel-heading">
                 <h3 class="panel-title">
-                    <a data-toggle="collapse" href="#rejected-results-collapse">Rejected <span class="badge">{{ scan.results.filter_by(state="rejected")|list|length }}</a>
+                    <a class="collapse-toggle collapsed" data-toggle="collapse" href="#rejected-results-collapse">Rejected <span class="badge">{{ scan.results.filter_by(state="rejected")|list|length }}</a>
                 </h3>
                 <a href="javascript:mass_update_state({{ scan.id }}, undefined, 'rejected', undefined, 'open')"><span class="glyphicon glyphicon-question-sign" aria-hidden="true"></span></a>
                 <a href="javascript:mass_update_state({{ scan.id }}, undefined, 'rejected', undefined, 'confirmed')"><span class="glyphicon glyphicon-ok" aria-hidden="true"></span></a>

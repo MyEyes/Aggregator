@@ -64,15 +64,44 @@
     .collapse.width {
         height: inherit;
         overflow: hidden;
+        display: none;
         transition-property: width, visibility;
         transition-duration: 0.35s;
         transition-timing-function: ease;
-        width: 0;
     }
 
     .collapse.in.width {
         width: auto;
+        display: block;
         transition-property: width, visibility;
+        transition-duration: 0.35s;
+        transition-timing-function: ease;
+    }
+
+    .collapsing.left {
+        overflow: hidden;
+        position: inherit;
+        width: 100%;
+        transition-property: left;
+        transition-duration: 0.35s;
+        transition-timing-function: ease;
+    }
+
+    .collapse.left {
+        overflow: hidden;
+        transition-property: left;
+        transition-duration: 0.35s;
+        transition-timing-function: ease;
+        width: 100%;
+        position: inherit;
+        left: -100%;
+    }
+
+    .collapse.in.left {
+        width: 100%;
+        position: inherit;
+        left:0;
+        transition-property: left;
         transition-duration: 0.35s;
         transition-timing-function: ease;
     }

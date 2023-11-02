@@ -20,6 +20,11 @@
     </td>
     <td scope="col" class="limited_width_name"><a href="{{ url_for('gui.subject', id=result.subject.id) }}">{{ result.subject.name|truncate(100) }}</a></td>
     <td scope="col">{{ result.created_at.strftime("%m/%d/%Y, %H:%M:%S")}}</th>
-    <td scope="col" class="limited_width_text"><pre>{{ result.raw_text }}</pre></th>
+    <td scope="col">
+        <div class="in_table_header collapse-toggle collapsed" data-toggle="collapse" href="#{{ result.id }}-info-panel-collapse">{{ result.title }}</div>
+        <div id="{{ result.id }}-info-panel-collapse" class="panel-collapse collapse limited_width_text">
+            <pre>{{ result.raw_text }}</pre>
+        </div>
+    </td>
     <td scope="col" class="limited_width_text">{% include 'result/_notes_field.html' %}</th>
 </tr>

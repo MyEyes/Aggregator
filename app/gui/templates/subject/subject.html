@@ -7,7 +7,7 @@
         <div class="panel panel-info">
             <div class="panel-heading">
                 <h3 class="panel-title">
-                    <a data-toggle="collapse" href="#info-panel-collapse">Subject Info - {{ subject.name }}</a>
+                    <a class="collapse-toggle" data-toggle="collapse" href="#info-panel-collapse">Subject Info - {{ subject.name }}</a>
                 </h3>
             </div>
             <div id="info-panel-collapse" class="panel-collapse collapse in">
@@ -35,7 +35,7 @@
                             <div class="panel panel-default">
                                 <div class="panel-heading">
                                     <h4 class="panel-title">
-                                        <a data-toggle="collapse" href="#path-panel-collapse">Known Paths <span class="badge">{{ subject.altPaths|list|length }}</span></a>
+                                        <a class="collapse-toggle" data-toggle="collapse" href="#path-panel-collapse">Known Paths <span class="badge">{{ subject.altPaths|list|length }}</span></a>
                                     </h4>
                                 </div>
                                 <div id="path-panel-collapse" class="panel-collapse {% if subject.altPaths|list|length > 3 %} collapse {% else %} collapse in {% endif %}">
@@ -84,11 +84,13 @@
                             <div class="panel panel-default">
                                 <div class="panel-heading">
                                     <h4 class="panel-title">
-                                        <a data-toggle="collapse" href="#path-panel-collapse">Notes</a>
+                                        <a class="collapse-toggle" data-toggle="collapse" href="#notes-panel-collapse">Notes</a>
                                     </h4>
                                 </div>
-                                <div class="panel-body">
-                                    {% include 'subject/_notes_field.html' %}
+                                <div class="panel-collapse collapse in" id="notes-panel-collapse">
+                                    <div class="panel-body">
+                                        {% include 'subject/_notes_field.html' %}
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -102,7 +104,7 @@
         <div class="panel panel-info">
             <div class="panel-heading">
                 <h2 class="panel-title">
-                    <a data-toggle="collapse" href="#children-collapse">Children</a>
+                    <a class="collapse-toggle" data-toggle="collapse" href="#children-collapse">Children</a>
                     <span class="badge">{{ subject.children|list|length }}</a>
                 </h2>
             </div>
@@ -124,7 +126,7 @@
         <div class="panel panel-info">
             <div class="panel-heading">
                 <h2 class="panel-title">
-                    <a data-toggle="collapse" href="#soft-matches-collapse">Soft Matches</a>
+                    <a class="collapse-toggle" data-toggle="collapse" href="#soft-matches-collapse">Soft Matches</a>
                     <span class="badge">{{ soft_matches|list|length }}</a>
                 </h2>
             </div>
@@ -148,7 +150,7 @@
         <div class="panel panel-info">
             <div class="panel-heading">
                 <h3 class="panel-title">
-                    <a data-toggle="collapse" href="#open-results-collapse">Open <span class="badge">{{ subject.results.filter_by(state="open")|list|length }}</a>
+                    <a class="collapse-toggle" data-toggle="collapse" href="#open-results-collapse">Open <span class="badge">{{ subject.results.filter_by(state="open")|list|length }}</a>
                 </h3>
                 <a href="javascript:mass_update_state(undefined, {{ subject.id }}, 'open', undefined, 'open')"><span class="glyphicon glyphicon-question-sign" aria-hidden="true"></span></a>
                 <a href="javascript:mass_update_state(undefined, {{ subject.id }}, 'open', undefined, 'confirmed')"><span class="glyphicon glyphicon-ok" aria-hidden="true"></span></a>
@@ -167,7 +169,7 @@
         <div class="panel panel-info">
             <div class="panel-heading">
                 <h3 class="panel-title">
-                    <a data-toggle="collapse" href="#undecided-results-collapse">Undecided <span class="badge">{{ subject.results.filter_by(state="undecided")|list|length }}</span></a>
+                    <a class="collapse-toggle collapsed" data-toggle="collapse" href="#undecided-results-collapse">Undecided <span class="badge">{{ subject.results.filter_by(state="undecided")|list|length }}</span></a>
                 </h3>
                 <a href="javascript:mass_update_state(undefined, {{ subject.id }}, 'undecided', undefined, 'open')"><span class="glyphicon glyphicon-question-sign" aria-hidden="true"></span></a>
                 <a href="javascript:mass_update_state(undefined, {{ subject.id }}, 'undecided', undefined, 'confirmed')"><span class="glyphicon glyphicon-ok" aria-hidden="true"></span></a>
@@ -186,7 +188,7 @@
         <div class="panel panel-info">
             <div class="panel-heading">
                 <h3 class="panel-title">
-                    <a data-toggle="collapse" href="#confirmed-results-collapse">Confirmed <span class="badge">{{ subject.results.filter_by(state="confirmed")|list|length }}</a>
+                    <a class="collapse-toggle collapsed" data-toggle="collapse" href="#confirmed-results-collapse">Confirmed <span class="badge">{{ subject.results.filter_by(state="confirmed")|list|length }}</a>
                 </h3>
                 <a href="javascript:mass_update_state(undefined, {{ subject.id }}, 'confirmed', undefined, 'open')"><span class="glyphicon glyphicon-question-sign" aria-hidden="true"></span></a>
                 <a href="javascript:mass_update_state(undefined, {{ subject.id }}, 'confirmed', undefined, 'confirmed')"><span class="glyphicon glyphicon-ok" aria-hidden="true"></span></a>
@@ -205,7 +207,7 @@
         <div class="panel panel-info">
             <div class="panel-heading">
                 <h3 class="panel-title">
-                    <a data-toggle="collapse" href="#rejected-results-collapse">Rejected <span class="badge">{{ subject.results.filter_by(state="rejected")|list|length }}</a>
+                    <a class="collapse-toggle collapsed" data-toggle="collapse" href="#rejected-results-collapse">Rejected <span class="badge">{{ subject.results.filter_by(state="rejected")|list|length }}</a>
                 </h3>
                 <a href="javascript:mass_update_state(undefined, {{ subject.id }}, 'rejected', undefined, 'open')"><span class="glyphicon glyphicon-question-sign" aria-hidden="true"></span></a>
                 <a href="javascript:mass_update_state(undefined, {{ subject.id }}, 'rejected', undefined, 'confirmed')"><span class="glyphicon glyphicon-ok" aria-hidden="true"></span></a>

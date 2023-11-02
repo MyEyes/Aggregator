@@ -1,6 +1,6 @@
 {% include 'util/_horizontal_group_style.html' %}
 <h1>Aggregator - Dashboard</h1>
-<div>
+<div class="row">
     <div class="col-md-4">
         <a class="btn btn-default {% if scans %} active {% endif %}" href="{{ url_for('gui.scans_dashboard') }}" role="button">Scans</a>
         <a class="btn btn-default {% if subjects %} active {% endif %}" href="{{ url_for('gui.subjects_dashboard') }}" role="button">Subjects</a>
@@ -13,11 +13,11 @@
             <div class="panel panel-info panel-horizontal">
                 <div class="panel-heading">
                     <h3 class="panel-title">
-                        <a data-toggle="collapse" href="#filter-panel-collapse">Filter {% if filter_by %} {{ filter_by }} == {{ filter }} {% endif %}</a>
+                        <a class="collapse-toggle width {% if not filter_by %} collapsed {% endif %}" data-toggle="collapse" href="#filter-panel-collapse">Filter {% if filter_by %} {{ filter_by }} == {{ filter }} {% endif %}</a>
                     </h3>
                 </div>
                 <span id="filter-panel-collapse" class="panel-collapse width collapse {% if filter_by %} in {% endif %}">
-                    <div id="info-panel" class="panel-body">
+                    <div id="info-panel" class="panel-body" style="width: max-content;">
                         <span>
                             <b>State</b>
                             <a href="{{ url_for(request.endpoint, **dict(request.args, page=1,filter_by='state',filter='open')) }}"><span class="glyphicon glyphicon-question-sign" aria-hidden="true"

@@ -14,7 +14,7 @@
         </div>
     </td>
     <td scope="col">
-        <a data-toggle="collapse" data-target="{{ '#path-collapse-'+_subject.id.__str__() }}">{{ _subject.altPaths.first().path|truncate(50) }}</a>
+        <span class="collapse-toggle collapsed" data-toggle="collapse" data-target="{{ '#path-collapse-'+_subject.id.__str__() }}">{{ _subject.altPaths.first().path|truncate(50) }}</span>
         <div id="{{ 'path-collapse-'+_subject.id.__str__() }}" class="collapse">
             <ul>
             {% for path in _subject.altPaths %}
