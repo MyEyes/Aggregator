@@ -26,10 +26,11 @@ def create_subject():
     
     existing = Subject.query.filter_by(hard_match_hash=data['hash']).first()
     if existing:
+        if existing.parentId != parentId:
+            return bad_request("Subject exists with different parent", "Subject exists with different parent")
         existing.addName(data['name'])
         existing.addPath(data['path'])
         existing.add_tags(tags)
-        existing.set_parent(parentId)
         db.session.commit()
         return jsonify(
         {
