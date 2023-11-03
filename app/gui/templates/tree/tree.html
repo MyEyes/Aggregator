@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block app_content %}
+    {% include 'tree/_tree_style.html' %}
+    <h2>{{ title }}</h2>
+    <div class="panel-group">
+        <div class="panel panel-info">
+            <div class="tree">
+                <ul>
+                    {% for _subject in subjects %}
+                        {% include 'tree/_subject_root_tree_node.html' %}
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+    {{ super() }}
+    {% include 'tree/_tree_script.html' %}
+{% endblock %}

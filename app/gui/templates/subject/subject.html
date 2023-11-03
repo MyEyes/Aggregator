@@ -7,6 +7,7 @@
         <div class="panel panel-info">
             <div class="panel-heading">
                 <h3 class="panel-title">
+                    <a href="{{url_for('gui.tree_subject', id=subject.id)}}" title="Subject Tree View"><span class="glyphicon glyphicon-list"></span></a>
                     <a class="collapse-toggle" data-toggle="collapse" href="#info-panel-collapse">Subject Info - {{ subject.name }}</a>
                 </h3>
             </div>
@@ -126,6 +127,7 @@
         <div class="panel panel-info">
             <div class="panel-heading">
                 <h2 class="panel-title">
+                    <a href="{{url_for('gui.tree_subject_matched', id=subject.id)}}" title="Soft Matches Tree View"><span class="glyphicon glyphicon-list"></span></a>
                     <a class="collapse-toggle" data-toggle="collapse" href="#soft-matches-collapse">Soft Matches</a>
                     <span class="badge">{{ soft_matches|list|length }}</a>
                 </h2>

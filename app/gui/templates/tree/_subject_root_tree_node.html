@@ -1,0 +1,11 @@
+<li>
+    <span class="tree {% if _subject.children or _subject.results %} expandable {% endif %}" id="subject-{{_subject.id}}-node">
+        {% if _subject.children or _subject.results %}
+            <i class="indicator glyphicon glyphicon-plus-sign" onclick="node_toggle(event, {{_subject.id}})"></i>
+        {% endif %}
+        <a href="{{url_for('gui.subject',id=_subject.id)}}">{{_subject.name}}</a>
+        {% for tag in _subject.tags %}
+            {% include 'tag/_tree_tag_preview.html' %}
+        {% endfor %}
+    </span>
+</li>

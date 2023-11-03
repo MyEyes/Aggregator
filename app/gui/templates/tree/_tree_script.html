@@ -1,0 +1,207 @@
+<script>
+    function get_subject_children(subject_id)
+    {
+        return $.ajax({
+        type: "GET",
+        url: '/tree/api/subject/'+subject_id+'/children',
+        contentType: "application/json"
+        });
+    }
+
+    function get_subject_results(subject_id)
+    {
+        return $.ajax({
+        type: "GET",
+        url: '/tree/api/subject/'+subject_id+'/results',
+        contentType: "application/json"
+        });
+    }
+
+    function make_tag(tag_info)
+    {
+        var newTag = document.createElement("span")
+        newTag.id = 'tag-'+tag_info.id
+        newTag.className = "badge"
+        newTag.classList.add("tree-tag")
+        newTag.style = "background-color: "+tag_info.color
+        newTag.innerText = tag_info.shortname
+        return newTag
+    }
+
+    function make_icon(subject_id)
+    {
+        var iconElement = document.createElement('i')
+        iconElement.classList.add('indicator')
+        iconElement.classList.add('glyphicon')
+        iconElement.classList.add('glyphicon-plus-sign') //Only creating icons if expandable
+        iconElement.onclick = function(e){
+            node_toggle(e, subject_id)
+        }
+        return iconElement
+    }
+
+    function toggle_icon(iconElement)
+    {
+        if(iconElement.classList.contains('glyphicon-plus-sign'))
+        {
+            iconElement.classList.remove('glyphicon-plus-sign')
+            iconElement.classList.add('glyphicon-minus-sign')
+        }
+        else
+        {
+            iconElement.classList.remove('glyphicon-minus-sign')
+            iconElement.classList.add('glyphicon-plus-sign')
+        }
+    }
+
+    function make_result_node(resultinfo)
+    {
+        var listNode = document.createElement('li')
+        var newNode = document.createElement("span")
+        newNode.appendChild(make_tag({'id':'result','shortname':'result','color':'gray'}))
+        newNode.id = 'result-'+resultinfo.id+'-node'
+
+        nameElement = document.createElement('a')
+        nameElement.href = '/result/'+resultinfo.id
+        nameElement.innerText = resultinfo.title
+        newNode.appendChild(nameElement)
+                
+        if(resultinfo.tags.length > 0)
+        {
+            var tagElement = document.createElement("span")
+            for(tag_info of resultinfo.tags)
+            {
+                tagElement.appendChild(make_tag(tag_info))
+            }
+            newNode.appendChild(tagElement)
+        }
+        listNode.appendChild(newNode)
+        return listNode
+    }
+
+    function make_subject_node(subject_info)
+    {
+        var listNode = document.createElement('li')
+        var newNode = document.createElement("span")
+        newNode.classList.add('tree')
+        newNode.id = 'subject-'+subject_info.id+'-node'
+        if (subject_info.childNum > 0 || subject_info.resultNum > 0)
+        {
+            newNode.classList.add('expandable')
+            newNode.appendChild(make_icon(subject_info.id))
+        }
+        nameElement = document.createElement('a')
+        nameElement.href = '/subject/'+subject_info.id
+        nameElement.innerText = subject_info.name
+        newNode.appendChild(nameElement)
+                
+        if(subject_info.tags.length > 0)
+        {
+            var tagElement = document.createElement("span")
+            for(tag_info of subject_info.tags)
+            {
+                tagElement.appendChild(make_tag(tag_info))
+            }
+            newNode.appendChild(tagElement)
+        }
+        listNode.appendChild(newNode)
+        return listNode
+    }
+
+    function append_subject_child(node, child_info)
+    {
+        node.appendChild(make_subject_node(child_info))
+    }
+
+    function append_result_child(node, result_info)
+    {
+        node.appendChild(make_result_node(result_info))
+    }
+
+    function add_subject_children(node, subject_id)
+    {
+        return get_subject_children(subject_id).done(
+            function(response){
+                var sublist = document.createElement('ul')
+                for (child_info of response.children)
+                {
+                    append_subject_child(sublist, child_info)
+                }
+                node.appendChild(sublist)
+            }
+        )
+    }
+
+    function add_subject_results(node, subject_id)
+    {
+        return get_subject_results(subject_id).done(
+            function(response){
+                var sublist = document.createElement('ul')
+                for (result_info of response.results)
+                {
+                    append_result_child(sublist, result_info)
+                }
+                node.appendChild(sublist)
+            }
+        )
+    }
+
+    function resolve_subject(subject_id)
+    {
+        var node_element = document.getElementById('subject-'+subject_id+'-node')
+        if (node_element.classList.contains('resolving'))
+            return
+        if (node_element.classList.contains('resolved'))
+            return
+        node_element.classList.add('resolving')
+        return add_subject_children(node_element, subject_id).always(
+            function(){
+                add_subject_results(node_element, subject_id)
+            }).always(
+            function(){
+                node_element.classList.remove('resolving');
+                node_element.classList.add('resolved')
+            })
+    }
+
+    function expand_subject(target, subject_id)
+    {
+        var resolution = resolve_subject(subject_id)
+        if(resolution)
+        {
+            resolution.done(function(){
+            var node_element = document.getElementById('subject-'+subject_id+'-node')
+            node_element.classList.add("expanded")
+            }
+            )
+        }
+        else
+        {
+            var node_element = document.getElementById('subject-'+subject_id+'-node')
+            node_element.classList.add("expanded")
+        }
+        target.classList.add('expanded')
+    }
+
+    function collapse_subject(target, subject_id)
+    {
+        var node_element = document.getElementById('subject-'+subject_id+'-node')
+        node_element.classList.remove("expanded")
+        target.classList.remove('expanded')
+    }
+
+    function node_toggle(e, subject_id)
+    {
+        if(e.target.classList.contains('expanded'))
+        {
+            collapse_subject(e.target, subject_id)
+        }
+        else
+        {
+            expand_subject(e.target, subject_id)
+        }
+        toggle_icon(e.target)
+        e.stopPropagation()
+    }
+
+</script>
