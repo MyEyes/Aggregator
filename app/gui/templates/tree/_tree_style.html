@@ -93,4 +93,19 @@
   border-top-color: #000;
   animation: spinner .6s linear infinite;
 }
+
+.tree.diff-remove > a {
+    color:red;
+}
+.tree.diff-remove > a:before {
+    color:red;
+    content: '- ';
+}
+.tree.diff-add > a:before {
+    color:green;
+    content: '+ '
+}
+.tree.diff-add > a {
+    color:green;
+}
 </style>

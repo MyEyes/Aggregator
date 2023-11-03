@@ -28,14 +28,14 @@
         return newTag
     }
 
-    function make_icon(subject_id)
+    function make_icon(subject_id, soft_match)
     {
         var iconElement = document.createElement('i')
         iconElement.classList.add('indicator')
         iconElement.classList.add('glyphicon')
         iconElement.classList.add('glyphicon-plus-sign') //Only creating icons if expandable
         iconElement.onclick = function(e){
-            node_toggle(e, subject_id)
+            diff_node_toggle(e, soft_match)
         }
         return iconElement
     }
@@ -88,7 +88,7 @@
         if (subject_info.childNum > 0 || subject_info.resultNum > 0)
         {
             newNode.classList.add('expandable')
-            newNode.appendChild(make_icon(subject_info.id))
+            newNode.appendChild(make_icon(subject_info.id, subject_info.soft_hash))
         }
         nameElement = document.createElement('a')
         nameElement.href = '/subject/'+subject_info.id
@@ -125,9 +125,12 @@
                 var sublist = document.createElement('ul')
                 for (child_info of response.children)
                 {
+                    is_left = document.subject_left_ids[subject_id]
+                    add_hashed_subject_id(child_info.soft_hash, child_info.id, is_left)
                     append_subject_child(sublist, child_info)
                 }
                 node.appendChild(sublist)
+                update_all_subject_diff_symbols()
             }
         )
     }
@@ -188,7 +191,7 @@
         node_element.classList.remove("expanded")
     }
 
-    function node_toggle(e, subject_id)
+    function node_toggle(subject_id)
     {
         var node_element = document.getElementById('subject-'+subject_id+'-node')
         if(node_element.classList.contains('expanded'))
@@ -199,8 +202,81 @@
         {
             expand_subject(subject_id)
         }
-        toggle_icon(e.target)
+        //toggle_icon(e.target)
+    }
+
+    function diff_node_toggle(e, soft_match_hash)
+    {
+        match_ids = document.subject_soft_matches[soft_match_hash]
+        if(match_ids)
+            for(match_id of match_ids)
+            {
+                node_toggle(match_id)
+            }
         e.stopPropagation()
     }
 
+    function add_hashed_subject_id(soft_match_hash, id, left)
+    {
+        match_ids = document.subject_soft_matches[soft_match_hash]
+        if(!match_ids)
+        {
+            document.subject_soft_matches[soft_match_hash] = [id]
+        }
+        else
+        {
+            document.subject_soft_matches[soft_match_hash].push(id)
+        }
+        if(left)
+        {
+            document.subject_left_ids[id] = true
+        }
+    }
+
+    function update_subject_node_diff_symbol(subject_id, count)
+    {
+        var node_element = document.getElementById('subject-'+subject_id+'-node')
+        if(!node_element)
+            return
+        if(count>=2)
+        {
+            node_element.classList.remove('diff-add')
+            node_element.classList.remove('diff-remove')
+            node_element.classList.add('diff-same')
+        }
+        else if(count==1)
+        {
+            is_left = document.subject_left_ids[subject_id]
+            if(is_left)
+            {
+                node_element.classList.remove('diff-add')
+                node_element.classList.remove('diff-same')
+                node_element.classList.add('diff-remove')
+            }
+            else
+            {
+                node_element.classList.remove('diff-add')
+                node_element.classList.remove('diff-remove')
+                node_element.classList.add('diff-add')
+            }
+        }
+    }
+
+    function update_subject_diff_symbol(soft_match_hash)
+    {
+        match_ids = document.subject_soft_matches[soft_match_hash]
+        if(match_ids)
+            for(match_id of match_ids)
+            {
+                update_subject_node_diff_symbol(match_id, match_ids.length)
+            }
+    }
+
+    function update_all_subject_diff_symbols()
+    {
+        for(soft_match_hash in document.subject_soft_matches)
+        {
+            update_subject_diff_symbol(soft_match_hash)
+        }
+    }
 </script>

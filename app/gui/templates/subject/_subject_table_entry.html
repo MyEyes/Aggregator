@@ -1,5 +1,12 @@
 <tr>
-    <td scope="col">{{ _subject.id }} <a href="{{url_for('gui.tree_subject', id=_subject.id)}}" title="Subject Tree View"><span class="glyphicon glyphicon-list"></span></a></td>
+    <td scope="col">
+        {{ _subject.id }}
+        <a href="{{url_for('gui.tree_subject', id=_subject.id)}}" title="Subject Tree View"><span class="glyphicon glyphicon-list"></span></a>
+        {% if subject %}
+            <a href="{{url_for('gui.tree_subject_diff', id1=subject.id, id2=_subject.id)}}" title="Diff Tree View">Δ</a>
+            <a href="{{url_for('gui.tree_subject_comp', id1=subject.id, id2=_subject.id)}}" title="Compare Tree View"><span class="glyphicon glyphicon-eye-open"></span></a>
+        {% endif %}
+    </td>
     <td scope="col">
         <div>
             <div>

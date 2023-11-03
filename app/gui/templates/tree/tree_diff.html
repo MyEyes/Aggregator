@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block app_content %}
+    {% include 'tree/_tree_style.html' %}
+    <h2>{{ title }}</h2>
+    <div class="panel-group">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="panel panel-info">
+                    <div class="tree">
+                        <ul>
+                            {% set _subject = subject1 %}
+                            {% include 'tree/_diff_subject_root_tree_node.html' %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="panel panel-info">
+                    <div class="tree">
+                        <ul>
+                            {% set _subject = subject2 %}
+                            {% include 'tree/_diff_subject_root_tree_node.html' %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+    {{ super() }}
+    <script>
+        document.subject_soft_matches = {
+            '{{subject1.soft_match_hash}}': [{{subject1.id}},{{subject2.id}}],
+        };
+        document.subject_left_ids = {
+            '{{subject1.id}}': true
+        };
+        document.result_soft_matches = {}
+        document.result_left_ids = {}
+    </script>
+    {% include 'tree/_tree_diff_script.html' %}
+{% endblock %}
