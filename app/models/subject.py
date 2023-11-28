@@ -7,6 +7,7 @@ import binascii
 
 # The subject of a scan, could be a URL, an assembly or something else
 class Subject(db.Model):
+    _defaultSort = "created_at"
     id = db.Column(db.Integer, primary_key=True)
 
     name = db.Column(db.String(256), index=True)

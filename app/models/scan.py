@@ -4,6 +4,7 @@ from app.models.tag import result_tags, Tag, SpecialTag
 import markdown
 
 class Scan(db.Model):
+    _defaultSort = "started_at"
     id = db.Column(db.Integer, primary_key=True)
 
     tool_id = db.Column(db.Integer, db.ForeignKey('tool.id'))
@@ -48,6 +49,7 @@ class Scan(db.Model):
         return ""
 
 class ScanResult(db.Model):
+    _defaultSort = "created_at"
     id = db.Column(db.Integer, primary_key = True)
 
     scan_id = db.Column(db.Integer, db.ForeignKey('scan.id'))

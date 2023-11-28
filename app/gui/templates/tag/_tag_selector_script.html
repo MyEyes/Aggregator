@@ -76,6 +76,47 @@
         return result
     }
 
+    function create_filter_tag_dropdown(btn_element, subject_id)
+    {
+        let tag_dropdown_template = `
+        <div class="tag-dropdown" style="cursor: auto;">
+            <div class="panel panel-default">
+                <div class="panel-heading"><h6 class="panel-title">Add Filter Tag</h6></div>
+                <div class="panel panel-body">
+                    {% for tag in valid_tags %}
+                        {% include '/tag/_selector_tag_preview.html' %}
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        `.trim()
+        var template = document.createElement('template')
+        template.innerHTML = tag_dropdown_template
+
+        //btn_element.disabled = true
+
+        var result = template.content.firstChild
+        result.id = "filter"
+        document.tag_dropdown = result
+        document.tag_target = "filter"
+        return result
+    }
+
+    function dropdown_select_filter_tag(e)
+    {
+        e.preventDefault()
+        let elementId = "filter-tag-selector"
+        let element = document.getElementById(elementId)
+        if(!element.disabled)
+        {
+            close_curr_dropdown()
+            let anchorElementId = "filter-tag-selector-anchor"
+            let anchorElement = document.getElementById(anchorElementId)
+            anchorElement.appendChild(create_filter_tag_dropdown(element))
+            document.tag_skip_remove = true
+        }
+    }
+
     function dropdown_select_result_tag(e, result_id)
     {
         e.preventDefault()
@@ -140,11 +181,14 @@
 
     function add_selected_tag(e, tag_id)
     {
+        console.log(tag_id)
         let target_id = document.tag_dropdown.id
         if(document.tag_target == 'subject')
             add_tag_to_subject(tag_id, target_id)
         if(document.tag_target == 'result')
             add_tag_to_result(tag_id, target_id)
+        if(document.tag_target == 'filter')
+            add_tag_to_filter(tag_id)
     }
 
     function del_subject_tag(e, subject_id, tag_id)
@@ -181,6 +225,47 @@
         },
         contentType: "application/json"
         });
+    }
+
+    function add_tag_to_filter(tag_id)
+    {
+        var urlParams = new URLSearchParams(window.location.search);
+        let tags = urlParams.get('filter_tags')
+        console.log(tag_id)
+        if(!tags)
+        {
+            urlParams.set('filter_tags', ""+tag_id)
+        }
+        else
+        {
+            urlParams.set('filter_tags', tags+","+tag_id)
+        }
+        window.location.search = urlParams
+    }
+
+    function del_tag_from_filter(e, tag_id)
+    {
+        var urlParams = new URLSearchParams(window.location.search);
+        let tags = urlParams.get('filter_tags')
+        if(!tags)
+        {
+            return
+        }
+        else
+        {
+            let tag_ids = tags.split(',')
+            let new_tag_ids = tag_ids.filter(function(item){return item != tag_id}) //Remove tag
+            if(new_tag_ids.length == 0)
+            {
+                urlParams.delete('filter_tags')
+            }
+            else
+            {
+                let new_tags = new_tag_ids.join(',')
+                urlParams.set('filter_tags', new_tags)
+            }
+        }
+        window.location.search = urlParams
     }
 
     document.tag_dropdown = null

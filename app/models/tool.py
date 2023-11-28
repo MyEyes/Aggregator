@@ -3,6 +3,7 @@ from datetime import datetime
 
 # A tool executing a scan
 class Tool(db.Model):
+    _defaultSort = "created_at"
     id = db.Column(db.Integer, primary_key=True)
 
     name = db.Column(db.String(128), index=True)

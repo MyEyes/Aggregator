@@ -1,0 +1,17 @@
+<div class="panel panel-info panel-horizontal" id="filter-tag-selector-anchor">
+    <div class="panel-heading">
+        <h3 class="panel-title">
+            <a class="collapse-toggle width {% if not filterInfo.filter_tags %} collapsed {% endif %}" data-toggle="collapse" href="#filter-panel-collapse">Filter</a>
+        </h3>
+    </div>
+    <span id="filter-panel-collapse" class="panel-collapse width collapse {% if filterInfo.filter_tags %} in {% endif %}">
+        <div id="info-panel" class="panel-body" style="width: max-content;">
+            <span>
+                <b>Tags</b>
+                {% for tag in filterInfo.filter_tags %}
+                    {% include 'tag/_deleteable_filter_tag_preview.html' %}
+                {% endfor %}
+                {% include 'tag/_filter_tag_selector.html' %}
+        </div>
+    </span>
+</div>

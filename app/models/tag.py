@@ -24,6 +24,8 @@ result_tags = db.Table(
 
 # Tags for Subjects and Results
 class Tag(db.Model):
+    _defaultSort = "id"
+    
     id = db.Column(db.Integer, primary_key=True)
     shortname = db.Column(db.String(10))
     color = db.Column(db.String(16))
