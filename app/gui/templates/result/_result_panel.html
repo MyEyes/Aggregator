@@ -20,7 +20,7 @@
     <td scope="col">
         <div class="in_table_header collapse-toggle collapsed" data-toggle="collapse" href="#{{ result.id }}-info-panel-collapse"><a href="{{ url_for('gui.result', id=result.id) }}">{{ result.title }}</a></div>
         <div id="{{ result.id }}-info-panel-collapse" class="panel-collapse collapse limited_width_text">
-            <pre>{{ result.raw_text }}</pre>
+            <div class="well well-sm">{{ result.get_markdown()|safe }}</div>
         </div>
     </td>
     <td scope="col" class="limited_width_text">{% include 'result/_notes_field.html' %}</th>

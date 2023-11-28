@@ -1,6 +1,7 @@
 from app.models import db
 from datetime import datetime
 from app.models.tag import result_tags, Tag, SpecialTag
+import markdown
 
 class Scan(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -116,6 +117,9 @@ class ScanResult(db.Model):
         # committed to the db yet and we will recalculate then
         if self.subject:
             self.subject._recalculateTallies()
+
+    def get_markdown(self):
+        return markdown.markdown(self.raw_text)
 
     @classmethod
     def search(cls, val):

@@ -53,7 +53,7 @@
                     <div class="col-md-12">
                         <div class="panel panel-default">
                             <div class="panel-heading"><h4 class="panel-title">Finding</h4></div>
-                            <div class="panel-body"><pre>{{ mainresult.raw_text }}</pre></div>
+                            <div class="panel-body"><div class="well well-sm">{{ mainresult.get_markdown()|safe }}</div></div>
                         </div>
                     </div>
                 </div>
