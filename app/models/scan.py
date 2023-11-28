@@ -41,11 +41,10 @@ class Scan(db.Model):
         }
 
     def get_states_string(self):
-        return f"{len(list(self.results.filter_by(state='open')))}O | {len(list(self.results.filter_by(state='undecided')))}U | {len(list(self.results.filter_by(state='confirmed')))}C | {len(list(self.results.filter_by(state='rejected')))}R"
+        return ""
     
     def get_soft_match_state_string(self):
-        soft_matches = self.get_soft_matches()
-        return f"{len(list(soft_matches.filter_by(state='open')))}O | {len(list(soft_matches.filter_by(state='undecided')))}U | {len(list(soft_matches.filter_by(state='confirmed')))}C | {len(list(soft_matches.filter_by(state='rejected')))}R"
+        return ""
 
 class ScanResult(db.Model):
     id = db.Column(db.Integer, primary_key = True)
@@ -57,23 +56,14 @@ class ScanResult(db.Model):
 
     title = db.Column(db.String(128))
     raw_text = db.Column(db.Text, index=True)
-    scan_risk_text = db.Column(db.String(50))
-    manual_risk_text = db.Column(db.String(50))
     notes = db.Column(db.Text)
 
     tags = db.relationship('Tag', secondary=result_tags, backref='results', cascade='all')
-
-    state = db.Column(db.String(32), index=True, default="open")
 
     soft_match_hash = db.Column(db.String(256), index=True)
     hard_match_hash = db.Column(db.String(256), index=True, unique=True)
 
     created_at = db.Column(db.DateTime, default = datetime.utcnow)
-
-    def set_state(self, new_state):
-        valid_states = ["open","confirmed","rejected","undecided"]
-        if new_state in valid_states:
-            self.state = new_state
 
     def get_soft_matches(self):
         query = db.session.query(ScanResult).filter(ScanResult.soft_match_hash == self.soft_match_hash)
@@ -100,14 +90,6 @@ class ScanResult(db.Model):
         if tag in self.tags:
             return
         self.tags.append(tag)
-        if tag.special == SpecialTag.OPEN_TAG:
-            self.state = "open"
-        elif tag.special == SpecialTag.UNDECIDED_TAG:
-            self.state = "undecided"
-        elif tag.special == SpecialTag.CONFIRMED_TAG:
-            self.state = "confirmed"
-        elif tag.special == SpecialTag.REJECTED_TAG:
-            self.state = "rejected"
 
     def set_tags(self, tagIds):
         if not tagIds:
@@ -118,6 +100,9 @@ class ScanResult(db.Model):
             if not tag:
                 raise Exception(f"Tag with id {tid} does not exist")
             self.add_tag(tag)
+        # It's okay to not update tallies here, because this will only happen if the result isn't
+        # committed to the db yet and we will recalculate then
+            self.subject._recalculateTallies()
 
     def add_tags(self, tagIds):
         if not tagIds:
@@ -127,6 +112,10 @@ class ScanResult(db.Model):
             if not tag:
                 raise Exception(f"Tag with id {tid} does not exist")
             self.add_tag(tag)
+        # It's okay to not update tallies here, because this will only happen if the result isn't
+        # committed to the db yet and we will recalculate then
+        if self.subject:
+            self.subject._recalculateTallies()
 
     @classmethod
     def search(cls, val):

@@ -9,9 +9,6 @@
     </td>
     <td scope="col">
         <div>
-            <a href="{{ url_for('gui.result', id=result.id) }}">{{ result.scan_risk_text }}</a>
-        </div>
-        <div>
             {% for tag in result.tags %}
                 {% include 'tag/_deleteable_result_tag_preview.html' %}
             {% endfor %}
@@ -21,7 +18,7 @@
     <td scope="col" class="limited_width_name"><a href="{{ url_for('gui.subject', id=result.subject.id) }}">{{ result.subject.name|truncate(100) }}</a></td>
     <td scope="col">{{ result.created_at.strftime("%m/%d/%Y, %H:%M:%S")}}</th>
     <td scope="col">
-        <div class="in_table_header collapse-toggle collapsed" data-toggle="collapse" href="#{{ result.id }}-info-panel-collapse">{{ result.title }}</div>
+        <div class="in_table_header collapse-toggle collapsed" data-toggle="collapse" href="#{{ result.id }}-info-panel-collapse"><a href="{{ url_for('gui.result', id=result.id) }}">{{ result.title }}</a></div>
         <div id="{{ result.id }}-info-panel-collapse" class="panel-collapse collapse limited_width_text">
             <pre>{{ result.raw_text }}</pre>
         </div>

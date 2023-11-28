@@ -23,11 +23,16 @@ def create_subject():
 
     tags = data.get('tags')
     parentId = data.get('parentId')
+    if parentId and parentId < 0:
+        parentId = None
     
     existing = Subject.query.filter_by(hard_match_hash=data['hash']).first()
     if existing:
         if existing.parentId != parentId:
-            return bad_request("Subject exists with different parent", "Subject exists with different parent")
+            # Don't error if parent isn't set
+            if existing.parentId and existing.parentId >= 0:
+                return bad_request("Subject exists with different parent", "Subject exists with different parent")
+            existing.parentId = parentId
         existing.addName(data['name'])
         existing.addPath(data['path'])
         existing.add_tags(tags)

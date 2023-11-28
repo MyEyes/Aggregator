@@ -30,6 +30,10 @@
             </ul>
         </div>
     </td>
-    <td scope="col">{{ _subject.get_states_string() }}</td>
+    <td scope="col">
+        {% for _tally in _subject.result_tags %}
+            {% include 'tag/_tag_tally.html' %}
+        {% endfor %}
+    </td>
     <td scope="col">{{ _subject.created_at.strftime("%m/%d/%Y, %H:%M:%S")}}</td>
 </tr>

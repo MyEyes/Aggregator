@@ -18,6 +18,8 @@ class Subject(db.Model):
     duplicates = db.relationship('DuplicateScanResult', backref='subject', lazy='dynamic', cascade='all')
 
     tags = db.relationship('Tag', secondary=subject_tags, backref='subjects', cascade='all')
+    child_tags = db.relationship('SubjectChildTallies', back_populates="subject", cascade="save-update, merge, delete, delete-orphan")
+    result_tags = db.relationship('SubjectResultTallies', back_populates="subject", cascade="save-update, merge, delete, delete-orphan")
 
     parent = db.relationship('Subject', remote_side=[id], backref='children')
     parentId = db.Column(db.Integer, db.ForeignKey('subject.id'), nullable=True)
@@ -54,30 +56,96 @@ class Subject(db.Model):
     def set_parent(self, parentId):
         if not parentId:
             self.chained_soft_match_hash = self.soft_match_hash
+            self._recalculateTallies()
             return
         parentId = int(parentId)
         if parentId < 0:
             self.chained_soft_match_hash = self.soft_match_hash
+            self._recalculateTallies()
             return
         parent = db.session.query(Subject).filter(Subject.id == parentId).first()
         if not parent:
             raise Exception(f"No subject with id {parentId} is known")
         self.parentId = parentId
         self._propagateSoftHashFromParent(parent)
+        # This will propagate to the parent
+        self._recalculateTallies()
 
     def _propagateSoftHashFromParent(self, parent):
         self.chained_soft_match_hash = hashlib.sha256(binascii.unhexlify(parent.chained_soft_match_hash)+binascii.unhexlify(self.soft_match_hash)).hexdigest()
         db.session.add(self)
+        db.session.commit()
+        db.session.refresh(self)
         for c in self.children:
             c._propagateSoftHashFromParent(self)
 
-    def get_states(self):
-        return {
-            'open': len(list(self.results.filter_by(state='open'))),
-            'undecided': len(list(self.results.filter_by(state='undecided'))),
-            'confirmed': len(list(self.results.filter_by(state='confirmed'))),
-            'rejected': len(list(self.results.filter_by(state='rejected')))
-        }
+    def _updateChildTally(self, tag_id, change):
+        pass
+
+    def _updateResultTally(self, tag_id, change):
+        pass
+
+    # Recalculate child subject and result tallies
+    # We can use self.id and self.parent here because the Subject should have been committed to the db already
+    def _recalculateTallies(self):
+        childCalcDict = {}
+        resultCalcDict = {}
+        with db.session.no_autoflush:
+            if not self.id:
+                db.session.add(self)
+                db.session.commit()
+                db.session.refresh(self)
+            for r in self.results:
+                # Count our own results tags too, they are technically under the subject
+                for t in r.tags:
+                    if t.id not in resultCalcDict:
+                        resultCalcDict[t.id] = 1
+                    else:
+                        resultCalcDict[t.id] += 1
+            for c in self.children:
+                # Also count tags in the children themselves, just exclude our own tags
+                for t in c.tags:
+                    if t.id not in childCalcDict:
+                        childCalcDict[t.id] = 1
+                    else:
+                        childCalcDict[t.id] += 1
+                for ctt in c.child_tags:
+                    if ctt.tag.id not in childCalcDict:
+                        childCalcDict[ctt.tag.id] = ctt.count
+                    else:
+                        childCalcDict[ctt.tag.id] += ctt.count
+                for rtt in c.result_tags:
+                    if rtt.tag.id not in resultCalcDict:
+                        resultCalcDict[rtt.tag.id] = rtt.count
+                    else:
+                        resultCalcDict[rtt.tag.id] += rtt.count
+            
+            child_tallies = []
+            for tag_id,count in childCalcDict.items():
+                child_tally = SubjectChildTallies()
+                child_tally.tag_id = tag_id
+                child_tally.subject_id = self.id
+                child_tally.subject = self
+                child_tally.count = count
+                child_tallies.append(child_tally)
+            self.child_tags = child_tallies
+
+            result_tallies = []
+            for tag_id,count in resultCalcDict.items():
+                result_tally = SubjectResultTallies()
+                result_tally.tag_id = tag_id
+                result_tally.subject_id = self.id
+                result_tally.subject = self
+                result_tally.count = count
+                result_tallies.append(result_tally)
+            self.result_tags = result_tallies
+
+            db.session.merge(self)
+            db.session.commit()
+            db.session.refresh(self)
+        if self.parent:
+            self.parent._recalculateTallies()
+
 
     def get_soft_matches(self):
         soft_matches = Subject.query.filter_by(soft_match_hash=self.soft_match_hash).filter(Subject.id != self.id)
@@ -87,13 +155,6 @@ class Subject(db.Model):
         subquery = db.session.query(ScanResult.soft_match_hash).filter(ScanResult.subject_id==self.id)
         query = db.session.query(ScanResult).filter(ScanResult.subject_id != self.id).filter(ScanResult.soft_match_hash.in_(subquery))
         return query
-
-    def get_states_string(self):
-        return f"{len(list(self.results.filter_by(state='open')))}O | {len(list(self.results.filter_by(state='undecided')))}U | {len(list(self.results.filter_by(state='confirmed')))}C | {len(list(self.results.filter_by(state='rejected')))}R"
-
-    def get_soft_match_state_string(self):
-        soft_matches = self.get_soft_matched_results()
-        return f"{len(list(soft_matches.filter_by(state='open')))}O | {len(list(soft_matches.filter_by(state='undecided')))}U | {len(list(soft_matches.filter_by(state='confirmed')))}C | {len(list(soft_matches.filter_by(state='rejected')))}R"
 
     def set_note(self, value):
         self.notes = value
@@ -121,6 +182,8 @@ class Subject(db.Model):
             if not tag:
                 raise Exception(f"Tag with id {tid} does not exist")
             self.tags.append(tag)
+        db.session.merge(self)
+        self._recalculateTallies()
 
     def add_tags(self, tagIds):
         for tid in tagIds:
@@ -130,6 +193,8 @@ class Subject(db.Model):
             if tag in self.tags:
                 continue
             self.tags.append(tag)
+        db.session.merge(self)
+        self._recalculateTallies()
 
     @classmethod
     def search(cls, val):
@@ -147,3 +212,27 @@ class SubjectAltPaths(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     subj_id = db.Column(db.Integer, db.ForeignKey('subject.id'))
     path = db.Column(db.Text, index=True)
+
+
+
+class SubjectChildTallies(db.Model):
+    subject_id = db.Column(db.Integer, db.ForeignKey('subject.id'), primary_key=True)
+    tag_id = db.Column(db.Integer, db.ForeignKey('tag.id'), primary_key=True)
+    count = db.Column(db.Integer)
+
+    subject = db.relationship("Subject", back_populates="child_tags")
+    tag = db.relationship("Tag")
+
+    def __repr__(self):
+        return f"<ChildTally, ({self.tag_id, self.subject_id}) = {self.count}>"
+
+class SubjectResultTallies(db.Model):
+    subject_id = db.Column(db.Integer, db.ForeignKey('subject.id'), primary_key=True)
+    tag_id = db.Column(db.Integer, db.ForeignKey('tag.id'), primary_key=True)
+    count = db.Column(db.Integer)
+
+    subject = db.relationship("Subject", back_populates="result_tags")
+    tag = db.relationship("Tag")
+
+    def __repr__(self):
+        return f"<ResultTally, ({self.tag_id, self.subject_id}) = {self.count}>"

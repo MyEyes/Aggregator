@@ -126,6 +126,11 @@ def submit_scan_result():
 
     db.session.add(scanResult)
     db.session.commit()
+    db.session.refresh(scanResult)
+
+    # We need to recalculate the tallies here, because before the result is
+    # committed to the db we don't see scanResult.subject
+    scanResult.subject._recalculateTallies()
     
     return jsonify(
         {

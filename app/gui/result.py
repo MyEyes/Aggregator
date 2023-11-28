@@ -124,6 +124,7 @@ def add_result_tag(id):
         if tag not in result.tags:
             result.tags.append(tag)
             db.session.add(result)
+            result.subject._recalculateTallies()
             db.session.commit()
         return jsonify(
                 {
@@ -147,6 +148,7 @@ def del_result_tag(id):
         if tag in result.tags:
             result.tags.remove(tag)
             db.session.add(result)
+            result.subject._recalculateTallies()
             db.session.commit()
         return jsonify(
                 {

@@ -3,7 +3,7 @@ from app.gui import bp as gui_bp
 from app.api import bp as api_bp
 from .config import Config
 from app.models import db, migrate, login
-from flask_bootstrap import Bootstrap
+from flask_bootstrap import Bootstrap, StaticCDN
 
 bootstrap = Bootstrap()
 
@@ -16,6 +16,8 @@ def create_app(config_class=Config):
     migrate.init_app(app, db)
     login.init_app(app)
     bootstrap.init_app(app)
+    app.extensions['bootstrap']['cdns']['jquery'] = StaticCDN()
+    app.extensions['bootstrap']['cdns']['bootstrap'] = StaticCDN()
     return app
 
 from app import models
