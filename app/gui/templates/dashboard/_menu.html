@@ -7,6 +7,7 @@
         <a class="btn btn-default {% if tools %} active {% endif %}" href="{{ url_for('gui.tools_dashboard') }}" role="button">Tools</a>
         <a class="btn btn-default {% if results %} active {% endif %}" href="{{ url_for('gui.results_dashboard') }}" role="button">Results</a>
         <a class="btn btn-default {% if tags %} active {% endif %}" href="{{ url_for('gui.tags_dashboard') }}" role="button">Tags</a>
+        <a class="btn btn-default {% if admin %} active {% endif %}" href="{{ url_for('gui.admin_dashboard') }}" role="button">Admin</a>
     </div>
     <div class="col-md-8">
         <div class="panel-group panel-horizontal">

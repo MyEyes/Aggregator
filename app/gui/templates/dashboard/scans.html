@@ -34,7 +34,9 @@
                     <td scope="col">{{ scan.results|list|length }}</td>
                     <td scope="col" class="text-muted">{{ scan.duplicates|list|length }}</td>
                     <td scope="col"><ul class="list-group list-group-horizontal">
-                        
+                    {% for _tally in scan.get_result_tag_tallies() %}
+                        {% include 'tag/_tag_tally.html' %}
+                    {% endfor %}
                     </ul></td>
                     <td scope="col">{{ scan.started_at.strftime("%m/%d/%Y, %H:%M:%S") }}</th>
                     {% if scan.finished_at %}

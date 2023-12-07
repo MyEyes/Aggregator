@@ -45,3 +45,8 @@ def results_dashboard():
     tags = Tag.query.all()
 
     return render_template('dashboard/results.html', title='Dashboard - Results', user=current_user, results=results, filterInfo=filterInfo, valid_tags=tags)
+
+@bp.route('/dashboard/admin')
+@login_required
+def admin_dashboard():
+    return render_template('dashboard/admin.html', title='Dashboard - Admin', user=current_user,admin=True,filterInfo=None)

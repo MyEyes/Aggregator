@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block app_content %}
+    {% include 'dashboard/_menu.html' %}
+    {% include 'util/_table_style.html' %}
+    <div class="panel-group">
+        <div class="panel panel-info">
+            <div class="panel-heading">
+                <h3 class="panel-title">Admin Panel</h3>
+            </div>
+            <div id="admin-panel" class="panel-body">
+                <a class="btn btn-default" href="{{ url_for('gui.rebuild_caches') }}" role="button">Rebuild Caches</a>
+                <a class="btn btn-default" href="{{ url_for('gui.wipe_db') }}" role="button">Wipe Database</a>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+    {{ super() }}
+    {% include 'result/_result_click_script.html' %}
+    {% include 'util/_search_bar_script.html' %}
+{% endblock %}

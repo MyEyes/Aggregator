@@ -11,9 +11,9 @@ class Subject(db.Model):
     id = db.Column(db.Integer, primary_key=True)
 
     name = db.Column(db.String(256), index=True)
-    altNames = db.relationship('SubjectAltNames', backref='subject', lazy='dynamic', cascade='all, delete-orphan')
+    altNames = db.relationship('SubjectAltNames', backref='subject', lazy='dynamic', cascade='all, delete, delete-orphan')
 
-    altPaths = db.relationship('SubjectAltPaths', backref='subject', lazy='dynamic', cascade='all, delete-orphan')
+    altPaths = db.relationship('SubjectAltPaths', backref='subject', lazy='dynamic', cascade='all, delete, delete-orphan')
 
     results = db.relationship('ScanResult', backref='subject', lazy='dynamic', cascade='all')
     duplicates = db.relationship('DuplicateScanResult', backref='subject', lazy='dynamic', cascade='all')
@@ -22,7 +22,7 @@ class Subject(db.Model):
     child_tags = db.relationship('SubjectChildTallies', back_populates="subject", cascade="save-update, merge, delete, delete-orphan")
     result_tags = db.relationship('SubjectResultTallies', back_populates="subject", cascade="save-update, merge, delete, delete-orphan")
 
-    parent = db.relationship('Subject', remote_side=[id], backref='children')
+    parent = db.relationship('Subject', remote_side=[id], backref='children', cascade="all, delete")
     parentId = db.Column(db.Integer, db.ForeignKey('subject.id'), nullable=True)
 
     notes = db.Column(db.Text)
@@ -54,6 +54,24 @@ class Subject(db.Model):
         altName.subj_id = self.id
         db.session.add(altName)
 
+    # Will check that parent exists and set parentId
+    # But will not perform heavy duty updates
+    def set_parent_light(self, parentId):
+        if not parentId:
+            self.chained_soft_match_hash = self.soft_match_hash
+            self._recalculateTallies()
+            return
+        parentId = int(parentId)
+        if parentId < 0:
+            self.chained_soft_match_hash = self.soft_match_hash
+            self._recalculateTallies()
+            return
+        parent = db.session.query(Subject).filter(Subject.id == parentId).first()
+        if not parent:
+            raise Exception(f"No subject with id {parentId} is known")
+        self.parentId = parentId
+        return
+
     def set_parent(self, parentId):
         if not parentId:
             self.chained_soft_match_hash = self.soft_match_hash
@@ -68,15 +86,20 @@ class Subject(db.Model):
         if not parent:
             raise Exception(f"No subject with id {parentId} is known")
         self.parentId = parentId
+        # We're doing this here so that the subject is visible as a child for parents
+        db.session.add(self)
+        db.session.commit()
+        db.session.refresh(self)
         self._propagateSoftHashFromParent(parent)
         # This will propagate to the parent
         self._recalculateTallies()
 
     def _propagateSoftHashFromParent(self, parent):
-        self.chained_soft_match_hash = hashlib.sha256(binascii.unhexlify(parent.chained_soft_match_hash)+binascii.unhexlify(self.soft_match_hash)).hexdigest()
+        if parent == None:
+            self.chained_soft_match_hash = self.soft_match_hash
+        else:
+            self.chained_soft_match_hash = hashlib.sha256(binascii.unhexlify(parent.chained_soft_match_hash)+binascii.unhexlify(self.soft_match_hash)).hexdigest()
         db.session.add(self)
-        db.session.commit()
-        db.session.refresh(self)
         for c in self.children:
             c._propagateSoftHashFromParent(self)
 
@@ -85,6 +108,54 @@ class Subject(db.Model):
 
     def _updateResultTally(self, tag_id, change):
         pass
+
+    def _recalculateOwnTallies(self):
+        childCalcDict = {}
+        resultCalcDict = {}
+        for r in self.results:
+            # Count our own results tags too, they are technically under the subject
+            for t in r.tags:
+                if t.id not in resultCalcDict:
+                    resultCalcDict[t.id] = 1
+                else:
+                    resultCalcDict[t.id] += 1
+        for c in self.children:
+            # Also count tags in the children themselves, just exclude our own tags
+            for t in c.tags:
+                if t.id not in childCalcDict:
+                    childCalcDict[t.id] = 1
+                else:
+                    childCalcDict[t.id] += 1
+            for ctt in c.child_tags:
+                if ctt.tag.id not in childCalcDict:
+                    childCalcDict[ctt.tag.id] = ctt.count
+                else:
+                    childCalcDict[ctt.tag.id] += ctt.count
+            for rtt in c.result_tags:
+                if rtt.tag.id not in resultCalcDict:
+                    resultCalcDict[rtt.tag.id] = rtt.count
+                else:
+                    resultCalcDict[rtt.tag.id] += rtt.count
+        
+        child_tallies = []
+        for tag_id,count in childCalcDict.items():
+            child_tally = SubjectChildTallies()
+            child_tally.tag_id = tag_id
+            child_tally.subject_id = self.id
+            child_tally.subject = self
+            child_tally.count = count
+            child_tallies.append(child_tally)
+        self.child_tags = child_tallies
+
+        result_tallies = []
+        for tag_id,count in resultCalcDict.items():
+            result_tally = SubjectResultTallies()
+            result_tally.tag_id = tag_id
+            result_tally.subject_id = self.id
+            result_tally.subject = self
+            result_tally.count = count
+            result_tallies.append(result_tally)
+        self.result_tags = result_tallies
 
     # Recalculate child subject and result tallies
     # We can use self.id and self.parent here because the Subject should have been committed to the db already
@@ -96,56 +167,44 @@ class Subject(db.Model):
                 db.session.add(self)
                 db.session.commit()
                 db.session.refresh(self)
-            for r in self.results:
-                # Count our own results tags too, they are technically under the subject
-                for t in r.tags:
-                    if t.id not in resultCalcDict:
-                        resultCalcDict[t.id] = 1
-                    else:
-                        resultCalcDict[t.id] += 1
-            for c in self.children:
-                # Also count tags in the children themselves, just exclude our own tags
-                for t in c.tags:
-                    if t.id not in childCalcDict:
-                        childCalcDict[t.id] = 1
-                    else:
-                        childCalcDict[t.id] += 1
-                for ctt in c.child_tags:
-                    if ctt.tag.id not in childCalcDict:
-                        childCalcDict[ctt.tag.id] = ctt.count
-                    else:
-                        childCalcDict[ctt.tag.id] += ctt.count
-                for rtt in c.result_tags:
-                    if rtt.tag.id not in resultCalcDict:
-                        resultCalcDict[rtt.tag.id] = rtt.count
-                    else:
-                        resultCalcDict[rtt.tag.id] += rtt.count
-            
-            child_tallies = []
-            for tag_id,count in childCalcDict.items():
-                child_tally = SubjectChildTallies()
-                child_tally.tag_id = tag_id
-                child_tally.subject_id = self.id
-                child_tally.subject = self
-                child_tally.count = count
-                child_tallies.append(child_tally)
-            self.child_tags = child_tallies
-
-            result_tallies = []
-            for tag_id,count in resultCalcDict.items():
-                result_tally = SubjectResultTallies()
-                result_tally.tag_id = tag_id
-                result_tally.subject_id = self.id
-                result_tally.subject = self
-                result_tally.count = count
-                result_tallies.append(result_tally)
-            self.result_tags = result_tallies
+            self._recalculateOwnTallies()
 
             db.session.merge(self)
             db.session.commit()
             db.session.refresh(self)
         if self.parent:
             self.parent._recalculateTallies()
+
+    # Recalculate child subject and result tallies, recursve down to leaf children first to guarantee that all children already have caches
+    # This should only be called from recalculate all since no subject ids or anything should be updated in here for performance reasons
+    def _recalculateTalliesRecursive(self):
+        childCalcDict = {}
+        resultCalcDict = {}
+        # We don't want things to be flushed automatically
+        # The main goal here is to speed up submission of new subjects and results, so the plan
+        # is to defer the cache calculations until the end of a scan
+        # The main benefit of this is that the caches are basically independent, so the
+        # submitting process can terminate earlier to let another scan start while the caches are rebuilt in the background
+        with db.session.no_autoflush:
+            for c in self.children:
+                c._recalculateTalliesRecursive()
+            self._recalculateOwnTallies()
+
+            db.session.add(self)
+
+    @classmethod
+    def calculateCaches(cls):
+        top_level_subjects = Subject.query.filter(Subject.parentId is None).all()
+        for tls in top_level_subjects:
+            tls._recalculateTalliesRecursive()
+            tls._propagateSoftHashFromParent(None)
+
+    @classmethod
+    def calculateScanCaches(cls, scan_id):
+        top_level_subjects = Subject.query.filter_by(scan_id=scan_id).filter(Subject.parentId is None).all()
+        for tls in top_level_subjects:
+            tls._recalculateTalliesRecursive()
+            tls._propagateSoftHashFromParent(None)
 
 
     def get_soft_matches(self):
@@ -176,17 +235,20 @@ class Subject(db.Model):
                 return soft_match.notes
         return None
 
-    def set_tags(self, tagIds):
+    def set_tags(self, tagIds, updateCache=True):
         self.tags.clear()
         for tid in tagIds:
             tag = db.session.query(Tag).filter(Tag.id == tid).first()
             if not tag:
                 raise Exception(f"Tag with id {tid} does not exist")
             self.tags.append(tag)
-        db.session.merge(self)
-        self._recalculateTallies()
+        if updateCache:
+            db.session.merge(self)
+            self._recalculateTallies()
+        else:
+            db.session.add(self)
 
-    def add_tags(self, tagIds):
+    def add_tags(self, tagIds, updateCache=True):
         for tid in tagIds:
             tag = db.session.query(Tag).filter(Tag.id == tid).first()
             if not tag:
@@ -194,8 +256,11 @@ class Subject(db.Model):
             if tag in self.tags:
                 continue
             self.tags.append(tag)
-        db.session.merge(self)
-        self._recalculateTallies()
+        if updateCache:
+            db.session.merge(self)
+            self._recalculateTallies()
+        else:
+            db.session.add(self)
 
     @classmethod
     def search(cls, val):

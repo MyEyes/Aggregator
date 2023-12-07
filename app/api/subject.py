@@ -45,32 +45,22 @@ def create_subject():
         }
     )
 
-    prev_ver = Subject.query.filter_by(soft_match_hash=data['soft_hash']).first()
-
     subject = Subject()
     subject.name = data['name']
     subject.created_at = datetime.utcnow()
     subject.hard_match_hash = data['hash']
     subject.soft_match_hash = data['soft_hash']
 
-    subject.set_parent(parentId)
+    subject.set_parent_light(parentId)
     db.session.add(subject)
     db.session.commit()
     db.session.refresh(subject) #Make sure id is available
 
-    subject.add_tags(tags)
+    subject.add_tags(tags,updateCache=False)
 
     subject.addPath(data['path'])
     if 'version' in data:
         subject.version = data['version']
-
-    if prev_ver:
-        while prev_ver.next_version_id and prev_ver.next_version_id != prev_ver.id:
-            prev_ver = Subject.query.filter_by(id=prev_ver.next_version_id).first()
-        prev_ver.next_version_id = subject.id
-        subject.prev_version_id = prev_ver.id
-        db.session.add(prev_ver)
-        db.session.add(subject)
     
     db.session.commit()
 

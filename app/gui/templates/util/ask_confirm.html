@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block app_content %}
+{% include 'util/_table_style.html' %}
+<div class="panel-group">
+    <div class="panel panel-info">
+        <div class="panel-heading">
+            <h3 class="panel-title">{{ title }}</h3>
+        </div>
+        <div id="admin-panel" class="panel-body">
+            <span>{{ text }}</span>
+            
+            <a class="btn btn-default" href="{{ url_for(request.endpoint, **dict(request.args, confirmed=True, **request.view_args)) }}" role="button">Confirm</a>
+            <a class="btn btn-default" onclick="history.back()" role="button">Go back</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

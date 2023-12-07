@@ -1,6 +1,7 @@
 from app.models import db
 from datetime import datetime
 from app.models.tag import result_tags, Tag, SpecialTag
+from sqlalchemy.sql.expression import func, select
 import markdown
 
 class Scan(db.Model):
@@ -10,6 +11,7 @@ class Scan(db.Model):
     tool_id = db.Column(db.Integer, db.ForeignKey('tool.id'))
     results = db.relationship('ScanResult', backref='scan', lazy='dynamic', cascade='all')
     duplicates = db.relationship('DuplicateScanResult', backref='scan', lazy='dynamic', cascade='all, delete-orphan')
+    result_tags = db.relationship('ScanResultTallies', back_populates="scan", cascade="save-update, merge, delete, delete-orphan")
 
     arguments = db.Column(db.Text, index=True)
 
@@ -34,13 +36,32 @@ class Scan(db.Model):
         query = db.session.query(ScanResult).filter(ScanResult.scan_id != self.id).filter(ScanResult.soft_match_hash.in_(subquery))
         return query
 
-    def get_states(self):
-        return {
-            'open': len(list(self.results.filter_by(state='open'))),
-            'undecided': len(list(self.results.filter_by(state='undecided'))),
-            'confirmed': len(list(self.results.filter_by(state='confirmed'))),
-            'rejected': len(list(self.results.filter_by(state='rejected')))
-        }
+    def update_result_tag_tallies(self):
+        raw_sql = """
+        SELECT tag_id, tag.shortname, tag.color, count(*) FROM scan
+            JOIN scan_result ON scan_id=scan.id
+            JOIN result_tags ON result_id=scan_result.id
+            JOIN tag on tag_id=tag.id
+            WHERE scan.id=:si GROUP BY tag_id;
+        """
+        result_tag_tallies = db.session.execute(raw_sql, {'si': self.id})
+        self.result_tags = []
+        for tally in result_tag_tallies:
+            newTag = ScanResultTallies()
+            newTag.scan_id = self.id
+            newTag.scan = self
+            newTag.tag_id = tally[0]
+            newTag.count = tally[3]
+            self.result_tags.append(newTag)
+        db.session.add(self)
+        db.session.commit()
+        db.session.refresh(self)
+        return self.result_tags
+
+    def get_result_tag_tallies(self):
+        if len(self.result_tags) == 0:
+            return self.update_result_tag_tallies()
+        return self.result_tags
 
     def get_states_string(self):
         return ""
@@ -121,7 +142,7 @@ class ScanResult(db.Model):
             self.subject._recalculateTallies()
 
     def get_markdown(self):
-        return markdown.markdown(self.raw_text)
+        return markdown.markdown(self.raw_text, extensions=['codehilite', 'fenced_code'])
 
     @classmethod
     def search(cls, val):
@@ -137,3 +158,15 @@ class DuplicateScanResult(db.Model):
     original_result_id = db.Column(db.Integer, db.ForeignKey('scan_result.id'))
 
     created_at = db.Column(db.DateTime, default = datetime.utcnow)
+
+
+class ScanResultTallies(db.Model):
+    scan_id = db.Column(db.Integer, db.ForeignKey('scan.id'), primary_key=True)
+    tag_id = db.Column(db.Integer, db.ForeignKey('tag.id'), primary_key=True)
+    count = db.Column(db.Integer)
+
+    scan = db.relationship("Scan", back_populates="result_tags")
+    tag = db.relationship("Tag")
+
+    def __repr__(self):
+        return f"<ResultTally, ({self.tag_id, self.scan_id}) = {self.count}>"

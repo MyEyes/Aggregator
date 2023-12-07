@@ -63,6 +63,9 @@ def stop_scan():
     scan.finished_at = datetime.utcnow()
     db.session.add(scan)
     db.session.commit()
+    db.session.refresh(scan)
+    Subject.calculateScanCaches(scan.id)
+    scan.update_result_tag_tallies()
     return jsonify(
         {
             'status': 'OK',
@@ -126,11 +129,14 @@ def submit_scan_result():
 
     db.session.add(scanResult)
     db.session.commit()
-    db.session.refresh(scanResult)
 
-    # We need to recalculate the tallies here, because before the result is
-    # committed to the db we don't see scanResult.subject
-    scanResult.subject._recalculateTallies()
+    #db.session.refresh(scanResult)
+
+    # We would need to recalculate the tallies here, because before the result is
+    # committed to the db we don't see scanResult.subject, but we trust that
+    # the end of scan will trigger the correct handling instead
+    # That also makes the refresh of the scanResult unnecessary above
+    #scanResult.subject._recalculateTallies()
     
     return jsonify(
         {
