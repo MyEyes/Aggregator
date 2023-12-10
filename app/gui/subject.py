@@ -38,6 +38,7 @@ def set_subj_notes(id):
     data = request.get_json() or {}
     if result and data["notes"]:
         result.set_note(data["notes"])
+        result.touch()
         db.session.add(result)
         db.session.commit()
         return jsonify(
@@ -61,6 +62,7 @@ def add_subject_tag(id):
     if tag:
         if tag not in subject.tags:
             subject.tags.append(tag)
+            subject.touch()
             db.session.add(subject)
             db.session.commit()
         return jsonify(
@@ -84,6 +86,7 @@ def del_subject_tag(id):
     if tag:
         if tag in subject.tags:
             subject.tags.remove(tag)
+            subject.touch()
             db.session.add(subject)
             db.session.commit()
         return jsonify(
@@ -97,3 +100,13 @@ def del_subject_tag(id):
                 "error": "No such subject"
             }
         )
+
+@bp.route('/subject/<int:id>/transfer-tags', methods=['POST'])
+@login_required
+def subject_transfer_tags_to_soft_matches(id):
+    subject = Subject.query.filter_by(id=id).first_or_404()
+    return jsonify(
+        {
+            "result": "OK"
+        }
+    )

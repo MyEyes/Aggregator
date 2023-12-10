@@ -26,3 +26,16 @@ def scan(id):
         else:
             results = results.order_by(desc(__sort))
     return render_template('scan/scan.html', title=str(scan), user=current_user, scan=scan, results=results, sort=_sort, sort_op=_sort_op)
+
+@bp.route('/scan/<int:id>/transfer-tags')
+@login_required
+def scan_transfer_tags(id):
+    scan = Scan.query.filter_by(id=id).first()
+    scan.transfer_result_tags_to_soft_matches()
+    Subject.calculateScanCaches(id)
+    db.session.commit()
+    return jsonify(
+                {
+                    "result": "OK"
+                }
+            )

@@ -1,7 +1,7 @@
 from app.models import db
 from datetime import datetime
 from app.models.tag import result_tags, Tag, SpecialTag
-from sqlalchemy.sql.expression import func, select
+from sqlalchemy.sql.expression import func, select, insert
 import markdown
 
 class Scan(db.Model):
@@ -35,6 +35,21 @@ class Scan(db.Model):
         subquery = db.session.query(ScanResult.soft_match_hash).filter(ScanResult.scan_id==self.id)
         query = db.session.query(ScanResult).filter(ScanResult.scan_id != self.id).filter(ScanResult.soft_match_hash.in_(subquery))
         return query
+
+    def transfer_result_tags_to_soft_matches(self):
+        # Delete all tags from results that have a newer soft match
+        raw_sql = """
+        SELECT scan_result.id, newest.id FROM scan
+        JOIN scan_result ON scan_id=scan.id
+        LEFT JOIN scan_result as newest ON newest.soft_match_hash=scan_result.soft_match_hash
+        WHERE scan.id=:si AND scan_result.id != newest.id
+        GROUP BY scan_result.id
+        ORDER BY newest.human_touched_at;
+        """
+        # Insert tags from soft matches
+        
+        for r in self.results:
+            r.transfer_tags_to_soft_matches(force=False, mass=True)
 
     def update_result_tag_tallies(self):
         raw_sql = """
@@ -88,6 +103,7 @@ class ScanResult(db.Model):
     hard_match_hash = db.Column(db.String(256), index=True, unique=True)
 
     created_at = db.Column(db.DateTime, default = datetime.utcnow)
+    human_touched_at = db.Column(db.DateTime, default=datetime.min)
 
     def get_soft_matches(self):
         query = db.session.query(ScanResult).filter(ScanResult.soft_match_hash == self.soft_match_hash)
@@ -101,6 +117,9 @@ class ScanResult(db.Model):
 
     def set_note(self, val):
         self.notes = val
+
+    def touch(self):
+        self.human_touched_at = datetime.utcnow
 
     def get_note(self):
         if self.notes and len(self.notes) > 0:
@@ -118,28 +137,63 @@ class ScanResult(db.Model):
     def set_tags(self, tagIds):
         if not tagIds:
             return
-        self.tags.clear()
-        for tid in tagIds:
-            tag = db.session.query(Tag).filter(Tag.id == tid).first()
-            if not tag:
-                raise Exception(f"Tag with id {tid} does not exist")
-            self.add_tag(tag)
+        try:
+            self.tags = Tag.query.filter(Tag.id.in_(tagIds)).all()
+            db.session.add(self)
+        except Exception as e: #Fall back on error
+            print(e)
+            self.tags.clear()
+            for tid in tagIds:
+                tag = db.session.query(Tag).filter(Tag.id == tid).first()
+                if not tag:
+                    raise Exception(f"Tag with id {tid} does not exist")
+                self.add_tag(tag)
         # It's okay to not update tallies here, because this will only happen if the result isn't
         # committed to the db yet and we will recalculate then
-            self.subject._recalculateTallies()
+        #self.subject._recalculateTallies()
 
+    # New results can only be added during a scan
+    # So we defer the updating of the tallies until after the full scan is done
     def add_tags(self, tagIds):
         if not tagIds:
             return
-        for tid in tagIds:
-            tag = db.session.query(Tag).filter(Tag.id == tid).first()
-            if not tag:
-                raise Exception(f"Tag with id {tid} does not exist")
-            self.add_tag(tag)
+        try:
+            newTags = Tag.query.filter(Tag.id.in_(tagIds)).all()
+            self.tags.extend(newTags)
+        except Exception as e:
+            print(e)
+            for tid in tagIds:
+                tag = db.session.query(Tag).filter(Tag.id == tid).first()
+                if not tag:
+                    raise Exception(f"Tag with id {tid} does not exist")
+                self.add_tag(tag)
         # It's okay to not update tallies here, because this will only happen if the result isn't
         # committed to the db yet and we will recalculate then
-        if self.subject:
-            self.subject._recalculateTallies()
+        # if self.subject:
+        #     self.subject._recalculateTallies()
+
+    # force: force current result or use newest
+    # mass: Individual update or mass update with defered cache calculation
+    def transfer_tags_to_soft_matches(self, force=True, mass=False):
+        soft_matches = self.get_soft_matches()
+        if force:
+            transferTags = [tag.id for tag in self.tags]
+            for match in soft_matches:
+                match.set_tags(transferTags)
+                if not mass:
+                    match.subject._recalculateTallies()
+        else:
+            #Find newest version of this result
+            #as in the one last changed by a human
+            newestOne = self
+            for match in soft_matches:
+                if match.human_touched_at > newestOne.human_touched_at:
+                    newestOne = match
+            transferTags = [tag.id for tag in newestOne.tags]
+            for match in soft_matches:
+                match.set_tags(transferTags)
+                if not mass:
+                    match.subject._recalculateTallies()
 
     def get_markdown(self):
         return markdown.markdown(self.raw_text, extensions=['codehilite', 'fenced_code'])

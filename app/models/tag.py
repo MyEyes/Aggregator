@@ -24,11 +24,12 @@ result_tags = db.Table(
 
 # Tags for Subjects and Results
 class Tag(db.Model):
+    SHORTNAME_MAX_LEN = 16
     _defaultSort = "id"
     
     id = db.Column(db.Integer, primary_key=True)
-    shortname = db.Column(db.String(10))
-    color = db.Column(db.String(16))
+    shortname = db.Column(db.String(16))
+    color = db.Column(db.String(SHORTNAME_MAX_LEN))
     name = db.Column(db.String(256), index=True)
     description = db.Column(db.Text())
     special = db.Column(Enum(SpecialTag))

@@ -2,8 +2,10 @@ from app.models import db
 from datetime import datetime
 from app.models.scan import ScanResult
 from app.models.tag import subject_tags, Tag, SpecialTag
+from flask import current_app
 import hashlib
 import binascii
+import threading
 
 # The subject of a scan, could be a URL, an assembly or something else
 class Subject(db.Model):
@@ -36,6 +38,7 @@ class Subject(db.Model):
     hard_match_hash = db.Column(db.String(256), index=True, unique=True)
 
     created_at = db.Column(db.DateTime, default = datetime.utcnow)
+    human_touched_at = db.Column(db.DateTime, default=datetime.min)
 
     def addPath(self, path):
         known = SubjectAltPaths.query.filter_by(subj_id=self.id).filter_by(path=path).first()
@@ -54,17 +57,26 @@ class Subject(db.Model):
         altName.subj_id = self.id
         db.session.add(altName)
 
+    def touch(self):
+        self.human_touched_at = datetime.utcnow
+
+    def getTopParent(self):
+        curr = self
+        while curr.parent:
+            curr = curr.parent
+        return curr
+
     # Will check that parent exists and set parentId
     # But will not perform heavy duty updates
     def set_parent_light(self, parentId):
         if not parentId:
             self.chained_soft_match_hash = self.soft_match_hash
-            self._recalculateTallies()
+            #self._recalculateTallies()
             return
         parentId = int(parentId)
         if parentId < 0:
             self.chained_soft_match_hash = self.soft_match_hash
-            self._recalculateTallies()
+            #self._recalculateTallies()
             return
         parent = db.session.query(Subject).filter(Subject.id == parentId).first()
         if not parent:
@@ -127,15 +139,15 @@ class Subject(db.Model):
                 else:
                     childCalcDict[t.id] += 1
             for ctt in c.child_tags:
-                if ctt.tag.id not in childCalcDict:
-                    childCalcDict[ctt.tag.id] = ctt.count
+                if ctt.tag_id not in childCalcDict:
+                    childCalcDict[ctt.tag_id] = ctt.count
                 else:
-                    childCalcDict[ctt.tag.id] += ctt.count
+                    childCalcDict[ctt.tag_id] += ctt.count
             for rtt in c.result_tags:
-                if rtt.tag.id not in resultCalcDict:
-                    resultCalcDict[rtt.tag.id] = rtt.count
+                if rtt.tag_id not in resultCalcDict:
+                    resultCalcDict[rtt.tag_id] = rtt.count
                 else:
-                    resultCalcDict[rtt.tag.id] += rtt.count
+                    resultCalcDict[rtt.tag_id] += rtt.count
         
         child_tallies = []
         for tag_id,count in childCalcDict.items():
@@ -193,18 +205,31 @@ class Subject(db.Model):
             db.session.add(self)
 
     @classmethod
-    def calculateCaches(cls):
-        top_level_subjects = Subject.query.filter(Subject.parentId is None).all()
+    def _calculateCaches(cls, context):
+        context.push()
+        top_level_subjects = Subject.query.filter(Subject.parentId==None).all()
         for tls in top_level_subjects:
             tls._recalculateTalliesRecursive()
             tls._propagateSoftHashFromParent(None)
+        db.session.commit()
+
+    @classmethod
+    def calculateCaches(cls):
+        workerThread = threading.Thread(target=cls._calculateCaches, args=[current_app.app_context()])
+        workerThread.daemon = True
+        workerThread.start()
+
+    @classmethod
+    def _calculateScanCaches(cls, scan_id):
+        top_level_subjects = Subject.query.filter_by(scan_id=scan_id).filter(Subject.parentId==None).all()
+        for tls in top_level_subjects:
+            tls._recalculateTalliesRecursive()
+            tls._propagateSoftHashFromParent(None)
+        db.session.commit()
 
     @classmethod
     def calculateScanCaches(cls, scan_id):
-        top_level_subjects = Subject.query.filter_by(scan_id=scan_id).filter(Subject.parentId is None).all()
-        for tls in top_level_subjects:
-            tls._recalculateTalliesRecursive()
-            tls._propagateSoftHashFromParent(None)
+        cls._calculateScanCaches(scan_id)
 
 
     def get_soft_matches(self):
@@ -215,6 +240,16 @@ class Subject(db.Model):
         subquery = db.session.query(ScanResult.soft_match_hash).filter(ScanResult.subject_id==self.id)
         query = db.session.query(ScanResult).filter(ScanResult.subject_id != self.id).filter(ScanResult.soft_match_hash.in_(subquery))
         return query
+
+    def transfer_result_tags(self, recursive=False, mass=False):
+        if recursive:
+            for child in self.children:
+                child.transfer_result_tags(recursive, mass)
+        for r in self.results:
+            r.transfer_tags_to_soft_matches(force=False, mass=True)
+        if not mass:
+            self._recalculateTallies()
+
 
     def set_note(self, value):
         self.notes = value
@@ -236,12 +271,16 @@ class Subject(db.Model):
         return None
 
     def set_tags(self, tagIds, updateCache=True):
-        self.tags.clear()
-        for tid in tagIds:
-            tag = db.session.query(Tag).filter(Tag.id == tid).first()
-            if not tag:
-                raise Exception(f"Tag with id {tid} does not exist")
-            self.tags.append(tag)
+        try:
+            self.tags = Tag.query.filter(Tag.id.in_(tagIds)).all()
+        except Exception as e:
+            #Fallback
+            self.tags.clear()
+            for tid in tagIds:
+                tag = db.session.query(Tag).filter(Tag.id == tid).first()
+                if not tag:
+                    raise Exception(f"Tag with id {tid} does not exist")
+                self.tags.append(tag)
         if updateCache:
             db.session.merge(self)
             self._recalculateTallies()
@@ -249,13 +288,19 @@ class Subject(db.Model):
             db.session.add(self)
 
     def add_tags(self, tagIds, updateCache=True):
-        for tid in tagIds:
-            tag = db.session.query(Tag).filter(Tag.id == tid).first()
-            if not tag:
-                raise Exception(f"Tag with id {tid} does not exist")
-            if tag in self.tags:
-                continue
-            self.tags.append(tag)
+        try:
+            newTags = Tag.query.filter(Tag.id.in_(tagIds)).all()
+            self.tags.extend(newTags)
+        except Exception as e:
+            #Fallback
+            print(e)
+            for tid in tagIds:
+                tag = db.session.query(Tag).filter(Tag.id == tid).first()
+                if not tag:
+                    raise Exception(f"Tag with id {tid} does not exist")
+                if tag in self.tags:
+                    continue
+                self.tags.append(tag)
         if updateCache:
             db.session.merge(self)
             self._recalculateTallies()

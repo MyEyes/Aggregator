@@ -13,7 +13,8 @@ from sqlalchemy import update, alias
 def result(id):
     result = ScanResult.query.filter_by(id=id).first_or_404()
     soft_matches = ScanResult.query.filter_by(soft_match_hash=result.soft_match_hash)
-    return render_template('result/result.html', title="Result", user=current_user, mainresult=result, soft_matches=soft_matches)
+    tags = Tag.query.all()
+    return render_template('result/result.html', title="Result", user=current_user, mainresult=result, soft_matches=soft_matches, valid_tags=tags)
 
 @bp.route('/result/<string:new_state>', methods=['POST'])
 @login_required
@@ -51,48 +52,6 @@ def _gen_soft_set_statement(state_val, form):
     stmt = stmt.values(state=state_val)
     return stmt
 
-@bp.route('/result/soft_assign', methods=['POST'])
-@login_required
-def set_state_soft():
-    execution_options=dict({"synchronize_session": 'fetch'})
-
-    #Update undecided
-    stmt = _gen_soft_set_statement("undecided", request.form)
-    db.session.execute(stmt, execution_options=execution_options)
-    db.session.commit()
-    stmt = _gen_soft_set_statement("rejected", request.form)
-    db.session.execute(stmt, execution_options=execution_options)
-    db.session.commit()
-    stmt = _gen_soft_set_statement("confirmed", request.form)
-    db.session.execute(stmt, execution_options=execution_options)
-    db.session.commit()
-
-    return jsonify(
-        {
-            "result": "OK"
-        }
-    )
-
-@bp.route('/result/<int:id>/<string:state>', methods=['POST'])
-@login_required
-def set_state(id, state):
-    result = ScanResult.query.filter_by(id=id).first()
-    if result:
-        result.set_state(state)
-        db.session.add(result)
-        db.session.commit()
-        return jsonify(
-            {
-                "result": "OK"
-            }
-        )
-    return jsonify(
-            {
-                "result": "Error",
-                "error": "No such result"
-            }
-        )
-
 @bp.route('/result/<int:id>/notes', methods=['POST'])
 @login_required
 def set_notes(id):
@@ -100,6 +59,7 @@ def set_notes(id):
     data = request.get_json() or {}
     if result and data["notes"]:
         result.set_note(data["notes"])
+        result.touch()
         db.session.add(result)
         db.session.commit()
         return jsonify(
@@ -123,6 +83,7 @@ def add_result_tag(id):
     if tag:
         if tag not in result.tags:
             result.tags.append(tag)
+            result.touch()
             db.session.add(result)
             result.subject._recalculateTallies()
             db.session.commit()
@@ -138,6 +99,18 @@ def add_result_tag(id):
             }
         )
 
+@bp.route('/result/<int:id>/transfer-tags', methods=['POST'])
+@login_required
+def transfer_result_tags_to_soft_matches(id):
+    result = ScanResult.query.filter_by(id=id).first_or_404()
+    result.transfer_tags_to_soft_matches(force=True, mass=False)
+    db.session.commit()
+    return jsonify(
+                {
+                    "result": "OK"
+                }
+            )
+
 @bp.route('/result/<int:id>/del-tag', methods=['POST'])
 @login_required
 def del_result_tag(id):
@@ -147,6 +120,7 @@ def del_result_tag(id):
     if tag:
         if tag in result.tags:
             result.tags.remove(tag)
+            result.touch()
             db.session.add(result)
             result.subject._recalculateTallies()
             db.session.commit()

@@ -28,9 +28,11 @@
                         <div class="panel panel-default">
                             <div class="panel-heading"><h4 class="panel-title">Tags</h4></div>
                             <div class="panel-body">
-                                {% for tag in mainresult.tags %}
-                                    {% include 'tag/_linked_tag_preview.html' %}
+                                {% set result = mainresult %}
+                                {% for tag in result.tags %}
+                                    {% include 'tag/_deleteable_result_tag_preview.html' %}
                                 {% endfor %}
+                                {% include 'tag/_result_tag_selector.html' %}
                             </div>
                         </div>
                     </div>
@@ -84,4 +86,12 @@
     </div>
     {% include 'result/_result_click_script.html' %}
     {% include 'util/_note_update.html' %}
+{% endblock %}
+
+{% block scripts %}
+    {{ super() }}
+    {% include 'result/_result_click_script.html' %}
+    {% include 'util/_search_bar_script.html' %}
+    {% include 'util/_note_update.html' %}
+    {% include 'tag/_tag_selector_script.html' %}
 {% endblock %}

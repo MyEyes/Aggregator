@@ -24,6 +24,9 @@ def register_tag():
     tag.name = data['name']
     tag.color = data['color']
     tag.shortname = data['shortname']
+    #Truncate shortname if too long
+    if len(tag.shortname)>Tag.SHORTNAME_MAX_LEN:
+        tag.shortname = tag.shortname[:Tag.SHORTNAME_MAX_LEN]
     tag.description = data.get('description')
     tag.special = special or SpecialTag.NONE
     

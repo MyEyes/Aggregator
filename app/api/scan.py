@@ -64,7 +64,7 @@ def stop_scan():
     db.session.add(scan)
     db.session.commit()
     db.session.refresh(scan)
-    Subject.calculateScanCaches(scan.id)
+    Subject.calculateCaches()
     scan.update_result_tag_tallies()
     return jsonify(
         {

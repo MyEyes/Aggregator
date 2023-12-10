@@ -35,7 +35,7 @@ def create_subject():
             existing.parentId = parentId
         existing.addName(data['name'])
         existing.addPath(data['path'])
-        existing.add_tags(tags)
+        existing.add_tags(tags, updateCache=False)
         db.session.commit()
         return jsonify(
         {

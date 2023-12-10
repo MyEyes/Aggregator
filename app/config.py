@@ -8,4 +8,5 @@ class Config(object):
         raise Exception("Change the secret key you wombat")
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or 'sqlite:///' + os.path.join(basedir, 'aggregate.db') if SQLITE_FALLBACK else 'mysql://127.0.0.1:3306'
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+    #SQLALCHEMY_ECHO=True
     DEFAULT_PAGE_SIZE=20

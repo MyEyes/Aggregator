@@ -20,7 +20,7 @@
                                 <div class="panel-body">{{ subject.name }}</div>
                             </div>
                         </div>
-                        <div class="col-md-2">
+                        <div class="col-md-3">
                             <div class="panel panel-default">
                                 <div class="panel panel-default">
                                     <div class="panel-heading"><h4 class="panel-title">Tags</h4></div>
@@ -32,7 +32,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-7">
+                        <div class="col-md-6">
                             <div class="panel panel-default">
                                 <div class="panel-heading">
                                     <h4 class="panel-title">
@@ -70,8 +70,15 @@
                                 <div class="panel panel-default">
                                     <div class="panel-heading"><h4 class="panel-title">Parent</h4></div>
                                     <div class="panel-body">
-                                        <div><a href="{{ url_for('gui.subject', id=subject.parentId) }}">{{ subject.parent.name }}</a></div>
-                                        <div> {{ subject.parent.altPaths[0].path }}</div>
+                                        <div class="col-md-12">
+                                            {% set topParent=subject.getTopParent() %}
+                                            <div><a href="{{ url_for('gui.subject', id=topParent.id) }}">{{ topParent.name }}</a></div>
+                                        </div>
+                                        <span>...</span>
+                                        <div class="col-md-12">
+                                            <div><a href="{{ url_for('gui.subject', id=subject.parentId) }}">{{ subject.parent.name }}</a></div>
+                                            <div> {{ subject.parent.altPaths[0].path }}</div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
