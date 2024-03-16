@@ -22,9 +22,11 @@ class FilterSort:
                     _filter_tags = []
             if len(_filter_tags)>0:
                 if not tagTarget:
-                    filtered = filtered.filter(filterTarget.tags.any(Tag.id.in_(_filter_tags)))
+                    for tag_id in _filter_tags:
+                        filtered = filtered.filter(filterTarget.tags.any(Tag.id==tag_id))
                 else:
-                    filtered = filtered.filter(tagTarget.any(Tag.id.in_(_filter_tags)))
+                    for tag_id in _filter_tags:
+                        filtered = filtered.filter(tagTarget.any(Tag.id==tag_id))
         if _filter_tags and len(_filter_tags)>0:
             filter_tags = Tag.query.filter(Tag.id.in_(_filter_tags))
         else:
@@ -45,6 +47,6 @@ class FilterSort:
         if "page" in request.args:
             _page = int(request.args['page'])
 
-        filterInfo = {'filter_tags': filter_tags, 'sort_op': _sort_op, 'sort': _sort, 'page': _page}
         filtered = filtered.paginate(page=_page, per_page=20, error_out=False)
+        filterInfo = {'filter_tags': filter_tags, 'sort_op': _sort_op, 'sort': _sort, 'page': _page, 'total':filtered.total}
         return filterInfo, filtered

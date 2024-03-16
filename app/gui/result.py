@@ -99,17 +99,29 @@ def add_result_tag(id):
             }
         )
 
-@bp.route('/result/<int:id>/transfer-tags', methods=['POST'])
+@bp.route('/result/<int:id>/export-tags')
 @login_required
-def transfer_result_tags_to_soft_matches(id):
+def export_result_tags_to_soft_matches(id):
     result = ScanResult.query.filter_by(id=id).first_or_404()
-    result.transfer_tags_to_soft_matches(force=True, mass=False)
+    result.transfer_tags_to_soft_matches(export=True)
     db.session.commit()
-    return jsonify(
-                {
-                    "result": "OK"
-                }
-            )
+    return redirect(url_for('gui.result', id=id))
+
+@bp.route('/result/<int:id>/import-tags')
+@login_required
+def import_result_tags_from_soft_matches(id):
+    result = ScanResult.query.filter_by(id=id).first_or_404()
+    result.transfer_tags_to_soft_matches(export=False)
+    db.session.commit()
+    return redirect(url_for('gui.result', id=id))
+
+@bp.route('/result/<int:id>/delete')
+@login_required
+def result_delete(id):
+    result = ScanResult.query.filter_by(id=id).first_or_404()
+    result.delete()
+    db.session.commit()
+    return redirect(url_for('gui.results_dashboard'))
 
 @bp.route('/result/<int:id>/del-tag', methods=['POST'])
 @login_required

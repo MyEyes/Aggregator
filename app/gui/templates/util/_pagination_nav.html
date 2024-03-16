@@ -5,7 +5,7 @@
         {% else %}
             <span class="glyphicon glyphicon-menu-left"></span>
         {% endif %}
-        {{ (filterInfo.page-1)*20 + 1 }} - {{ filterInfo.page*20 }}
+        {{ (filterInfo.page-1)*20 + 1 }} - {{ filterInfo.page*20 }} / {{ filterInfo.total }}
         <a href="{{ url_for(request.endpoint, **dict(request.args, page=filterInfo.page+1)) }}"><span class="glyphicon glyphicon-menu-right"></span></a>
     </div>
 </div>

@@ -26,7 +26,15 @@
                     </div>
                     <div class="col-md-3">
                         <div class="panel panel-default">
-                            <div class="panel-heading"><h4 class="panel-title">Tags</h4></div>
+                            <div class="panel-heading">
+                                <h4 class="panel-title" style="display: inline;">Tags</h4>
+                                <a href="{{url_for('gui.import_result_tags_from_soft_matches',id=mainresult.id)}}">
+                                    <span class="glyphicon glyphicon-import" area-hidden="true" title="Import tags"></span>
+                                </a>
+                                <a href="{{url_for('gui.export_result_tags_to_soft_matches',id=mainresult.id)}}">
+                                    <span class="glyphicon glyphicon-export" area-hidden="true" title="Export tags"></span>
+                                </a>
+                            </div>
                             <div class="panel-body">
                                 {% set result = mainresult %}
                                 {% for tag in result.tags %}
@@ -67,7 +75,6 @@
             <div class="panel-heading">
                 <h2 class="panel-title">
                     <a class="collapse-toggle" data-toggle="collapse" href="#soft-matches-collapse">Soft Matches <span class="badge">{{ soft_matches|list|length - 1 }}</a>
-
                 </h2>
             </div>
             <div id="soft-matches-collapse" class="panel-collapse collapse">

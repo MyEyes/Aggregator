@@ -10,9 +10,9 @@
                 <tr>
                     {% if sort == "id" %}
                         {% if sort_op == 'asc' %}  
-                            <th scope="col" class="col-md-1"><div class="text-nowrap"><a href="{{ url_for(request.endpoint, **dict(request.args, sort='id', sort_op='desc', **request.view_args)) }}">Id <span class="glyphicon glyphicon-triangle-bottom"></span></a></div></th>
+                            <th scope="col"><div class="text-nowrap"><a href="{{ url_for(request.endpoint, **dict(request.args, sort='id', sort_op='desc', **request.view_args)) }}">Id <span class="glyphicon glyphicon-triangle-bottom"></span></a></div></th>
                         {% else %}
-                            <th scope="col" class="col-md-1"><div class="text-nowrap"><a href="{{ url_for(request.endpoint, **dict(request.args, sort='id', sort_op='asc', **request.view_args)) }}">Id <span class="glyphicon glyphicon-triangle-top"> </span></a></div></th>
+                            <th scope="col"><div class="text-nowrap"><a href="{{ url_for(request.endpoint, **dict(request.args, sort='id', sort_op='asc', **request.view_args)) }}">Id <span class="glyphicon glyphicon-triangle-top"> </span></a></div></th>
                         {% endif %}
                     {% else %}
                         <th scope="col" class="col-md-1"><a href="{{ url_for(request.endpoint, **dict(request.args, sort='id', **request.view_args)) }}">Id</a></th>
@@ -21,14 +21,19 @@
                     <th scope="col">Arguments</th>
                     <th scope="col">New</th>
                     <th scope="col">Old</th>
-                    <th scope="col" class="col-md-2">Result Tags</th>
+                    <th scope="col" class="col-md-4">Result Tags</th>
                     <th scope="col">Started At</th>
                     <th scope="col">Finished At</th>
                 </tr>
             </thead>
             {% for scan in scans %}
                 <tr>
-                    <td scope="col"><a href="{{ url_for('gui.scan', id=scan.id) }}">{{ scan.id }}</a></th>
+                    <td scope="col">
+                        <a href="{{ url_for('gui.scan', id=scan.id) }}">{{ scan.id }}</a>
+                        <a href="{{ url_for('gui.scan_delete', id=scan.id) }}" style="float:right">
+                            <span class="glyphicon glyphicon-trash" area-hidden="true" title="Delete"></span>
+                        </a>
+                    </th>
                     <td scope="col">{{ scan.tool.name }}</th>
                     <td scope="col">{{ scan.arguments }}</th>
                     <td scope="col">{{ scan.results|list|length }}</td>

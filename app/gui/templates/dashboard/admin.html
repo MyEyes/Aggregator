@@ -9,7 +9,9 @@
                 <h3 class="panel-title">Admin Panel</h3>
             </div>
             <div id="admin-panel" class="panel-body">
+                <a class="btn btn-default" href="{{ url_for('gui.admin_transfer_result_tags') }}" role="button">Transfer Result Tags</a>
                 <a class="btn btn-default" href="{{ url_for('gui.rebuild_caches') }}" role="button">Rebuild Caches</a>
+                <a class="btn btn-default" href="{{ url_for('gui.subject_depth') }}" role="button">Calc Depth</a>
                 <a class="btn btn-default" href="{{ url_for('gui.wipe_db') }}" role="button">Wipe Database</a>
             </div>
         </div>

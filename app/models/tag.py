@@ -12,14 +12,14 @@ class SpecialTag(enum.Enum):
 
 subject_tags = db.Table(
     "subject_tags",
-    db.Column("subject_id", db.Integer, db.ForeignKey('subject.id')),
-    db.Column("tag_id", db.Integer, db.ForeignKey('tag.id'))
+    db.Column("subject_id", db.Integer, db.ForeignKey('subject.id'), index=True),
+    db.Column("tag_id", db.Integer, db.ForeignKey('tag.id'), index=True)
 )
 
 result_tags = db.Table(
     "result_tags",
-    db.Column("result_id", db.Integer, db.ForeignKey('scan_result.id')),
-    db.Column("tag_id", db.Integer, db.ForeignKey('tag.id'))
+    db.Column("result_id", db.Integer, db.ForeignKey('scan_result.id'), index=True),
+    db.Column("tag_id", db.Integer, db.ForeignKey('tag.id'), index=True)
 )
 
 # Tags for Subjects and Results

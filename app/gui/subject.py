@@ -105,6 +105,7 @@ def del_subject_tag(id):
 @login_required
 def subject_transfer_tags_to_soft_matches(id):
     subject = Subject.query.filter_by(id=id).first_or_404()
+    soft_matches = subject.get_soft_matches()
     return jsonify(
         {
             "result": "OK"

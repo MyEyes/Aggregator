@@ -3,6 +3,7 @@ from datetime import datetime
 from app.models.scan import ScanResult
 from app.models.tag import subject_tags, Tag, SpecialTag
 from flask import current_app
+from sqlalchemy.orm import load_only
 import hashlib
 import binascii
 import threading
@@ -27,6 +28,8 @@ class Subject(db.Model):
     parent = db.relationship('Subject', remote_side=[id], backref='children', cascade="all, delete")
     parentId = db.Column(db.Integer, db.ForeignKey('subject.id'), nullable=True)
 
+    depth = db.Column(db.Integer, default=0)
+
     notes = db.Column(db.Text)
 
     version = db.Column(db.String(32))
@@ -37,7 +40,7 @@ class Subject(db.Model):
     chained_soft_match_hash = db.Column(db.String(256), index=True)
     hard_match_hash = db.Column(db.String(256), index=True, unique=True)
 
-    created_at = db.Column(db.DateTime, default = datetime.utcnow)
+    created_at = db.Column(db.DateTime, default = datetime.utcnow())
     human_touched_at = db.Column(db.DateTime, default=datetime.min)
 
     def addPath(self, path):
@@ -58,7 +61,7 @@ class Subject(db.Model):
         db.session.add(altName)
 
     def touch(self):
-        self.human_touched_at = datetime.utcnow
+        self.human_touched_at = datetime.utcnow()
 
     def getTopParent(self):
         curr = self
@@ -78,10 +81,12 @@ class Subject(db.Model):
             self.chained_soft_match_hash = self.soft_match_hash
             #self._recalculateTallies()
             return
-        parent = db.session.query(Subject).filter(Subject.id == parentId).first()
+        # Check if parent exists and load depth as well
+        parent = db.session.query(Subject).filter(Subject.id == parentId).options(load_only("id","depth")).first()
         if not parent:
             raise Exception(f"No subject with id {parentId} is known")
         self.parentId = parentId
+        self.depth = parent.depth+1
         return
 
     def set_parent(self, parentId):
@@ -94,10 +99,11 @@ class Subject(db.Model):
             self.chained_soft_match_hash = self.soft_match_hash
             self._recalculateTallies()
             return
-        parent = db.session.query(Subject).filter(Subject.id == parentId).first()
+        parent = db.session.query(Subject).filter(Subject.id == parentId).options(load_only("id","depth","chained_soft_match_hash")).first()
         if not parent:
             raise Exception(f"No subject with id {parentId} is known")
         self.parentId = parentId
+        self.depth=parent.depth+1
         # We're doing this here so that the subject is visible as a child for parents
         db.session.add(self)
         db.session.commit()
@@ -204,6 +210,7 @@ class Subject(db.Model):
 
             db.session.add(self)
 
+    #Deprecated
     @classmethod
     def _calculateCaches(cls, context):
         context.push()
@@ -215,21 +222,87 @@ class Subject(db.Model):
 
     @classmethod
     def calculateCaches(cls):
-        workerThread = threading.Thread(target=cls._calculateCaches, args=[current_app.app_context()])
-        workerThread.daemon = True
-        workerThread.start()
+        cls.tallyAllDepths()
 
     @classmethod
     def _calculateScanCaches(cls, scan_id):
-        top_level_subjects = Subject.query.filter_by(scan_id=scan_id).filter(Subject.parentId==None).all()
-        for tls in top_level_subjects:
-            tls._recalculateTalliesRecursive()
-            tls._propagateSoftHashFromParent(None)
+        cls.tallyAllDepths()
         db.session.commit()
 
     @classmethod
     def calculateScanCaches(cls, scan_id):
-        cls._calculateScanCaches(scan_id)
+        # Just recalculates all tallies
+        cls.tallyAllDepths()
+        #cls._calculateScanCaches(scan_id)
+
+
+    # Way faster method to tally child and result tags
+    @classmethod
+    def tallyAllDepths(cls):
+        # Find max depth
+        raw_sql = """SELECT max(depth) from subject;"""
+        max_depth = db.session.execute(raw_sql).one()[0]
+        # Wipe all tallies
+        raw_sql = """DELETE FROM subject_child_tallies; DELETE FROM subject_result_tallies;"""
+        db.session.execute(raw_sql)
+        for depth in range(max_depth, -1, -1):
+            cls._tallyAtDepth(depth)
+        db.session.commit()
+
+
+    @classmethod
+    def _tallyAtDepth(cls, depth):
+        # We assume that the tally tables have all been emptied
+        # First we count all the tags on results
+
+        raw_sql = """
+        INSERT INTO subject_result_tallies (subject_id, tag_id, count)
+        SELECT subject.id, result_tags.tag_id, COUNT(*)
+        FROM subject
+        JOIN scan_result ON scan_result.subject_id=subject.id
+        JOIN result_tags ON result_id=scan_result.id
+        WHERE subject.depth=:depth
+        GROUP BY subject_id, tag_id;
+        """
+        db.session.execute(raw_sql, {'depth': depth})
+
+        # Then we sum up all of the tallies of children of subjects at the current depth
+        raw_sql = """
+        INSERT INTO subject_result_tallies (subject_id, tag_id, count)
+        SELECT subject.id, srt.tag_id , SUM(srt.count)
+        FROM subject JOIN subject child ON child.parentId=subject.id
+        JOIN subject_result_tallies srt ON subject_id=child.id
+        WHERE subject.depth=:depth
+        GROUP BY subject.id, srt.tag_id
+        ON DUPLICATE KEY UPDATE count=count+VALUES(count);
+        """
+        db.session.execute(raw_sql, {'depth': depth})
+
+        # We do basically the same thing for the subject child tags
+        # Count tags on child subjects
+        raw_sql = """
+        INSERT INTO subject_child_tallies (subject_id, tag_id, count)
+        SELECT subject.id, subject_tags.tag_id, COUNT(*)
+        FROM subject
+        JOIN subject child ON child.parentId=subject.id
+        JOIN subject_tags ON subject_id=child.id
+        WHERE subject.depth=:depth
+        GROUP BY subject.id, tag_id;
+        """
+        db.session.execute(raw_sql, {'depth': depth})
+
+        # Add tallies of child subjects
+        raw_sql = """
+        INSERT INTO subject_child_tallies (subject_id, tag_id, count)
+        SELECT subject.id, sct.tag_id , SUM(sct.count)
+        FROM subject JOIN subject child ON child.parentId=subject.id
+        JOIN subject_child_tallies sct ON subject_id=child.id
+        WHERE subject.depth=:depth
+        GROUP BY subject.id, sct.tag_id
+        ON DUPLICATE KEY UPDATE count=count+VALUES(count);
+        """
+        db.session.execute(raw_sql, {'depth': depth})
+
 
 
     def get_soft_matches(self):

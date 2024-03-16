@@ -16,7 +16,7 @@ class Tool(db.Model):
     soft_match_hash = db.Column(db.String(256))
     hard_match_hash = db.Column(db.String(256), index=True, unique=True)
 
-    created_at = db.Column(db.DateTime, default = datetime.utcnow)
+    created_at = db.Column(db.DateTime, default = datetime.utcnow())
     created_by_id = db.Column(db.Integer, db.ForeignKey("user.id"))
 
     scans = db.relationship('Scan', backref='tool', lazy='dynamic')

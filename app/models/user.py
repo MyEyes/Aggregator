@@ -45,8 +45,8 @@ class UserApiToken(db.Model):
     token = db.Column(db.String(256), unique=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 
-    created_at = db.Column(db.DateTime, default = datetime.utcnow)
-    valid_until = db.Column(db.DateTime, default = datetime.utcnow)
+    created_at = db.Column(db.DateTime, default = datetime.utcnow())
+    valid_until = db.Column(db.DateTime, default = datetime.utcnow())
 
     def __init__(self, uid, valid_time):
         self.user_id = uid

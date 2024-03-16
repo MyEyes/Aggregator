@@ -1,11 +1,14 @@
 <tr>
     <td scope="col" id="result-{{ result.id }}">
-        <a href="javascript:update_state({{result.id }}, 'confirmed')"><span id="result-{{ result.id }}-confirmed" class="glyphicon glyphicon-ok" aria-hidden="true"
-            {% if result.state == 'confirmed' %}style="color: green"{% else %}style="color: gray"{% endif %}></span></a>
-        <a href="javascript:update_state({{result.id }}, 'undecided')"><span id="result-{{ result.id }}-undecided" class="glyphicon glyphicon-eye-open" aria-hidden="true" 
-            {% if result.state == 'undecided' %}style="color: green"{% else %}style="color: gray"{% endif %}></span></a>
-        <a href="javascript:update_state({{result.id }}, 'rejected')"><span id="result-{{ result.id }}-rejected" class="glyphicon glyphicon-remove" aria-hidden="true"
-            {% if result.state == 'rejected' %}style="color: green"{% else %}style="color: gray"{% endif %} ></span></a>
+        <a href="{{url_for('gui.import_result_tags_from_soft_matches',id=result.id)}}">
+            <span class="glyphicon glyphicon-import" area-hidden="true" title="Import tags"></span>
+        </a>
+        <a href="{{url_for('gui.export_result_tags_to_soft_matches',id=result.id)}}">
+            <span class="glyphicon glyphicon-export" area-hidden="true" title="Export tags"></span>
+        </a>
+        <a href="{{url_for('gui.result_delete',id=result.id)}}">
+            <span class="glyphicon glyphicon-trash" area-hidden="true" title="Delete"></span>
+        </a>
     </td>
     <td scope="col">
         <div>
@@ -19,7 +22,7 @@
     <td scope="col">{{ result.created_at.strftime("%m/%d/%Y, %H:%M:%S")}}</th>
     <td scope="col">
         <div class="in_table_header collapse-toggle collapsed" data-toggle="collapse" href="#{{ result.id }}-info-panel-collapse"><a href="{{ url_for('gui.result', id=result.id) }}">{{ result.title }}</a></div>
-        <div id="{{ result.id }}-info-panel-collapse" class="panel-collapse collapse limited_width_text">
+        <div id="{{ result.id }}-info-panel-collapse" class="panel-collapse collapse">
             <div class="well well-sm">{{ result.get_markdown()|safe }}</div>
         </div>
     </td>
