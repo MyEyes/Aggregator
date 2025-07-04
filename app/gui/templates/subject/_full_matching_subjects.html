@@ -1,0 +1,24 @@
+{% set num_entries = soft_matches|list|length - 1 %}
+{% if num_entries>0 %}
+    <div class="panel panel-info">
+        <div class="panel-heading">
+            <h2 class="panel-title">
+                <span>Full Property Matches</span>
+                <a class="collapse-toggle" data-toggle="collapse" href="#full-matches-collapse"><span class="badge">{{ num_entries }}</a>
+                <span class="text-muted" style="padding-left:3%">{{ subject.get_matching_properties_string() }}</span>
+            </h2>
+        </div>
+        <div id="full-matches-collapse" class="panel-collapse collapse">
+            <table class="table table-bordered table-hover">
+                <table class="table table-bordered table-hover">
+                    {% include 'subject/_subject_table_header.html' %}
+                    {% for _subject in soft_matches %}
+                        {% if _subject.id != subject.id %}
+                            {% include 'subject/_subject_table_entry.html' %}
+                        {% endif %}
+                    {% endfor %}
+                </table>
+            </table>
+        </div>
+    </div>
+{% endif %}

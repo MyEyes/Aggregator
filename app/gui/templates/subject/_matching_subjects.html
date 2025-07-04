@@ -1,0 +1,24 @@
+{% set new_subjects = subject.get_property_matches_without(property, soft_matches) %}
+{% set num_entries = new_subjects|list|length %}
+{% if num_entries>0 %}
+    <div class="panel panel-info">
+        <div class="panel-heading">
+            <h2 class="panel-title">
+                <span>{{ property.property_kind.name }} Matches</span>
+                <span class="badge">{{ num_entries }}</span>
+                <a class="collapse-toggle" data-toggle="collapse" href="#{{ property.property_kind.name }}-matches-collapse"></a>
+                <span class="text-muted" style="padding-left:3%">{{ property.get_matching_string() }}</span>
+            </h2>
+        </div>
+        <div id="{{ property.property_kind.name }}-matches-collapse" class="panel-collapse collapse">
+            <table class="table table-bordered table-hover">
+                <table class="table table-bordered table-hover">
+                    {% include 'subject/_subject_table_header.html' %}
+                    {% for _subject in new_subjects %}
+                        {% include 'subject/_subject_table_entry.html' %}
+                    {% endfor %}
+                </table>
+            </table>
+        </div>
+    </div>
+{% endif %}

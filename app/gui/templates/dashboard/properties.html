@@ -1,0 +1,33 @@
+{% extends "dashboard/base.html" %}
+
+{% block app_content %}
+    <div class="panel-group">
+        {% include 'util/_pagination_nav.html' %}
+        <table class="table table-bordered table-hover">
+            <thead class="thead-light">
+                <tr>
+                    <th scope="col" class="col-md-1">Id</th>
+                    <th scope="col" class="col-md-4">Name</th>
+                    <th scope="col" class="col-md-1">Matching</th>
+                    <th scope="col" class="col-md-7">Description</th>
+                </tr>
+            </thead>
+            {% for property in properties %}
+                <tr>
+                    <td scope="col">{{ property.id }}</th>
+                    <td scope="col">{{ property.name }}</th>
+                    <td scope="col">{{ property.is_matching_property }}</th>
+                    <td scope="col">{{ property.description }}</th>
+                </tr>
+            {% endfor %}
+
+        </table>
+        <a href="{{ url_for('gui.add_property_kind') }}"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span></a>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+    {{ super() }}
+    {% include 'result/_result_click_script.html' %}
+    {% include 'util/_search_bar_script.html' %}
+{% endblock %}

@@ -7,4 +7,4 @@ migrate = Migrate()
 login = LoginManager()
 login.login_view = "gui.login"
 
-from app.models import scan, subject, tool, user
+from app.models import scan, subject, tool, user, property

@@ -5,7 +5,6 @@
         var shortname_element = document.getElementById("tag_short_name")
         var name_element = document.getElementById("tag_name")
         var description_element = document.getElementById("tag_description")
-        var special_element = document.getElementById("tag_special")
 
         $.ajax({
         type: "POST",
@@ -14,8 +13,7 @@
                     shortname: shortname_element.value,
                     color: color_element.value,
                     name: name_element.value,
-                    description: description_element.value,
-                    special: special_element.value
+                    description: description_element.value
                 }),
         success: function(data){
             if(data.id)
@@ -33,7 +31,6 @@
         var shortname_element = document.getElementById("tag_short_name")
         var name_element = document.getElementById("tag_name")
         var description_element = document.getElementById("tag_description")
-        var special_element = document.getElementById("tag_special")
 
         $.ajax({
         type: "POST",
@@ -42,8 +39,7 @@
                     shortname: shortname_element.value,
                     color: color_element.value,
                     name: name_element.value,
-                    description: description_element.value,
-                    special: special_element.value
+                    description: description_element.value
                 }),
         success: function(data){
             if(data.id)

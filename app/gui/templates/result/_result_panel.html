@@ -21,7 +21,10 @@
     <td scope="col" class="limited_width_name"><a href="{{ url_for('gui.subject', id=result.subject.id) }}">{{ result.subject.name|truncate(100) }}</a></td>
     <td scope="col">{{ result.created_at.strftime("%m/%d/%Y, %H:%M:%S")}}</th>
     <td scope="col">
-        <div class="in_table_header collapse-toggle collapsed" data-toggle="collapse" href="#{{ result.id }}-info-panel-collapse"><a href="{{ url_for('gui.result', id=result.id) }}">{{ result.title }}</a></div>
+        <div>
+            <a href="{{ url_for('gui.result', id=result.id) }}">{{ result.title }}</a>
+            <span class="collapse-toggle collapsed" data-toggle="collapse" href="#{{ result.id }}-info-panel-collapse"></span>
+        </div>
         <div id="{{ result.id }}-info-panel-collapse" class="panel-collapse collapse">
             <div class="well well-sm">{{ result.get_markdown()|safe }}</div>
         </div>

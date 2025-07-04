@@ -13,8 +13,6 @@ def register_tool():
     data = request.get_json() or None
     if not data:
         return bad_request("No arguments")
-    if not 'soft_match_hash' in data:
-        return bad_request("No soft hash")
     if not 'hard_match_hash' in data:
         return bad_request("No hard hash")
     if not 'name' in data:
@@ -25,7 +23,6 @@ def register_tool():
     tool.created_by_id = user.id
     tool.name = data['name']
     tool.hard_match_hash = data['hard_match_hash']
-    tool.soft_match_hash = data['soft_match_hash']
     tool.next_version_id = None
     if 'version' in data:
         tool.version = data['version']
@@ -36,6 +33,7 @@ def register_tool():
     if existing:
         return jsonify(
             {
+                'id': tool.id,
                 'status': 'OK',
                 'msg': 'Already registered'
             }
@@ -51,9 +49,11 @@ def register_tool():
 
     db.session.add(tool)
     db.session.commit()
+    db.session.refresh(tool)
 
     return jsonify(
         {
+            'id': tool.id,
             'status': 'OK',
             'msg': 'Registered Tool'
         }

@@ -1,0 +1,4 @@
+<tr>
+    <td scope="col" class="limited_width_name"><a href="{{ url_for('gui.property_kind', id=property.property_kind.id) }}">{{ property.property_kind.name|truncate(100) }}</a></td>
+    <td scope="col">{{ property.value }}</th>
+</tr>

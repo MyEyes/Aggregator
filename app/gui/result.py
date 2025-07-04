@@ -7,14 +7,15 @@ from app.models.tool import Tool
 from app.models.tag import Tag
 from app.models import db
 from sqlalchemy import update, alias
+from .breadcrumb import Breadcrumb
 
 @bp.route('/result/<int:id>', methods=['GET'])
 @login_required
 def result(id):
     result = ScanResult.query.filter_by(id=id).first_or_404()
-    soft_matches = ScanResult.query.filter_by(soft_match_hash=result.soft_match_hash)
     tags = Tag.query.all()
-    return render_template('result/result.html', title="Result", user=current_user, mainresult=result, soft_matches=soft_matches, valid_tags=tags)
+    breadcrumbs = [Breadcrumb("Dashboard", url_for("gui.dashboard")), Breadcrumb("Results", url_for("gui.results_dashboard")), Breadcrumb(str(id))]
+    return render_template('result/result.html', title="Result", breadcrumbs=breadcrumbs, user=current_user, mainresult=result, valid_tags=tags)
 
 @bp.route('/result/<string:new_state>', methods=['POST'])
 @login_required

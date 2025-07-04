@@ -1,0 +1,6 @@
+<table class="table table-bordered table-striped table-condensed">
+    {# {% include 'property/_property_panel_header.html' %} #}
+    {% for property in properties %}
+        {% include 'property/_property_panel.html' %}
+    {% endfor %}
+</table>

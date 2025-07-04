@@ -1,8 +1,12 @@
 {% extends "base.html" %}
 
+{% block navbar_content %}
+{{ super() }}
+{% include 'util/_menu.html' %}
+{% endblock %}
+
 {% block app_content %}
     {% include 'util/_table_style.html' %}
-    <h1>{{ title }}</h1>
     <div class="panel-group">
         <div class="panel panel-info">
             <div class="panel-heading">

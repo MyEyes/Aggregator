@@ -3,7 +3,7 @@ from flask import jsonify, request
 from app.api.auth import token_auth
 from app.api.errors import bad_request
 from app.models import db
-from app.models.tag import Tag, SpecialTag
+from app.models.tag import Tag
 from datetime import datetime
 
 @bp.route('/tag/register', methods=['POST'])
@@ -19,7 +19,6 @@ def register_tag():
     if not 'color' in data:
         return bad_request("No color")
     special = data.get('special')
-    user = token_auth.current_user()
     tag = Tag()
     tag.name = data['name']
     tag.color = data['color']
@@ -28,7 +27,6 @@ def register_tag():
     if len(tag.shortname)>Tag.SHORTNAME_MAX_LEN:
         tag.shortname = tag.shortname[:Tag.SHORTNAME_MAX_LEN]
     tag.description = data.get('description')
-    tag.special = special or SpecialTag.NONE
     
     existing = Tag.query.filter_by(name=tag.name).first()
     if existing:

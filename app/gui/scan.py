@@ -5,13 +5,15 @@ from app.models import db
 from app.models.scan import Scan, ScanResult
 from app.models.subject import Subject
 from app.models.tool import Tool
+from .breadcrumb import Breadcrumb
 from sqlalchemy import desc, asc
 
 @bp.route('/scan/<int:id>')
 @login_required
 def scan(id):
     scan = Scan.query.filter_by(id=id).first()
-    return render_template('scan/scan.html', title=str(scan), user=current_user, scan=scan)
+    breadcrumbs = [Breadcrumb("Dashboard", url_for("gui.dashboard")), Breadcrumb("Scans", url_for("gui.scans_dashboard")), Breadcrumb(str(id))]
+    return render_template('scan/scan.html', title=str(scan), breadcrumbs=breadcrumbs, user=current_user, scan=scan)
 
 @bp.route('/scan/<int:id>/transfer-tags')
 @login_required

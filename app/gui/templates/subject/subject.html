@@ -1,8 +1,7 @@
-{% extends "base.html" %}
+{% extends "subject/base.html" %}
 
 {% block app_content %}
     {% include 'util/_table_style.html' %}
-    <h1>{{ title }}</h1>
     <div class="panel-group">
         <div class="panel panel-info">
             <div class="panel-heading">
@@ -13,7 +12,7 @@
             </div>
             <div id="info-panel-collapse" class="panel-collapse collapse in">
                 <div id="info-panel" class="panel-body">
-                    <div class="row">
+                    <div class="row show-grid">
                         <div class="col-md-3">
                             <div class="panel panel-default">
                                 <div class="panel-heading"><h4 class="panel-title">Name</h4></div>
@@ -51,7 +50,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="row">
+                    <div class="row show-grid">
                         <div class="col-md-3">
                             <div class="panel panel-default">
                                 <div class="panel-heading"><h4 class="panel-title">Results</h4></div>
@@ -103,9 +102,28 @@
                             </div>
                         </div>
                     </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="panel panel-default">
+                                <div class="panel-heading">
+                                    <h4 class="panel-title">Properties <span class="badge">{{ subject.properties|list|length }}</span></h4>
+                                </div>
+                                <div class="panel-body">
+                                    {% set properties = subject.properties %}
+                                    {% include 'property/_properties_table.html' %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
+    </div>
+    <div class="panel-group">
+        {% include 'subject/_full_matching_subjects.html' %}
+        {% for property in subject.properties %}
+            {% include 'subject/_matching_subjects.html' %}
+        {% endfor %}
     </div>
     {% if subject.children|list|length > 0 %}
     <div class="panel-group">
@@ -122,31 +140,6 @@
                         {% include 'subject/_subject_table_header.html' %}
                         {% for _subject in subject.children %}
                             {% include 'subject/_subject_table_entry.html' %}
-                        {% endfor %}
-                    </table>
-                </table>
-            </div>
-        </div>
-    </div>
-    {% endif %}
-    {% if soft_matches|list|length > 0 %}
-    <div class="panel-group">
-        <div class="panel panel-info">
-            <div class="panel-heading">
-                <h2 class="panel-title">
-                    <a href="{{url_for('gui.tree_subject_matched', id=subject.id)}}" title="Soft Matches Tree View"><span class="glyphicon glyphicon-list"></span></a>
-                    <a class="collapse-toggle" data-toggle="collapse" href="#soft-matches-collapse">Soft Matches</a>
-                    <span class="badge">{{ soft_matches|list|length }}</a>
-                </h2>
-            </div>
-            <div id="soft-matches-collapse" class="panel-collapse collapse">
-                <table class="table table-bordered table-hover">
-                    <table class="table table-bordered table-hover">
-                        {% include 'subject/_subject_table_header.html' %}
-                        {% for _subject in soft_matches %}
-                            {% if _subject.id != subject.id or True %}
-                                {% include 'subject/_subject_table_entry.html' %}
-                            {% endif %}
                         {% endfor %}
                     </table>
                 </table>

@@ -14,14 +14,11 @@ def create_subject():
     data = request.get_json() or {}
     if 'name' not in data:
         return bad_request("Name required")
-    if 'soft_hash' not in data:
-        return bad_request("Soft hash required")
     if 'hash' not in data:
         return bad_request("Hash required")
-    if 'path' not in data:
-        return bad_request("Path required")
 
-    tags = data.get('tags')
+    tags = data.get('tags', [])
+    properties = data.get('properties')
     parentId = data.get('parentId')
     if parentId and parentId < 0:
         parentId = None
@@ -34,8 +31,8 @@ def create_subject():
                 return bad_request("Subject exists with different parent", "Subject exists with different parent")
             existing.parentId = parentId
         existing.addName(data['name'])
-        existing.addPath(data['path'])
         existing.add_tags(tags, updateCache=False)
+        existing.add_properties(properties)
         db.session.commit()
         return jsonify(
         {
@@ -49,7 +46,6 @@ def create_subject():
     subject.name = data['name']
     subject.created_at = datetime.utcnow()
     subject.hard_match_hash = data['hash']
-    subject.soft_match_hash = data['soft_hash']
 
     subject.set_parent_light(parentId)
     db.session.add(subject)
@@ -57,10 +53,7 @@ def create_subject():
     db.session.refresh(subject) #Make sure id is available
 
     subject.add_tags(tags,updateCache=False)
-
-    subject.addPath(data['path'])
-    if 'version' in data:
-        subject.version = data['version']
+    subject.add_properties(properties)
     
     db.session.commit()
 

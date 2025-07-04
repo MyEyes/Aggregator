@@ -1,1 +1,1 @@
-<span id="tag-{{ tag.id }}-preview" class="badge" style="background-color: {{ tag.color }}; cursor: default;"> {{ tag.shortname }} <span onclick="del_subject_tag(event,{{_subject.id}},{{tag.id}})" style="color: red; cursor: pointer;">-</span></span>
+<span id="tag-{{ tag.id }}-preview" class="badge" style="background-color: {{ tag.color }}; cursor: default;" title="{{ tag.description }}"> {{ tag.shortname }} <span onclick="del_subject_tag(event,{{_subject.id}},{{tag.id}})" style="color: red; cursor: pointer;">-</span></span>

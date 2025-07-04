@@ -1,8 +1,7 @@
-{% extends "base.html" %}
+{% extends "tag/base.html" %}
 
 {% block app_content %}
     {% include 'util/_table_style.html' %}
-    <h1>{{ title }}</h1>
     <div class="panel-group">
         <div class="panel">
             <div class="col-md-2">
@@ -40,18 +39,6 @@
                             <tr>
                                 <td>Description</td>
                                 <td><textarea type="text" name="Description" id="tag_description"></textarea></td>
-                            </tr>
-                            <tr>
-                                <td>Special Tag</td>
-                                <td>
-                                    <select name="Special" id="tag_special">
-                                        <option value="NONE">None</option>
-                                        <option value="OPEN_TAG">Open</option>
-                                        <option value="UNDECIDED_TAG">Undecided</option>
-                                        <option value="CONFIRMED_TAG">Confirmed</option>
-                                        <option value="REJECTED_TAG">Rejected</option>
-                                    </select>
-                                </td>
                             </tr>
                             <tr>
                                 <td><button class="btn btn-default" id="add_tag_submit">Add</button></td>

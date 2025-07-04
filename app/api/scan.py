@@ -36,14 +36,15 @@ def start_scan():
         scan.arguments = data['arguments']
     scan.tool_id = tool.id
     scan.hard_match_hash = data['scan_hash']
-    scan.soft_match_hash = data['scan_soft_hash']
     scan.started_at = datetime.utcnow()
     scan.finished_at = None
 
     db.session.add(scan)
     db.session.commit()
+    db.session.refresh(scan)
     return jsonify(
         {
+            'id': scan.id,
             'status': 'OK',
             'msg': 'Scan Created'
         }
@@ -53,9 +54,9 @@ def start_scan():
 @token_auth.login_required
 def stop_scan():
     data = request.get_json() or {}
-    if not 'scan_hash' in data:
-        return bad_request("Need to specify scan hash")
-    scan = Scan.query.filter_by(hard_match_hash=data['scan_hash']).first()
+    if not 'id' in data:
+        return bad_request("Need to specify scan id")
+    scan = Scan.query.filter_by(id=data['id']).first()
     if not scan:
         return bad_request("No such scan")
     if scan.finished_at:
@@ -68,6 +69,7 @@ def stop_scan():
     scan.update_result_tag_tallies()
     return jsonify(
         {
+            'id': scan.id,
             'status': 'OK',
             'msg': 'Scan Marked Finished'
         }
@@ -77,22 +79,18 @@ def stop_scan():
 @token_auth.login_required
 def submit_scan_result():
     data = request.get_json() or {}
-    if not 'scan_hash' in data:
-        return bad_request("Need to specify scan hash")
-    scan = Scan.query.filter_by(hard_match_hash=data['scan_hash']).first()
+    if not 'scan_id' in data:
+        return bad_request("Need to specify scan_id")
+    scan = Scan.query.filter_by(id=data['scan_id']).first()
     if not scan:
         return bad_request("No such scan")
-    if not 'subject_hash' in data:
-        return bad_request("Need to specify subject hash")
-    subject = Subject.query.filter_by(hard_match_hash=data['subject_hash']).first()
+    if not 'subject_id' in data:
+        return bad_request("Need to specify subject_id")
+    subject = Subject.query.filter_by(id=data['subject_id']).first()
     if not subject:
         return bad_request("No such subject")
     if 'hash' not in data:
         return bad_request("Need to specify result hash")
-    if 'soft_hash' not in data:
-        return bad_request("Need to specify result soft hash")
-    if 'risk' not in data:
-        return bad_request("Need to specify result risk")
     if 'description' not in data:
         return bad_request("Need to specify result description")
     if 'title' not in data:
@@ -108,38 +106,33 @@ def submit_scan_result():
         db.session.commit()
         return jsonify(
         {
-        'status': 'OK',
-        'msg': 'Duplicate scan result submitted'
+            'id': existing.id,
+            'status': 'OK',
+            'msg': 'Duplicate scan result submitted'
         })
-
-    soft_existing = ScanResult.query.filter_by(soft_match_hash=data['soft_hash']).first()
-    if soft_existing:
-        #TODO handle soft match case
-        pass
 
     scanResult = ScanResult()
     scanResult.hard_match_hash = data['hash']
-    scanResult.soft_match_hash = data['soft_hash']
-    scanResult.scan_risk_text = data['risk']
     scanResult.subject_id = subject.id
     scanResult.scan_id = scan.id
     scanResult.title = data['title']
     scanResult.raw_text = data['description']
-    scanResult.add_tags(data.get('tags'))
+    scanResult.add_tags(data.get('tags', []))
+    scanResult.add_properties(data.get('properties', []))
 
     db.session.add(scanResult)
     db.session.commit()
+    db.session.refresh(scanResult) # Refresh so that `.id` is visible and correct
 
-    #db.session.refresh(scanResult)
 
     # We would need to recalculate the tallies here, because before the result is
     # committed to the db we don't see scanResult.subject, but we trust that
     # the end of scan will trigger the correct handling instead
-    # That also makes the refresh of the scanResult unnecessary above
     #scanResult.subject._recalculateTallies()
     
     return jsonify(
         {
-        'status': 'OK',
-        'msg': 'Scan result submitted'
+            'id': scanResult.id,
+            'status': 'OK',
+            'msg': 'Scan result submitted'
         })

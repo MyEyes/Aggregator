@@ -1,6 +1,7 @@
 from app.models import db
 from datetime import datetime
-from app.models.tag import result_tags, Tag, SpecialTag
+from app.models.tag import result_tags, Tag
+from app.models.property import result_properties, Property, PropertyKind
 from sqlalchemy.sql.expression import func, select, insert
 import markdown
 
@@ -15,7 +16,6 @@ class Scan(db.Model):
 
     arguments = db.Column(db.Text, index=True)
 
-    soft_match_hash = db.Column(db.String(256), index=True)
     hard_match_hash = db.Column(db.String(256), index=True, unique=True)
 
     started_at = db.Column(db.DateTime, default = datetime.utcnow())
@@ -30,11 +30,6 @@ class Scan(db.Model):
 
     def __repr__(self):
         return f"Scan {self.id} - {self.tool.name}"
-
-    def get_soft_matches(self):
-        subquery = db.session.query(ScanResult.soft_match_hash).filter(ScanResult.scan_id==self.id)
-        query = db.session.query(ScanResult).filter(ScanResult.scan_id != self.id).filter(ScanResult.soft_match_hash.in_(subquery))
-        return query
 
     def transfer_result_tags_to_soft_matches(self):
         raw_sql = """
@@ -104,10 +99,16 @@ class Scan(db.Model):
         dsr.created_at=NULL
         WHERE sr.scan_id=:scan_id;
 
-        -- Delete all results and result_tags that still exist for this scan
+        -- Delete all result tags, result properties and results that still exist for this scan
         DELETE rt
         FROM scan_result sr
         JOIN result_tags rt ON sr.id=rt.result_id
+        WHERE scan_id=:scan_id;
+
+        DELETE res_prop
+        FROM result_properties res_prop
+        JOIN scan_result sr
+        ON res_prop.result_id = sr.id
         WHERE scan_id=:scan_id;
 
         DELETE sr
@@ -181,22 +182,18 @@ class ScanResult(db.Model):
     notes = db.Column(db.Text)
 
     tags = db.relationship('Tag', secondary=result_tags, backref='results')
+    properties = db.relationship('Property', secondary=result_properties, backref='results', cascade='all')
 
-    soft_match_hash = db.Column(db.String(256), index=True)
     hard_match_hash = db.Column(db.String(256), index=True, unique=True)
 
     created_at = db.Column(db.DateTime, default = datetime.utcnow())
     human_touched_at = db.Column(db.DateTime, default=datetime.min)
 
-    def get_soft_matches(self):
-        query = db.session.query(ScanResult).filter(ScanResult.soft_match_hash == self.soft_match_hash)
-        return query
+    def get_soft_matches(self, property_val):
+        return property_val.results
 
-    def try_get_soft_notes(self):
-        for soft_match in self.get_soft_matches():
-            if soft_match.notes and len(soft_match.notes)>0:
-                return soft_match.notes
-        return ""
+    def try_get_soft_notes(self, property_val):
+        return None
 
     def set_note(self, val):
         self.notes = val
@@ -207,15 +204,20 @@ class ScanResult(db.Model):
     def get_note(self):
         if self.notes and len(self.notes) > 0:
             return self.notes
-        soft_notes = self.try_get_soft_notes()
-        if soft_notes:
-            return "SOFT: \n" + soft_notes
+        # soft_notes = self.try_get_soft_notes()
+        # if soft_notes:
+        #     return "SOFT: \n" + soft_notes
         return ""
 
     def add_tag(self, tag):
         if tag in self.tags:
             return
         self.tags.append(tag)
+
+    def add_property(self, property_val):
+        if property_val in self.properties:
+            return
+        self.properties.append(property_val)
 
     def set_tags(self, tagIds):
         if not tagIds:
@@ -255,9 +257,24 @@ class ScanResult(db.Model):
         # if self.subject:
         #     self.subject._recalculateTallies()
 
+    def add_properties(self, property_val_ids):
+        if not property_val_ids:
+            return
+        try:
+            newProperties = Property.query.filter(Property.id.in_(property_val_ids)).all()
+            self.properties.extend(newProperties)
+        except Exception as e:
+            print(e)
+            for property_val_id in property_val_ids:
+                property_val = db.session.query(Property).filter(Property.id == property_val_id).first()
+                if not property_val:
+                    raise Exception(f"Property with id {property_val_id} does not exist")
+                self.add_property(property_val)
+
+
     # export: export current result tags or import newest result tags
-    def transfer_tags_to_soft_matches(self, export=True):
-        soft_matches = self.get_soft_matches()
+    def transfer_tags_to_soft_matches(self, property_val, export=True):
+        soft_matches = self.get_soft_matches(property_val)
         if export:
             transferTags = [tag.id for tag in self.tags]
             for match in soft_matches:
@@ -329,33 +346,36 @@ class ScanResult(db.Model):
     def delete(self):
         oldSub = self.subject
         oldScan = self.scan
-        if len(list(self.duplicates))==0:
-            db.session.delete(self)
-            db.session.commit()
-        else:
-            oldestTime = datetime.max
-            oldest = None
-            for dup in self.duplicates:
-                if dup.created_at < oldestTime:
-                    oldest = dup
-                    oldestTime = dup.created_at
-            if not oldest:
-                raise Exception("Duplicates exist, but we couldn't find an oldest one, wth")
-            # Instead of deleting this result, we add it to the scan and subject of the duplicate and remove the
-            # duplicate.
-            # That way we don't need to update all other duplicates original_result_id
-            self.scan_id = oldest.scan_id
-            self.subject_id = oldest.subject_id
-            self.created_at = oldest.created_at
-            db.session.delete(oldest)
-            db.session.commit()
-            db.session.refresh(self)
-            self.subject._recalculateTallies()
-            self.scan.update_result_tag_tallies()
+
+        if len(list(self.duplicates))>0:
+            self._move_to_oldest_duplicate()
+            return
+
+        db.session.delete(self)
+        db.session.commit()
         oldSub._recalculateTallies()
         oldScan.update_result_tag_tallies()
 
-
+    def _move_to_oldest_duplicate(self):
+        oldestTime = datetime.max
+        oldest = None
+        for dup in self.duplicates:
+            if dup.created_at < oldestTime:
+                oldest = dup
+                oldestTime = dup.created_at
+        if not oldest:
+            raise Exception("Duplicates exist, but we couldn't find an oldest one, wth")
+        # Instead of deleting this result, we add it to the scan and subject of the oldest duplicate
+        # and remove the duplicate instead.
+        # That way we don't need to update all other duplicates original_result_id
+        self.scan_id = oldest.scan_id
+        self.subject_id = oldest.subject_id
+        self.created_at = oldest.created_at
+        db.session.delete(oldest)
+        db.session.commit()
+        db.session.refresh(self)
+        self.subject._recalculateTallies()
+        self.scan.update_result_tag_tallies()
 
     @classmethod
     def search(cls, val):

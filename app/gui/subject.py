@@ -6,13 +6,13 @@ from app.models.subject import Subject
 from app.models.tool import Tool
 from app.models.tag import Tag
 from app.models import db
+from .breadcrumb import Breadcrumb
 from sqlalchemy import desc, asc
 
 @bp.route('/subject/<int:id>')
 @login_required
 def subject(id):
     _subject = Subject.query.filter_by(id=id).first()
-    soft_matches = _subject.get_soft_matches()
     results = ScanResult.query.filter_by(subject_id=_subject.id)
     _sort_op = "desc"
     if "sort_op" in request.args:
@@ -29,7 +29,9 @@ def subject(id):
         else:
             results = results.order_by(desc(__sort))
     tags = Tag.query.all()
-    return render_template('subject/subject.html', title='Subject - '+_subject.name, user=current_user, results = results, subject=_subject, soft_matches=soft_matches, sort=_sort, sort_op=_sort_op, valid_tags=tags)
+    soft_matches = _subject.get_soft_matches()
+    breadcrumbs = [Breadcrumb("Dashboard", url_for("gui.dashboard")), Breadcrumb("Subjects", url_for("gui.subjects_dashboard")), Breadcrumb(str(id))]
+    return render_template('subject/subject.html', title='Subject - '+_subject.name, breadcrumbs=breadcrumbs, user=current_user, results = results, soft_matches=soft_matches, subject=_subject, properties = _subject.properties, sort=_sort, sort_op=_sort_op, valid_tags=tags)
 
 @bp.route('/subject/<int:id>/notes', methods=['POST'])
 @login_required
@@ -104,6 +106,7 @@ def del_subject_tag(id):
 @bp.route('/subject/<int:id>/transfer-tags', methods=['POST'])
 @login_required
 def subject_transfer_tags_to_soft_matches(id):
+    #TODO: why doesn't this do anything?
     subject = Subject.query.filter_by(id=id).first_or_404()
     soft_matches = subject.get_soft_matches()
     return jsonify(

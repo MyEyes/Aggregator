@@ -14,12 +14,6 @@ def tree_subject(id):
     _subject = Subject.query.filter_by(id=id).first()
     return tree(title=f"Tree - Subject {_subject.id} - '{_subject.name}'", subjects=[_subject])
 
-@bp.route('/tree/subject/<int:id>/soft_matched')
-@login_required
-def tree_subject_matched(id):
-    _subject = Subject.query.filter_by(id=id).first()
-    return tree(title=f"Tree - Subject {_subject.id} - Soft Matches", subjects=[_subject, *_subject.get_soft_matches()])
-
 @bp.route('/tree/subject/<int:id1>/diff/<int:id2>')
 @login_required
 def tree_subject_diff(id1, id2):

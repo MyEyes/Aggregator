@@ -1,9 +1,11 @@
 from app.models import db
 from datetime import datetime
 from app.models.scan import ScanResult
-from app.models.tag import subject_tags, Tag, SpecialTag
+from app.models.tag import subject_tags, Tag
+from app.models.property import subject_properties, Property, PropertyKind
 from flask import current_app
 from sqlalchemy.orm import load_only
+from sqlalchemy import intersect, intersect_all, select
 import hashlib
 import binascii
 import threading
@@ -22,6 +24,7 @@ class Subject(db.Model):
     duplicates = db.relationship('DuplicateScanResult', backref='subject', lazy='dynamic', cascade='all')
 
     tags = db.relationship('Tag', secondary=subject_tags, backref='subjects', cascade='all')
+    properties = db.relationship('Property', secondary=subject_properties, backref='subjects', cascade='all')
     child_tags = db.relationship('SubjectChildTallies', back_populates="subject", cascade="save-update, merge, delete, delete-orphan")
     result_tags = db.relationship('SubjectResultTallies', back_populates="subject", cascade="save-update, merge, delete, delete-orphan")
 
@@ -36,8 +39,6 @@ class Subject(db.Model):
     prev_version_id = db.Column(db.Integer)
     next_version_id = db.Column(db.Integer)
 
-    soft_match_hash = db.Column(db.String(256), index=True)
-    chained_soft_match_hash = db.Column(db.String(256), index=True)
     hard_match_hash = db.Column(db.String(256), index=True, unique=True)
 
     created_at = db.Column(db.DateTime, default = datetime.utcnow())
@@ -73,12 +74,10 @@ class Subject(db.Model):
     # But will not perform heavy duty updates
     def set_parent_light(self, parentId):
         if not parentId:
-            self.chained_soft_match_hash = self.soft_match_hash
             #self._recalculateTallies()
             return
         parentId = int(parentId)
         if parentId < 0:
-            self.chained_soft_match_hash = self.soft_match_hash
             #self._recalculateTallies()
             return
         # Check if parent exists and load depth as well
@@ -91,15 +90,13 @@ class Subject(db.Model):
 
     def set_parent(self, parentId):
         if not parentId:
-            self.chained_soft_match_hash = self.soft_match_hash
             self._recalculateTallies()
             return
         parentId = int(parentId)
         if parentId < 0:
-            self.chained_soft_match_hash = self.soft_match_hash
             self._recalculateTallies()
             return
-        parent = db.session.query(Subject).filter(Subject.id == parentId).options(load_only("id","depth","chained_soft_match_hash")).first()
+        parent = db.session.query(Subject).filter(Subject.id == parentId).options(load_only("id","depth")).first()
         if not parent:
             raise Exception(f"No subject with id {parentId} is known")
         self.parentId = parentId
@@ -108,18 +105,8 @@ class Subject(db.Model):
         db.session.add(self)
         db.session.commit()
         db.session.refresh(self)
-        self._propagateSoftHashFromParent(parent)
         # This will propagate to the parent
         self._recalculateTallies()
-
-    def _propagateSoftHashFromParent(self, parent):
-        if parent == None:
-            self.chained_soft_match_hash = self.soft_match_hash
-        else:
-            self.chained_soft_match_hash = hashlib.sha256(binascii.unhexlify(parent.chained_soft_match_hash)+binascii.unhexlify(self.soft_match_hash)).hexdigest()
-        db.session.add(self)
-        for c in self.children:
-            c._propagateSoftHashFromParent(self)
 
     def _updateChildTally(self, tag_id, change):
         pass
@@ -243,7 +230,9 @@ class Subject(db.Model):
         raw_sql = """SELECT max(depth) from subject;"""
         max_depth = db.session.execute(raw_sql).one()[0]
         # Wipe all tallies
-        raw_sql = """DELETE FROM subject_child_tallies; DELETE FROM subject_result_tallies;"""
+        raw_sql = """DELETE FROM subject_child_tallies;"""
+        db.session.execute(raw_sql)
+        raw_sql = """DELETE FROM subject_result_tallies;"""
         db.session.execute(raw_sql)
         for depth in range(max_depth, -1, -1):
             cls._tallyAtDepth(depth)
@@ -304,15 +293,28 @@ class Subject(db.Model):
         db.session.execute(raw_sql, {'depth': depth})
 
 
-
     def get_soft_matches(self):
-        soft_matches = Subject.query.filter_by(soft_match_hash=self.soft_match_hash).filter(Subject.id != self.id)
-        return soft_matches
-
-    def get_soft_matched_results(self):
-        subquery = db.session.query(ScanResult.soft_match_hash).filter(ScanResult.subject_id==self.id)
-        query = db.session.query(ScanResult).filter(ScanResult.subject_id != self.id).filter(ScanResult.soft_match_hash.in_(subquery))
-        return query
+        # Start with all valid subject ids and filter down by intersecting with subject ids matching each property
+        soft_matches_query = select(Subject.__table__.c.id)
+        subject_id = subject_properties.columns["subject_id"]
+        property_id = subject_properties.columns["property_id"]
+        property_matches = []
+        for property in self.properties:
+            if not property.property_kind.is_matching_property:
+                continue
+            property_matches.append(select(subject_id).where(property_id == property.id))
+            
+        soft_matches_query = intersect(*property_matches)
+        soft_match_ids = [ent[0] for ent in db.session.execute(soft_matches_query).all()]
+        return Subject.query.filter(Subject.__table__.c.id.in_(soft_match_ids))
+    
+    def get_matching_properties_string(self):
+        return " && ".join([prop.get_matching_string() for prop in self.properties if prop.property_kind.is_matching_property])
+    
+    def get_property_matches_without(self, property, exclusion_set):
+        excluded_ids = [elem.id for elem in exclusion_set]
+        print(excluded_ids)
+        return [sub for sub in property.subjects if sub.id!=self.id and sub.id not in excluded_ids]
 
     def transfer_result_tags(self, recursive=False, mass=False):
         if recursive:
@@ -338,9 +340,6 @@ class Subject(db.Model):
                 return ""
     
     def try_get_soft_notes(self):
-        for soft_match in self.get_soft_matched_results():
-            if soft_match.notes and len(soft_match.notes)>0:
-                return soft_match.notes
         return None
 
     def set_tags(self, tagIds, updateCache=True):
@@ -379,6 +378,21 @@ class Subject(db.Model):
             self._recalculateTallies()
         else:
             db.session.add(self)
+
+    def add_properties(self, property_val_ids):
+        try:
+            newPropertyVals = Property.query.filter(Property.id.in_(property_val_ids)).all()
+            self.properties.extend(newPropertyVals)
+        except Exception as e:
+            print(e)
+            for property_val_id in property_val_ids:
+                property_val = db.session.query(Property).filter(Property.id == property_val_id).first()
+                if not property_val:
+                    raise Exception(f"Property with id {property_val_id} does not exist")
+                if property_val in self.properties:
+                    continue
+                self.properties.append(property_val)
+        db.session.add(self)
 
     @classmethod
     def search(cls, val):

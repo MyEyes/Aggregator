@@ -1,8 +1,7 @@
-{% extends "base.html" %}
+{% extends "tag/base.html" %}
 
 {% block app_content %}
 {% include 'util/_table_style.html' %}
-<h1>{{ title }}</h1>
 <div class="panel-group">
     <div class="panel">
         <div class="panel panel-default col-md-12">
@@ -47,10 +46,6 @@
                         <tr>
                             <td>Description</td>
                             <td><span>{{ tag.description }}</span></td>
-                        </tr>
-                        <tr>
-                            <td>Special Tag</td>
-                            <td><span>{{ tag.special.name }}</span></td>
                         </tr>
                     </table>
                 </div>

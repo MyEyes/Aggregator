@@ -2,4 +2,4 @@ from flask import Blueprint
 
 bp = Blueprint('api', __name__)
 
-from app.api import scan, tool, auth, subject, tag
+from app.api import scan, tool, auth, subject, tag, property

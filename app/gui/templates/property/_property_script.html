@@ -1,0 +1,58 @@
+<script>
+    function add_property()
+    {
+        var name_element = document.getElementById("tag_name")
+        var description_element = document.getElementById("tag_description")
+
+        $.ajax({
+        type: "POST",
+        url: '/property/add',
+        data: JSON.stringify({
+                    name: name_element.value,
+                    description: description_element.value
+                }),
+        success: function(data){
+            if(data.id)
+            {
+                window.location.replace("/property/"+data.id)
+            }
+        },
+        contentType: "application/json"
+        });
+    }
+
+    function edit_property()
+    {
+        var name_element = document.getElementById("property_name")
+        var description_element = document.getElementById("property_description")
+
+        $.ajax({
+        type: "POST",
+        url: window.location, //A bit dirty, but this should only ever happen on the edit endpoint anyway
+        data: JSON.stringify({
+                    name: name_element.value,
+                    description: description_element.value
+                }),
+        success: function(data){
+            if(data.id)
+            {
+                window.location.replace("/property/"+data.id)
+            }
+        },
+        contentType: "application/json"
+        });
+    }
+
+    let add_submit_element = document.getElementById("add_property_submit")
+    if(add_submit_element)
+    {
+        add_submit_element.addEventListener("click", function(ev){add_property()})
+    }
+
+    let edit_submit_element = document.getElementById("edit_property_submit")
+    if(edit_submit_element)
+    {
+        edit_submit_element.addEventListener("click", function(ev){edit_property()})
+    }
+
+</script>

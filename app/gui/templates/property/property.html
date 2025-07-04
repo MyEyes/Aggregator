@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block app_content %}
+{% include 'util/_table_style.html' %}
+<h1>{{ title }}</h1>
+<div class="panel-group">
+    <div class="panel">
+        <div class="panel panel-default col-md-12">
+            <div class="col-md-2">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h4 class="panel-title">Actions</h4>
+                    </div>
+                    <div class="panel-body">
+                        <span>
+                            <a class="btn btn-default" href="{{ url_for('gui.edit_property_kind', id=property.id) }}" role="button">Edit</a>
+                        </span>
+                        <span>
+                            <a class="btn btn-default" href="{{ url_for('gui.delete_property_kind', id=property.id) }}" role="button">Delete</a>
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="panel-body">
+                    <table class="table table-bordered table-hover">
+                        <tr>
+                            <td>Name</td>
+                            <td><span>{{ property.name }}</span></td>
+                        </tr>
+                        <tr>
+                            <td>Description</td>
+                            <td><span>{{ property.description }}</span></td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

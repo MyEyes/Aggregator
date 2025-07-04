@@ -1,0 +1,22 @@
+{% include 'util/_breadcrumbs.html' %}
+<ul class="nav navbar-nav">
+    <li><a class="{% if scans %} active {% endif %}" href="{{ url_for('gui.scans_dashboard') }}" >Scans</a></li>
+    <li><a class="{% if subjects %} active {% endif %}" href="{{ url_for('gui.subjects_dashboard') }}" >Subjects</a></li>
+    <li><a class="{% if tools %} active {% endif %}" href="{{ url_for('gui.tools_dashboard') }}">Tools</a></li>
+    <li><a class="{% if results %} active {% endif %}" href="{{ url_for('gui.results_dashboard') }}">Results</a></li>
+    <li><a class="{% if tags %} active {% endif %}" href="{{ url_for('gui.tags_dashboard') }}">Tags</a></li>
+    <li><a class="{% if properties %} active {% endif %}" href="{{ url_for('gui.properties_dashboard') }}">Properties</a></li>
+    <li><a class="{% if admin %} active {% endif %}" href="{{ url_for('gui.admin_dashboard') }}">Admin</a></li>
+</ul>
+<ul class="nav navbar-nav navbar-right">
+        {% include 'dashboard/_filter.html' %}
+        <li>
+            <form class="navbar-form " role="search">
+                <div class="form_group navbar-left">
+                    <input type="text" id="search-bar-val" class="form-control" placeholder="Search" aria-describedby="search-bar" {% if search %} value="{{ search }}" {% endif %}>
+                </div>
+                <button type="submit" class="btn btn-default">Search</button>
+            </form>
+        </li>
+    </div>
+</ul>

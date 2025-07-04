@@ -3,13 +3,6 @@ from datetime import datetime
 import enum
 from sqlalchemy import Integer, Enum
 
-class SpecialTag(enum.Enum):
-    NONE = 0
-    OPEN_TAG = 1
-    UNDECIDED_TAG = 2
-    CONFIRMED_TAG = 3
-    REJECTED_TAG = 4
-
 subject_tags = db.Table(
     "subject_tags",
     db.Column("subject_id", db.Integer, db.ForeignKey('subject.id'), index=True),
@@ -32,4 +25,3 @@ class Tag(db.Model):
     color = db.Column(db.String(SHORTNAME_MAX_LEN))
     name = db.Column(db.String(256), index=True)
     description = db.Column(db.Text())
-    special = db.Column(Enum(SpecialTag))

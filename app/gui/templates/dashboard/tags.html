@@ -1,7 +1,6 @@
-{% extends "base.html" %}
+{% extends "dashboard/base.html" %}
 
 {% block app_content %}
-    {% include 'dashboard/_menu.html' %}
     <div class="panel-group">
         {% include 'util/_pagination_nav.html' %}
         <table class="table table-bordered table-hover">
@@ -10,9 +9,8 @@
                     <th scope="col" class="col-md-1">Preview</th>
                     <th scope="col" class="col-md-1">Tag Name</th>
                     <th scope="col" class="col-md-1">Color</th>
-                    <th scope="col" class="col-md-2">Full Name</th>
-                    <th scope="col" class="col-md-5">Description</th>
-                    <th scope="col" class="col-md-2">Special</th>
+                    <th scope="col" class="col-md-3">Full Name</th>
+                    <th scope="col" class="col-md-6">Description</th>
                 </tr>
             </thead>
             {% for tag in tags %}
@@ -24,7 +22,6 @@
                     <td scope="col">{{ tag.color }}</th>
                     <td scope="col">{{ tag.name }}</th>
                     <td scope="col">{{ tag.description }}</th>
-                    <td scope="col">{{ tag.special.name }}</th>
                 </tr>
             {% endfor %}
 
