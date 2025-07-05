@@ -1,0 +1,72 @@
+    .limited_width_text
+    {
+        max-width: 650px;
+    }
+    .limited_width_name
+    {
+        word-wrap: break-word;
+        word-break: normal;
+        max-width: 200px;
+    }
+    .in_table_header
+    {
+        text-align: center;
+    }
+
+    /*Collapsible table that shows first row or full table as accordion*/
+
+    .collapse-accordion table{
+        margin-bottom: 0;
+    }
+
+    .collapse-accordion::after{
+        font-family: 'Glyphicons Halflings';
+        font-style: normal;
+        font-weight: 400;
+        margin-top: -10px;
+        margin-bottom: 10px;
+        text-align: center;
+        justify-content: center;
+        align-items: center;
+        display: flex;
+    }
+
+    .collapse-accordion.collapse-full::after
+    {
+        content: "\e260";
+    }
+
+    .collapse-accordion.collapse-preview::after
+    {
+        content: "\e259";
+    }
+
+    /*general collapse toggle with vertical arrows*/
+    .collapse-toggle::after
+    {
+        position: relative;
+        top: 3px;
+        left: 5px;
+        display: inline-block;
+        font-family: 'Glyphicons Halflings';
+        font-style: normal;
+        font-weight: 400;
+        line-height: 1;
+        content: "\e259";
+    }
+    .collapse-toggle.width.collapsed::after
+    {
+        content: "\e258";
+    }
+    .collapse-toggle.width::after
+    {
+        position: relative;
+        top: 3px;
+        left: 5px;
+        display: inline-block;
+        font-family: 'Glyphicons Halflings';
+        font-style: normal;
+        font-weight: 400;
+        line-height: 1;
+        content: "\e257";
+    }

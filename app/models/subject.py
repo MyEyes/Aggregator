@@ -325,6 +325,11 @@ class Subject(db.Model):
         if not mass:
             self._recalculateTallies()
 
+    # Returning the longest ones first prevents weird shifting in tables when other properties are hidden in the interface
+    # when only showing the first one for example
+    def get_properties_lengthwise(self):
+        self.properties.sort(key=lambda prop: len(prop.value), reverse=True)
+        return self.properties
 
     def set_note(self, value):
         self.notes = value

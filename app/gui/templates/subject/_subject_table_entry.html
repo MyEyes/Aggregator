@@ -21,13 +21,10 @@
         </div>
     </td>
     <td scope="col">
-        <span class="collapse-toggle collapsed" data-toggle="collapse" data-target="{{ '#path-collapse-'+_subject.id.__str__() }}">{{ _subject.altPaths.first().path|truncate(50) }}</span>
-        <div id="{{ 'path-collapse-'+_subject.id.__str__() }}" class="collapse">
-            <ul>
-            {% for path in _subject.altPaths %}
-                <li>{{ path.path }}</li>
-            {% endfor %}
-            </ul>
+        {% set collapse_name = 'table_collapse_'+_subject.id.__str__() %}
+        <div>
+            {% set properties = _subject.get_properties_lengthwise() %}
+            {% include 'property/_properties_table_collapsible.html' %}
         </div>
     </td>
     <td scope="col">

@@ -42,5 +42,8 @@ class Property(db.Model):
     def __repr__(self):
         return f"<Property {self.property_kind.name}={self.value}"
     
+    def __str__(self):
+        return f"{self.property_kind.name}: {self.value}"
+    
     def get_matching_string(self):
         return f"{self.property_kind.name} = \"{self.value}\""

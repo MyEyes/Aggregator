@@ -24,9 +24,13 @@
                     <td scope="col">{{ tag.description }}</th>
                 </tr>
             {% endfor %}
+            <tr>
+                <td scope="col"> <a href="{{ url_for('gui.add_tag') }}"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span></a></td>
+            </tr>
 
         </table>
-        <a href="{{ url_for('gui.add_tag') }}"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span></a>
+        
+        {% include 'util/_pagination_nav.html' %}
     </div>
 {% endblock %}
 

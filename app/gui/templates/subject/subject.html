@@ -1,7 +1,6 @@
 {% extends "subject/base.html" %}
 
 {% block app_content %}
-    {% include 'util/_table_style.html' %}
     <div class="panel-group">
         <div class="panel panel-info">
             <div class="panel-heading">
@@ -35,16 +34,12 @@
                             <div class="panel panel-default">
                                 <div class="panel-heading">
                                     <h4 class="panel-title">
-                                        <a class="collapse-toggle" data-toggle="collapse" href="#path-panel-collapse">Known Paths <span class="badge">{{ subject.altPaths|list|length }}</span></a>
+                                        <a class="collapse-toggle" data-toggle="collapse" href="#notes-panel-collapse">Notes</a>
                                     </h4>
                                 </div>
-                                <div id="path-panel-collapse" class="panel-collapse {% if subject.altPaths|list|length > 3 %} collapse {% else %} collapse in {% endif %}">
+                                <div class="panel-collapse collapse in" id="notes-panel-collapse">
                                     <div class="panel-body">
-                                        <ul>
-                                            {% for path in subject.altPaths %}
-                                                <li>{{ path.path }}</li>
-                                            {% endfor %}
-                                        </ul>
+                                        {% include 'subject/_notes_field.html' %}
                                     </div>
                                 </div>
                             </div>
@@ -88,22 +83,6 @@
                         {% else %}
                         <div class="col-md-9">
                         {% endif %}
-                            <div class="panel panel-default">
-                                <div class="panel-heading">
-                                    <h4 class="panel-title">
-                                        <a class="collapse-toggle" data-toggle="collapse" href="#notes-panel-collapse">Notes</a>
-                                    </h4>
-                                </div>
-                                <div class="panel-collapse collapse in" id="notes-panel-collapse">
-                                    <div class="panel-body">
-                                        {% include 'subject/_notes_field.html' %}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-12">
                             <div class="panel panel-default">
                                 <div class="panel-heading">
                                     <h4 class="panel-title">Properties <span class="badge">{{ subject.properties|list|length }}</span></h4>

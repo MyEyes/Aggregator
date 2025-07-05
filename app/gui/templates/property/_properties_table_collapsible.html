@@ -1,0 +1,24 @@
+{% if properties|list|length > 0 %}
+    {% set toggle_function = "toggle_"+collapse_name %}
+    <script>
+    function {{ toggle_function }} (){
+        $('#{{ collapse_name }}-preview').collapse('toggle')
+        $('#{{ collapse_name }}-full').collapse('toggle')
+    }
+    </script>
+    <div class="panel-collapse collapse-accordion collapse-preview collapse in" id="{{ collapse_name }}-preview" onclick="{{ toggle_function }}()">
+        <table class="table table-bordered table-striped table-condensed">
+            <tr>
+                <td scope="col" class="limited_width_name"><a href="{{ url_for('gui.property_kind', id=properties[0].property_kind.id) }}">{{ properties[0].property_kind.name|truncate(100) }}</a></td>
+                <td scope="col">{{ properties[0].value }}</td>
+            </tr>
+        </table>
+    </div>
+    <div class="panel-collapse collapse-accordion collapse-full collapse" id="{{ collapse_name }}-full" onclick="{{ toggle_function }}()">
+        <table class="table table-bordered table-striped table-condensed">
+            {% for property in properties %}
+                {% include 'property/_property_panel.html' %}
+            {% endfor %}
+        </table>
+    </div>
+{% endif %}
