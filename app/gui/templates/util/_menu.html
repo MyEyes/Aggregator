@@ -11,11 +11,14 @@
 <ul class="nav navbar-nav navbar-right">
         {% include 'dashboard/_filter.html' %}
         <li>
-            <form class="navbar-form " role="search">
+            <form class="navbar-form" role="search" id="search-bar">
                 <div class="form_group navbar-left">
-                    <input type="text" id="search-bar-val" class="form-control" placeholder="Search" aria-describedby="search-bar" {% if search %} value="{{ search }}" {% endif %}>
+                    <input type="text" id="search-bar-val" class="form-control" placeholder="Search" aria-describedby="search-bar" 
+                    {% if filterInfo and filterInfo.options_dict and filterInfo.options_dict.search and filterInfo.options_dict.search.term %}
+                    value="{{ filterInfo.options_dict.search.term }}"
+                    {% endif %}>
                 </div>
-                <button type="submit" class="btn btn-default">Search</button>
+                <button class="btn btn-default">Search</button>
             </form>
         </li>
     </div>

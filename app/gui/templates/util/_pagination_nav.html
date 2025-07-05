@@ -1,11 +1,47 @@
-<div>
-    <div>
-        {% if filterInfo.page > 1 %}
-            <a href="{{ url_for(request.endpoint, **dict(request.args, page=filterInfo.page-1)) }}"><span class="glyphicon glyphicon-menu-left"></span></a>
-        {% else %}
-            <span class="glyphicon glyphicon-menu-left"></span>
-        {% endif %}
-        {{ (filterInfo.page-1)*20 + 1 }} - {{ filterInfo.page*20 }} / {{ filterInfo.total }}
-        <a href="{{ url_for(request.endpoint, **dict(request.args, page=filterInfo.page+1)) }}"><span class="glyphicon glyphicon-menu-right"></span></a>
-    </div>
-</div>
+<nav aria-label="Page navigation">
+  <ul class="pagination">
+
+    {% set pagination_info = filterInfo.options_dict.get("pagination", {"page": 1, "per_page": 20, "total": 0}) %}
+    {% set page = pagination_info.get("page", 1) %}
+
+    {% if page == 1 %} 
+    <li class="disabled">
+        <span aria-hidden="true">&laquo;</span>
+    </li>
+    {% else %}
+    <li>
+      <a onclick="pagination_backward()" href="#" aria-label="Previous">
+        <span aria-hidden="true">&laquo;</span>
+      </a>
+    </li>
+    {% endif %}
+
+    {% if page-2 > 1%}
+        {% set min_page = page-2 %}
+    {% else %}
+        {% set min_page = 1 %}
+    {% endif %}
+
+    {% if page+3 < pagination_info.get("total", 0)//pagination_info.get("per_page", 20)%}
+        {% set max_page = page+3 %}
+    {% else %}
+        {% set max_page = pagination_info.get("total", 0)//pagination_info.get("per_page", 20) %}
+    {% endif %}
+
+    {% for i in range(min_page, page) %}
+        <li><a href="#" onclick="pagination_set_page({{ i }})">{{ i }}</a></li>
+    {% endfor %}
+
+    <li class="active"><span>{{ page }}</span></li>
+
+    {% for i in range(page+1, max_page) %}
+        <li><a href="#" onclick="pagination_set_page({{ i }})">{{ i }}</a></li>
+    {% endfor %}
+
+    <li>
+      <a onclick="pagination_forward()" href="#" aria-label="Next">
+        <span aria-hidden="true">&raquo;</span>
+      </a>
+    </li>
+  </ul>
+</nav>

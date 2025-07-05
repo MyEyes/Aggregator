@@ -1,16 +1,18 @@
 {% extends "dashboard/base.html" %}
 
 {% block app_content %}
+
+    {% include 'util/_pagination_nav.html' %}
     <div class="panel-group">
-        {% include 'util/_pagination_nav.html' %}
         <table class="table table-bordered table-hover">
             {% include 'result/_result_panel_header.html' %}
             {% for result in results %}
                 {% include 'result/_result_panel.html' %}
             {% endfor %}
         </table>
-        {% include 'util/_pagination_nav.html' %}
     </div>
+    
+    {% include 'util/_pagination_nav.html' %}
 {% endblock %}
 
 

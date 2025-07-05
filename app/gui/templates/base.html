@@ -18,6 +18,9 @@
 {% endblock %}
 
 {% block content %}
+    {% if filterInfo %}
+    <div hidden=1 id="filter_info_div">{{ filterInfo.as_json() }}</div>
+    {% endif %}
     <div class="container-fluid">
         {% block app_content %}{% endblock %}
     </div>
@@ -28,5 +31,10 @@
     <link rel="stylesheet" href="{{url_for('.static', filename='css/code_styles.css')}}">
     <link rel="stylesheet" href="{{url_for('.static', filename='css/panel_styles.css')}}">
     <link rel="stylesheet" href="{{url_for('.static', filename='css/table_styles.css')}}">
+{% endblock %}
+
+{% block scripts %}
+    {{ super() }}
+    <script src="{{url_for('.static', filename='js/filtering.js')}}"></script>
 {% endblock %}
 </html>

@@ -1,3 +1,7 @@
 .show-grid {
     margin-bottom: 15px;
 }
+
+nav ul.pagination{
+    margin: 0px;
+}

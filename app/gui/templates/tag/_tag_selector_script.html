@@ -229,43 +229,12 @@
 
     function add_tag_to_filter(tag_id)
     {
-        var urlParams = new URLSearchParams(window.location.search);
-        let tags = urlParams.get('filter_tags')
-        console.log(tag_id)
-        if(!tags)
-        {
-            urlParams.set('filter_tags', ""+tag_id)
-        }
-        else
-        {
-            urlParams.set('filter_tags', tags+","+tag_id)
-        }
-        window.location.search = urlParams
+        add_filter_tag(tag_id)
     }
 
     function del_tag_from_filter(e, tag_id)
     {
-        var urlParams = new URLSearchParams(window.location.search);
-        let tags = urlParams.get('filter_tags')
-        if(!tags)
-        {
-            return
-        }
-        else
-        {
-            let tag_ids = tags.split(',')
-            let new_tag_ids = tag_ids.filter(function(item){return item != tag_id}) //Remove tag
-            if(new_tag_ids.length == 0)
-            {
-                urlParams.delete('filter_tags')
-            }
-            else
-            {
-                let new_tags = new_tag_ids.join(',')
-                urlParams.set('filter_tags', new_tags)
-            }
-        }
-        window.location.search = urlParams
+        remove_filter_tag(tag_id)
     }
 
     document.tag_dropdown = null
