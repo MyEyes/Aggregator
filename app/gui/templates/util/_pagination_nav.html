@@ -2,9 +2,12 @@
   <ul class="pagination">
 
     {% set pagination_info = filterInfo.options_dict.get("pagination", {"page": 1, "per_page": 20, "total": 0}) %}
+    {# Round up last page index #}
+    {% set last_page = 1+(pagination_info.get("total", 0) + pagination_info.get("per_page", 20)-1) // pagination_info.get("per_page", 20)%}
     {% set page = pagination_info.get("page", 1) %}
 
-    {% if page == 1 %} 
+    {# Handle back arrow disable #}
+    {% if page <= 1 %} 
     <li class="disabled">
         <span aria-hidden="true">&laquo;</span>
     </li>
@@ -16,16 +19,17 @@
     </li>
     {% endif %}
 
+    {# Calculate page limits #}
     {% if page-2 > 1%}
         {% set min_page = page-2 %}
     {% else %}
         {% set min_page = 1 %}
     {% endif %}
 
-    {% if page+3 < pagination_info.get("total", 0)//pagination_info.get("per_page", 20)%}
+    {% if page+3 < last_page%}
         {% set max_page = page+3 %}
     {% else %}
-        {% set max_page = pagination_info.get("total", 0)//pagination_info.get("per_page", 20) %}
+        {% set max_page = last_page %}
     {% endif %}
 
     {% for i in range(min_page, page) %}
@@ -38,10 +42,17 @@
         <li><a href="#" onclick="pagination_set_page({{ i }})">{{ i }}</a></li>
     {% endfor %}
 
+    {% if page+1 >= last_page %} 
+    <li class="disabled">
+        <span aria-hidden="true">&raquo;</span>
+    </li>
+    {% else %}
     <li>
       <a onclick="pagination_forward()" href="#" aria-label="Next">
         <span aria-hidden="true">&raquo;</span>
       </a>
     </li>
+    {% endif %}
+
   </ul>
 </nav>

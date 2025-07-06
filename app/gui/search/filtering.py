@@ -21,6 +21,8 @@ class Filter:
     def _create_options(self):
         for key,val in self.options_dict.items():
             self.options.append(FilterOptionKind.from_options(key, val))
+        if "pagination" not in self.options_dict:
+            self.options.append(FilterOptionKind.from_options("pagination", {}))
         self.options.sort(key=lambda option: option.order_idx)
 
     def apply_options(self, options):
