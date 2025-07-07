@@ -15,28 +15,8 @@ def result(id):
     result = ScanResult.query.filter_by(id=id).first_or_404()
     tags = Tag.query.all()
     breadcrumbs = [Breadcrumb("Dashboard", url_for("gui.dashboard")), Breadcrumb("Results", url_for("gui.results_dashboard")), Breadcrumb(str(id))]
-    return render_template('result/result.html', title="Result", breadcrumbs=breadcrumbs, user=current_user, mainresult=result, valid_tags=tags)
-
-@bp.route('/result/<string:new_state>', methods=['POST'])
-@login_required
-def set_state_filter(new_state):
-    stmt = update(ScanResult)
-    if "scan_id" in request.form and request.form["scan_id"]:
-        stmt = stmt.where(ScanResult.scan_id == request.form["scan_id"])
-    if "risk" in request.form and request.form["risk"]:
-        stmt = stmt.where(ScanResult.scan_risk_text == request.form["risk"])
-    if "state" in request.form and request.form["state"]:
-        stmt = stmt.where(ScanResult.state == request.form["state"])
-    if "subject_id" in request.form and request.form["subject_id"]:
-        stmt = stmt.where(ScanResult.subject_id == request.form["subject_id"])
-    stmt = stmt.values(state=new_state)
-    db.session.execute(stmt)
-    db.session.commit()
-    return jsonify(
-        {
-            "result": "OK"
-        }
-    )
+    soft_matches = result.get_soft_matches()
+    return render_template('result/result.html', title="Result", soft_matches=soft_matches, breadcrumbs=breadcrumbs, user=current_user, mainresult=result, valid_tags=tags)
 
 def _gen_soft_set_statement(state_val, form):
     aliased = alias(ScanResult)
@@ -74,6 +54,21 @@ def set_notes(id):
                 "error": "No such result"
             }
         )
+
+@bp.route('/result/<int:id>/notes_raw', methods=['GET'])
+@login_required
+def get_result_notes_raw(id):
+    result = ScanResult.query.filter_by(id=id).first()
+    if result:
+        return jsonify({"note": result.notes})
+    
+    return jsonify(
+                {
+                    "result": "Error",
+                    "note": "",
+                    "error": "No such result"
+                }
+            )
 
 @bp.route('/result/<int:id>/add-tag', methods=['POST'])
 @login_required

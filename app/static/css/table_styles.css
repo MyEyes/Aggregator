@@ -70,3 +70,25 @@
         line-height: 1;
         content: "\e257";
     }
+
+    /* editable note text fields*/
+    .agg-note-field{
+        min-width: 100%;
+        min-height: 100%;
+    }
+
+    .agg-subj-note-field{
+        min-width: 100%;
+        min-height: 100%;
+    }
+    
+    /* markdown rendered note text fields*/
+    .agg-note-field-rendered{
+        min-width: 100%;
+        min-height: 100%;
+    }
+
+    .agg-note-field{
+        min-width: 100%;
+        min-height: 100%;
+    }

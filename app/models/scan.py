@@ -2,7 +2,7 @@ from app.models import db
 from datetime import datetime
 from app.models.tag import result_tags, Tag
 from app.models.property import result_properties, Property, PropertyKind
-from sqlalchemy.sql.expression import func, select, insert
+from sqlalchemy.sql.expression import func, select, insert, intersect_all, intersect
 import markdown
 
 class Scan(db.Model):
@@ -188,11 +188,34 @@ class ScanResult(db.Model):
 
     created_at = db.Column(db.DateTime, default = datetime.utcnow())
     human_touched_at = db.Column(db.DateTime, default=datetime.min)
+    
+    def get_soft_matches(self):
+        # Start with all valid subject ids and filter down by intersecting with subject ids matching each property
+        soft_matches_query = select(ScanResult.__table__.c.id)
+        result_id = result_properties.columns["result_id"]
+        property_id = result_properties.columns["property_id"]
+        property_matches = []
+        for property in self.properties:
+            if not property.property_kind.is_matching_property:
+                continue
+            property_matches.append(select(result_id).where(property_id == property.id))
+            
+        soft_matches_query = intersect(*property_matches)
+        soft_match_ids = [ent[0] for ent in db.session.execute(soft_matches_query).all()]
+        print(soft_match_ids)
+        return ScanResult.query.filter(ScanResult.__table__.c.id.in_(soft_match_ids))
+    
+    def get_matching_properties_string(self):
+        return " && ".join([prop.get_matching_string() for prop in self.properties if prop.property_kind.is_matching_property])
+    
+    def get_property_matches_without(self, property, exclusion_set):
+        excluded_ids = [elem.id for elem in exclusion_set]
+        result_set = [result for result in property.results if result.id!=self.id and result.id not in excluded_ids]
+        print(excluded_ids)
+        print(result_set)
+        return result_set
 
-    def get_soft_matches(self, property_val):
-        return property_val.results
-
-    def try_get_soft_notes(self, property_val):
+    def try_get_soft_notes(self):
         return None
 
     def set_note(self, val):
@@ -273,8 +296,8 @@ class ScanResult(db.Model):
 
 
     # export: export current result tags or import newest result tags
-    def transfer_tags_to_soft_matches(self, property_val, export=True):
-        soft_matches = self.get_soft_matches(property_val)
+    def transfer_tags_to_soft_matches(self, export=True):
+        soft_matches = self.get_soft_matches()
         if export:
             transferTags = [tag.id for tag in self.tags]
             for match in soft_matches:
@@ -339,6 +362,9 @@ class ScanResult(db.Model):
 
     def get_markdown(self):
         return markdown.markdown(self.raw_text, extensions=['codehilite', 'fenced_code'])
+    
+    def get_notes_md(self):
+        return markdown.markdown(self.get_note(), extensions=['codehilite', 'fenced_code'])
 
     # Only use this for individual deletion
     # for other cases there are much better

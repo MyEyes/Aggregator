@@ -1,1 +1,1 @@
-<textarea id="{{ result.id }}-notes" class="agg-note-field">{{ result.get_note() }}</textarea>
+<div id="{{ result.id }}-notes" class="agg-note-field-rendered well well-sm">{{ result.get_notes_md()|safe }}</div>

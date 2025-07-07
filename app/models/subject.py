@@ -9,6 +9,7 @@ from sqlalchemy import intersect, intersect_all, select
 import hashlib
 import binascii
 import threading
+import markdown
 
 # The subject of a scan, could be a URL, an assembly or something else
 class Subject(db.Model):
@@ -313,7 +314,6 @@ class Subject(db.Model):
     
     def get_property_matches_without(self, property, exclusion_set):
         excluded_ids = [elem.id for elem in exclusion_set]
-        print(excluded_ids)
         return [sub for sub in property.subjects if sub.id!=self.id and sub.id not in excluded_ids]
 
     def transfer_result_tags(self, recursive=False, mass=False):
@@ -343,6 +343,9 @@ class Subject(db.Model):
                 return "SOFT: \n" + soft_note
             else:
                 return ""
+            
+    def get_notes_md(self):
+        return markdown.markdown(self.get_notes(), extensions=['codehilite', 'fenced_code'])
     
     def try_get_soft_notes(self):
         return None

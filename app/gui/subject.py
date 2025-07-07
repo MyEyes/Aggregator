@@ -51,9 +51,24 @@ def set_subj_notes(id):
     return jsonify(
             {
                 "result": "Error",
-                "error": "No such result"
+                "error": "No such subject"
             }
         )
+
+@bp.route('/subject/<int:id>/notes_raw', methods=['GET'])
+@login_required
+def get_subject_notes_raw(id):
+    subject = Subject.query.filter_by(id=id).first()
+    if subject:
+        return jsonify({"note": subject.notes})
+    
+    return jsonify(
+                {
+                    "result": "Error",
+                    "note": "",
+                    "error": "No such subject"
+                }
+            )
 
 @bp.route('/subject/<int:id>/add-tag', methods=['POST'])
 @login_required

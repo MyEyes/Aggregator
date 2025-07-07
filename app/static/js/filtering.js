@@ -108,3 +108,9 @@ function search_submit(evt)
 
 load_filter()
 console.info(document.filter_obj)
+
+/*If there is a search bar hook it up properly*/
+try
+{
+    $('#search-bar')[0].addEventListener("submit", search_submit);
+}catch{}

@@ -1,29 +1,4 @@
 <script>
-function update_state(result_id, new_state) {
-    $("#result-"+result_id+"-confirmed").css('color', 'gray');
-    $("#result-"+result_id+"-undecided").css('color', 'gray');
-    $("#result-"+result_id+"-rejected").css('color', 'gray');
-    $.post('/result/'+result_id+'/'+new_state, {}).done(function(response)
-        {
-            $("#result-"+result_id+"-"+new_state).css('color', 'green');
-        }
-    )
-}
-
-function mass_update_state(scan_id, subject_id, old_state, risk, new_state) {
-    $.post('/result/'+new_state,{
-            scan_id: scan_id,
-            subject_id: subject_id,
-            state: old_state,
-            risk: risk
-        }
-    ).done(function(response)
-        {
-            location.reload()
-        }
-    )
-}
-
 function update_scan_soft_matches(scan_id) {
     $.post('/result/soft_assign',{
         scan_id: scan_id
