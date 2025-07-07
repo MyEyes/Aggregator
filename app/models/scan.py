@@ -202,7 +202,6 @@ class ScanResult(db.Model):
             
         soft_matches_query = intersect(*property_matches)
         soft_match_ids = [ent[0] for ent in db.session.execute(soft_matches_query).all()]
-        print(soft_match_ids)
         return ScanResult.query.filter(ScanResult.__table__.c.id.in_(soft_match_ids))
     
     def get_matching_properties_string(self):
@@ -211,8 +210,6 @@ class ScanResult(db.Model):
     def get_property_matches_without(self, property, exclusion_set):
         excluded_ids = [elem.id for elem in exclusion_set]
         result_set = [result for result in property.results if result.id!=self.id and result.id not in excluded_ids]
-        print(excluded_ids)
-        print(result_set)
         return result_set
 
     def try_get_soft_notes(self):
