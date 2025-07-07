@@ -13,7 +13,7 @@
                 <table class="table table-bordered table-hover">
                     {% include 'result/_result_panel_header.html' %}
                     {% for result in soft_matches %}
-                        {% if result.id != result.id %}
+                        {% if result.id != mainresult.id %}
                             {% include 'result/_result_panel.html' %}
                         {% endif %}
                     {% endfor %}
