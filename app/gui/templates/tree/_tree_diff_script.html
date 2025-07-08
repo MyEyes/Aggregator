@@ -133,6 +133,7 @@
                 for (child_info of response.children)
                 {
                     is_left = document.subject_left_ids[subject_id]
+                    document.subject_left_ids[child_info.id] = is_left
                     //Add to soft match id lookup table
                     for(soft_id of child_info.soft_ids)
                     {
@@ -254,13 +255,13 @@
         var node_element = document.getElementById('subject-'+subject_id+'-node')
         if(!node_element)
             return
-        if(count>=2)
+        if(count==1)
         {
             node_element.classList.remove('diff-add')
             node_element.classList.remove('diff-remove')
             node_element.classList.add('diff-same')
         }
-        else if(count==1)
+        else
         {
             is_left = document.subject_left_ids[subject_id]
             if(is_left)
@@ -282,15 +283,22 @@
     {
         match_ids = document.subject_soft_ids[subj_id]
         if(match_ids)
+            soft_matches_count = Object.keys(match_ids).length
+        else
+            soft_matches_count = 0
+        console.info(subj_id)
+        console.info(soft_matches_count)
+        update_subject_node_diff_symbol(subj_id, soft_matches_count)
+        if(match_ids)
             for(match_id of Object.keys(match_ids))
             {
-                update_subject_node_diff_symbol(match_id, match_ids.length)
+                update_subject_node_diff_symbol(match_id, soft_matches_count)
             }
     }
 
     function update_all_subject_diff_symbols()
     {
-        for(subj_id in document.subject_soft_ids)
+        for(subj_id in document.subject_left_ids)
         {
             update_subject_diff_symbol(subj_id)
         }
