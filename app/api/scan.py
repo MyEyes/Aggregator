@@ -28,9 +28,6 @@ def start_scan():
     elif Scan.query.filter_by(hard_match_hash=data['scan_hash']).first():
         return bad_request('Scan already exists')
 
-    if not 'scan_soft_hash' in data:
-        return bad_request('Must specify scan soft hash')
-
     scan = Scan()
     if 'arguments' in data:
         scan.arguments = data['arguments']
