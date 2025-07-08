@@ -293,8 +293,7 @@ class Subject(db.Model):
         """
         db.session.execute(raw_sql, {'depth': depth})
 
-
-    def get_soft_matches(self):
+    def get_soft_match_ids(self):
         # Start with all valid subject ids and filter down by intersecting with subject ids matching each property
         soft_matches_query = select(Subject.__table__.c.id)
         subject_id = subject_properties.columns["subject_id"]
@@ -306,8 +305,10 @@ class Subject(db.Model):
             property_matches.append(select(subject_id).where(property_id == property.id))
             
         soft_matches_query = intersect(*property_matches)
-        soft_match_ids = [ent[0] for ent in db.session.execute(soft_matches_query).all()]
-        return Subject.query.filter(Subject.__table__.c.id.in_(soft_match_ids))
+        return [ent[0] for ent in db.session.execute(soft_matches_query).all()]
+
+    def get_soft_matches(self):
+        return Subject.query.filter(Subject.__table__.c.id.in_(self.get_soft_match_ids()))
     
     def get_matching_properties_string(self):
         return " && ".join([prop.get_matching_string() for prop in self.properties if prop.property_kind.is_matching_property])

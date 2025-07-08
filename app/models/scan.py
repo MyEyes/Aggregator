@@ -188,9 +188,9 @@ class ScanResult(db.Model):
 
     created_at = db.Column(db.DateTime, default = datetime.utcnow())
     human_touched_at = db.Column(db.DateTime, default=datetime.min)
-    
-    def get_soft_matches(self):
-        # Start with all valid subject ids and filter down by intersecting with subject ids matching each property
+
+    def get_soft_match_ids(self):
+        # Start with all valid result ids and filter down by intersecting with result ids matching each property
         soft_matches_query = select(ScanResult.__table__.c.id)
         result_id = result_properties.columns["result_id"]
         property_id = result_properties.columns["property_id"]
@@ -201,8 +201,10 @@ class ScanResult(db.Model):
             property_matches.append(select(result_id).where(property_id == property.id))
             
         soft_matches_query = intersect(*property_matches)
-        soft_match_ids = [ent[0] for ent in db.session.execute(soft_matches_query).all()]
-        return ScanResult.query.filter(ScanResult.__table__.c.id.in_(soft_match_ids))
+        return [ent[0] for ent in db.session.execute(soft_matches_query).all()]
+    
+    def get_soft_matches(self):
+        return ScanResult.query.filter(ScanResult.__table__.c.id.in_(self.get_soft_match_ids()))
     
     def get_matching_properties_string(self):
         return " && ".join([prop.get_matching_string() for prop in self.properties if prop.property_kind.is_matching_property])

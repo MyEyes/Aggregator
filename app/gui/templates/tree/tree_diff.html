@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "tree/base.html" %}
 
 {% block app_content %}
     {% include 'tree/_tree_style.html' %}
@@ -32,8 +32,9 @@
 {% block scripts %}
     {{ super() }}
     <script>
-        document.subject_soft_matches = {
-            '{{subject1.soft_match_hash}}': [{{subject1.id}},{{subject2.id}}],
+        document.subject_soft_ids = {
+            '{{subject1.id}}': { {{subject2.id}}: true },
+            '{{subject2.id}}': { {{subject1.id}}: true },
         };
         document.subject_left_ids = {
             '{{subject1.id}}': true

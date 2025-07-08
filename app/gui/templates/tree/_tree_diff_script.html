@@ -28,16 +28,23 @@
         return newTag
     }
 
-    function make_icon(subject_id, soft_match)
+    function make_icon(subject_id)
     {
         var iconElement = document.createElement('i')
         iconElement.classList.add('indicator')
         iconElement.classList.add('glyphicon')
         iconElement.classList.add('glyphicon-plus-sign') //Only creating icons if expandable
         iconElement.onclick = function(e){
-            diff_node_toggle(e, soft_match)
+            diff_node_toggle(e, subject_id)
         }
         return iconElement
+    }
+
+    function toggle_icon_of(subject_id)
+    {
+        var icon_children = $('#subject-'+subject_id+'-node').children("i")
+        if(icon_children.length === 1)
+            toggle_icon(icon_children[0])
     }
 
     function toggle_icon(iconElement)
@@ -88,7 +95,7 @@
         if (subject_info.childNum > 0 || subject_info.resultNum > 0)
         {
             newNode.classList.add('expandable')
-            newNode.appendChild(make_icon(subject_info.id, subject_info.soft_hash))
+            newNode.appendChild(make_icon(subject_info.id))
         }
         nameElement = document.createElement('a')
         nameElement.href = '/subject/'+subject_info.id
@@ -126,7 +133,12 @@
                 for (child_info of response.children)
                 {
                     is_left = document.subject_left_ids[subject_id]
-                    add_hashed_subject_id(child_info.soft_hash, child_info.id, is_left)
+                    //Add to soft match id lookup table
+                    for(soft_id of child_info.soft_ids)
+                    {
+                        add_soft_ids(child_info.id, soft_id, is_left);
+                        add_soft_ids(soft_id, child_info.id, !is_left);
+                    }
                     append_subject_child(sublist, child_info)
                 }
                 node.appendChild(sublist)
@@ -202,30 +214,34 @@
         {
             expand_subject(subject_id)
         }
-        //toggle_icon(e.target)
+        toggle_icon_of(subject_id)
     }
 
-    function diff_node_toggle(e, soft_match_hash)
+    function diff_node_toggle(e, subj_id)
     {
-        match_ids = document.subject_soft_matches[soft_match_hash]
+        match_ids = document.subject_soft_ids[subj_id]
+        node_toggle(subj_id)
         if(match_ids)
-            for(match_id of match_ids)
+            for(match_id of Object.keys(match_ids))
             {
                 node_toggle(match_id)
             }
         e.stopPropagation()
     }
 
-    function add_hashed_subject_id(soft_match_hash, id, left)
+    function add_soft_ids(base_subj_id, id, left)
     {
-        match_ids = document.subject_soft_matches[soft_match_hash]
+        if(base_subj_id==id)
+            return;
+        match_ids = document.subject_soft_ids[base_subj_id]
         if(!match_ids)
         {
-            document.subject_soft_matches[soft_match_hash] = [id]
+            document.subject_soft_ids[base_subj_id] = {}
+            document.subject_soft_ids[base_subj_id][id] = true
         }
         else
         {
-            document.subject_soft_matches[soft_match_hash].push(id)
+            document.subject_soft_ids[base_subj_id][id] = true
         }
         if(left)
         {
@@ -262,11 +278,11 @@
         }
     }
 
-    function update_subject_diff_symbol(soft_match_hash)
+    function update_subject_diff_symbol(subj_id)
     {
-        match_ids = document.subject_soft_matches[soft_match_hash]
+        match_ids = document.subject_soft_ids[subj_id]
         if(match_ids)
-            for(match_id of match_ids)
+            for(match_id of Object.keys(match_ids))
             {
                 update_subject_node_diff_symbol(match_id, match_ids.length)
             }
@@ -274,9 +290,9 @@
 
     function update_all_subject_diff_symbols()
     {
-        for(soft_match_hash in document.subject_soft_matches)
+        for(subj_id in document.subject_soft_ids)
         {
-            update_subject_diff_symbol(soft_match_hash)
+            update_subject_diff_symbol(subj_id)
         }
     }
 </script>
