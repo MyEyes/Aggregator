@@ -1,50 +1,10 @@
 <thead class="thead-light">
     <tr>
         <th scope="col">Action</th>
-        {% if sort == "scan_risk_text" %}
-            {% if sort_op == 'asc' %}  
-                <th scope="col"><div class="text-nowrap"><a href="{{ url_for(request.endpoint, **dict(request.args, sort='scan_risk_text', sort_op='desc', **request.view_args)) }}">Tags <span class="glyphicon glyphicon-triangle-bottom"></span></a></div></th>
-            {% else %}
-                <th scope="col"><div class="text-nowrap"><a href="{{ url_for(request.endpoint, **dict(request.args, sort='scan_risk_text', sort_op='asc', **request.view_args)) }}">Tags <span class="glyphicon glyphicon-triangle-top"> </span></a></div></th>
-            {% endif %}
-        {% else %}
-            <th scope="col"><a href="{{ url_for(request.endpoint, **dict(request.args, sort='scan_risk_text', **request.view_args)) }}">Tags</a></th>
-        {% endif %}
-        {% if sort == "subject" %}
-            {% if sort_op == 'asc' %}  
-                <th scope="col"><div class="text-nowrap"><a href="{{ url_for(request.endpoint, **dict(request.args, sort='subject', sort_op='desc', **request.view_args)) }}">Subject <span class="glyphicon glyphicon-triangle-bottom"></span></a></div></th>
-            {% else %}
-                <th scope="col"><div class="text-nowrap"><a href="{{ url_for(request.endpoint, **dict(request.args, sort='subject', sort_op='asc', **request.view_args)) }}">Subject <span class="glyphicon glyphicon-triangle-top"> </span></a></div></th>
-            {% endif %}
-        {% else %}
-            <th scope="col"><a href="{{ url_for(request.endpoint, **dict(request.args, sort='subject', **request.view_args)) }}">Subject</a></th>
-        {% endif %}
-        {% if sort == "created_at" %}
-            {% if sort_op == 'asc' %}  
-                <th scope="col"><div class="text-nowrap"><a href="{{ url_for(request.endpoint, **dict(request.args, sort='created_at', sort_op='desc', **request.view_args)) }}">Created At <span class="glyphicon glyphicon-triangle-bottom"></span></a></div></th>
-            {% else %}
-                <th scope="col"><div class="text-nowrap"><a href="{{ url_for(request.endpoint, **dict(request.args, sort='created_at', sort_op='asc', **request.view_args)) }}">Created At <span class="glyphicon glyphicon-triangle-top"> </span></a></div></th>
-            {% endif %}
-        {% else %}
-            <th scope="col"><a href="{{ url_for(request.endpoint, **dict(request.args, sort='created_at', **request.view_args)) }}">Created At</a></th>
-        {% endif %}
-        {% if sort == "raw_text" %}
-            {% if sort_op == 'asc' %}  
-                <th scope="col" class="col-md-7"><div class="text-nowrap"><a href="{{ url_for(request.endpoint, **dict(request.args, sort='raw_text', sort_op='desc', **request.view_args)) }}">Info <span class="glyphicon glyphicon-triangle-bottom"></span></a></div></th>
-            {% else %}
-                <th scope="col" class="col-md-7"><div class="text-nowrap"><a href="{{ url_for(request.endpoint, **dict(request.args, sort='raw_text', sort_op='asc', **request.view_args)) }}">Info <span class="glyphicon glyphicon-triangle-top"> </span></a></div></th>
-            {% endif %}
-        {% else %}
-            <th scope="col" class="col-md-7"><a href="{{ url_for(request.endpoint, **dict(request.args, sort='raw_text', **request.view_args)) }}">Info</a></th>
-        {% endif %}
-        {% if sort == "notes" %}
-            {% if sort_op == 'asc' %}  
-                <th scope="col"><div class="text-nowrap"><a href="{{ url_for(request.endpoint, **dict(request.args, sort='raw_text', sort_op='desc', **request.view_args)) }}">Notes <span class="glyphicon glyphicon-triangle-bottom"></span></a></div></th>
-            {% else %}
-                <th scope="col"><div class="text-nowrap"><a href="{{ url_for(request.endpoint, **dict(request.args, sort='raw_text', sort_op='asc', **request.view_args)) }}">Notes <span class="glyphicon glyphicon-triangle-top"> </span></a></div></th>
-            {% endif %}
-        {% else %}
-            <th scope="col"><a href="{{ url_for(request.endpoint, **dict(request.args, sort='raw_text', **request.view_args)) }}">Notes</a></th>
-        {% endif %}
+        <th scope="col"><div class="text-nowrap">Tags</div></th>
+        <th scope="col">Subject</th>
+        <th scope="col"><a class="order-button" id="created_at">Created At</a></th>
+        <th scope="col" class="col-md-7"><a class="order-button" id="title">Info</a></th>
+        <th scope="col"><a class="order-button" id="notes">Notes</a></th>
     </tr>
 </thead>

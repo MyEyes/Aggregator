@@ -6,21 +6,13 @@
         <table class="table table-bordered table-hover">
             <thead class="thead-light">
                 <tr>
-                    {% if sort == "id" %}
-                        {% if sort_op == 'asc' %}  
-                            <th scope="col"><div class="text-nowrap"><a href="{{ url_for(request.endpoint, **dict(request.args, sort='id', sort_op='desc', **request.view_args)) }}">Id <span class="glyphicon glyphicon-triangle-bottom"></span></a></div></th>
-                        {% else %}
-                            <th scope="col"><div class="text-nowrap"><a href="{{ url_for(request.endpoint, **dict(request.args, sort='id', sort_op='asc', **request.view_args)) }}">Id <span class="glyphicon glyphicon-triangle-top"> </span></a></div></th>
-                        {% endif %}
-                    {% else %}
-                        <th scope="col" class="col-md-1"><a href="{{ url_for(request.endpoint, **dict(request.args, sort='id', **request.view_args)) }}">Id</a></th>
-                    {% endif %}
+                    <th scope="col" class="col-md-1"><a class="order-button" id="id">Id</a></th>
                     <th scope="col">Tool</th>
-                    <th scope="col">Arguments</th>
+                    <th scope="col"><a class="order-button" id="arguments">Arguments</a></th>
                     <th scope="col">New</th>
                     <th scope="col">Old</th>
                     <th scope="col" class="col-md-4">Result Tags</th>
-                    <th scope="col">Started At</th>
+                    <th scope="col"><a class="order-button" id="started_at">Started At</a></th>
                     <th scope="col">Finished At</th>
                 </tr>
             </thead>

@@ -106,11 +106,70 @@ function search_submit(evt)
     set_search_term($('#search-bar-val').val())
 }
 
-load_filter()
-console.info(document.filter_obj)
-
-/*If there is a search bar hook it up properly*/
-try
+function get_order_desc()
 {
-    $('#search-bar')[0].addEventListener("submit", search_submit);
-}catch{}
+    if(!document.filter_obj)
+        return {}
+    if(!document.filter_obj.order)
+        return {}
+    return document.filter_obj.order
+}
+function set_order_desc(order_desc)
+{
+    if(!document.filter_obj)
+        document.filter_obj = {}
+    document.filter_obj.order = order_desc
+}
+
+function order_by(sort_criterium)
+{
+    var sort_desc = get_order_desc()
+    sort_desc.order_by = sort_criterium
+    set_order_desc(sort_desc)
+}
+
+function order_op(op)
+{
+    var sort_desc = get_order_desc()
+    sort_desc.ordering = op
+    set_order_desc(sort_desc)
+}
+
+function order_click(ev)
+{
+    var order_by_val = ev.target.id
+    var order_op_val = "asc"
+    if(ev.target.classList.contains("asc"))
+        order_op_val = "desc"
+    order_by(order_by_val)
+    order_op(order_op_val)
+    refresh_filter()
+}
+
+function set_up_orders()
+{
+    $(".order-button").on("click", order_click);
+    var order_desc = get_order_desc()
+    if(order_desc.order_by)
+    {
+        if(order_desc.ordering == "asc")
+            $(".order-button#"+order_desc.order_by).toggleClass("asc")
+        else
+            $(".order-button#"+order_desc.order_by).toggleClass("desc")
+    }
+}
+
+function set_up_search()
+{
+    /*If there is a search bar hook it up properly*/
+    try
+    {
+        $('#search-bar')[0].addEventListener("submit", search_submit);
+    }catch{}
+}
+
+load_filter()
+//console.info(document.filter_obj)
+
+set_up_search()
+set_up_orders()

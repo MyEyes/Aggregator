@@ -92,3 +92,14 @@
         min-width: 100%;
         min-height: 100%;
     }
+
+    /* order stuff*/
+    .order-button.desc::after{
+        font-family: 'Glyphicons Halflings';
+        content: "\e259"
+    }
+
+    .order-button.asc::after{
+        font-family: 'Glyphicons Halflings';
+        content: "\e260"
+    }
