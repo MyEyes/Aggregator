@@ -305,7 +305,10 @@ class Subject(db.Model):
             property_matches.append(select(subject_id).where(property_id == property.id))
             
         soft_matches_query = intersect(*property_matches)
-        return [ent[0] for ent in db.session.execute(soft_matches_query).all()]
+        try:
+            return [ent[0] for ent in db.session.execute(soft_matches_query).all()]
+        except Exception:
+            return []
 
     def get_soft_matches(self):
         return Subject.query.filter(Subject.__table__.c.id.in_(self.get_soft_match_ids()))
