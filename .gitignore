@@ -128,6 +128,9 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
+# vscode workspace
+.vscode/
+
 migrations/
 app/aggregate.db
 credential_export
