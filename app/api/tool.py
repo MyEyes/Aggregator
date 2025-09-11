@@ -33,7 +33,7 @@ def register_tool():
     if existing:
         return jsonify(
             {
-                'id': tool.id,
+                'id': existing.id,
                 'status': 'OK',
                 'msg': 'Already registered'
             }
